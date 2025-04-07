@@ -92,6 +92,15 @@ This will:
 
 ---
 
+##  Daily Use: Re-Entering Your Environment on Great Lakes
+
+Each time you open a new terminal (e.g. in VS Code), you must **re-activate** the environment.
+
+To do that, run:
+
+```bash
+
+source scripts/load_env_interactive.sh
 
 
 
