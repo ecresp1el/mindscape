@@ -81,5 +81,5 @@ cellranger mkref \
   --nthreads=16 \
   --output-dir="$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
 
-echo "✅ Reference build complete at:"
+echo "Reference build complete at:"
 echo "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
