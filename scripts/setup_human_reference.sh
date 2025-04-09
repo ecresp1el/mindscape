@@ -4,7 +4,7 @@
 # Build a 10x Cell Ranger Reference (GRCh38-2024-A) for Flex
 # Based on 10x Genomics instructions: https://support.10xgenomics.com
 #
-# Downloads, reformats, and builds reference in /nfs/turbo/umms-parent/Manny_human_ref
+# Builds reference in /nfs/turbo/umms-parent/Manny_human_ref
 ###############################################################################
 
 set -e  # Exit on any error
@@ -73,7 +73,6 @@ module purge
 module load Bioinformatics cellranger
 
 echo "Running cellranger mkref..."
-
 cellranger mkref \
   --genome="$GENOME" \
   --fasta="$FASTA_MODIFIED" \
@@ -81,5 +80,5 @@ cellranger mkref \
   --nthreads=16 \
   "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
 
-echo "Reference build complete at:"
+echo "✅ Reference build complete at:"
 echo "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
