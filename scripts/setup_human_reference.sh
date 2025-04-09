@@ -75,13 +75,11 @@ module load Bioinformatics cellranger
 echo "Running cellranger mkref..."
 
 cellranger mkref \
-  --ref-version="$VERSION" \
   --genome="$GENOME" \
   --fasta="$FASTA_MODIFIED" \
   --genes="$GTF_FILTERED" \
   --nthreads=16 \
   "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
-
 
 echo "Reference build complete at:"
 echo "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
