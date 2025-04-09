@@ -79,8 +79,7 @@ cellranger mkref \
   --fasta="$FASTA_MODIFIED" \
   --genes="$GTF_FILTERED" \
   --nthreads=16 \
-  --output="$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
-
+  --output-dir="$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
 
 echo "✅ Reference build complete at:"
 echo "$BUILD_DIR/refdata-gex-${GENOME}-${VERSION}"
