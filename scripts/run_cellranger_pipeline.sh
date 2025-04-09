@@ -1,23 +1,24 @@
 #!/bin/bash
 
-###############################################################################
-# Run the MindScape Snakemake Cell Ranger workflow (UMich Great Lakes)
-#
-# This script:
-# - Loads the Snakemake module
-# - Runs the Snakefile located at mindscape/workflows/cellranger.smk
-# - Uses config/config.yaml for input and output paths
-#
-# HOW TO USE:
-#   bash scripts/run_cellranger_pipeline.sh
-###############################################################################
+echo "Loading Bioinformatics module..."
+module purge
+module load Bioinformatics cellranger
+module load snakemake
 
-echo "Loading Snakemake module..."
-module load snakemake/7.32.4
+# Define test folder location
+TEST_DIR="/nfs/turbo/umms-parent/Manny_test"
+OUTPUT_DIR="$TEST_DIR/10496-MW-reanalysis"
+CONFIG_DEST="$TEST_DIR/multi_config.csv"
 
-echo "Running MindScape Cell Ranger workflow..."
+# Copy the original multi config file to your test folder
+echo "Copying config.csv to $CONFIG_DEST"
+mkdir -p "$TEST_DIR"
+cp -f "/nfs/turbo/umms-parent/Carmen_Miranda_scRNAseq /90 Day results/10x_analysis_10496-MW/Sample_10496-MW-Pool01/config.csv" "$CONFIG_DEST"
+
+# Run Snakemake with everything inside the test folder
+echo "Running MindScape Cell Ranger workflow with cellranger multi..."
 snakemake -j 1 \
   --snakefile mindscape/workflows/cellranger.smk \
-  --configfile config/config.yaml
+  "$OUTPUT_DIR/multi/multiplexing_analysis"
 
 echo "Workflow complete."
