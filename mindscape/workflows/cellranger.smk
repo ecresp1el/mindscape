@@ -13,14 +13,14 @@
 # Define expected final output to trigger the workflow
 rule all:
     input:
-        "/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/multi/multiplexing_analysis"
+        "10496-MW-reanalysis"
 
 # Rule to run cellranger multi from a CSV config file
 rule cellranger_multi:
     input:
         csv="/nfs/turbo/umms-parent/Manny_test/multi_config.csv"
     output:
-        directory("/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/multi/multiplexing_analysis")
+        directory("10496-MW-reanalysis")
     shell:
         """
         cellranger multi \\
