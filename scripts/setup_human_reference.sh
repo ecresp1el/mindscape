@@ -68,6 +68,10 @@ grep -Ff "$ALLOWLIST" "$GTF_MODIFIED" \
   | awk -F "\t" '$1 != "chrY" || $4 >= 2752083 && $4 < 56887903 && !/ENSG00000290840/' \
   >> "$GTF_FILTERED"
 
+echo "Loading Bioinformatics + cellranger module..."
+module purge
+module load Bioinformatics cellranger
+
 echo "Running cellranger mkref..."
 cellranger mkref \
   --ref-version="$VERSION" \
