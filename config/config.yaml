@@ -1,0 +1,6 @@
+samples:
+  8714-MV-2:
+    fastqs: /nfs/turbo/umms-parent/Carmen/8714-MV/fastqs_8714-MV
+    transcriptome: /nfs/turbo/umms-parent/refs/refdata-gex-GRCh38-2020-A
+
+output_dir: /nfs/turbo/umms-parent/Manny_test
