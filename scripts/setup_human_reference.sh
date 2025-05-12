@@ -11,14 +11,14 @@ set -e  # Exit on any error
 
 GENOME="GRCh38"
 VERSION="2020"
-BUILD="GRCh38-GENCODEv44_build"
+BUILD="GRCh38-GENCODEv35_build"
 BASE_DIR="/nfs/turbo/umms-parent/Manny_human_ref"
 BUILD_DIR="${BASE_DIR}/${BUILD}"
 SOURCE_DIR="${BASE_DIR}/reference_sources"
 FASTA_URL="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
-GTF_URL="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.primary_assembly.annotation.gtf.gz"
+GTF_URL="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_35/gencode.v35.primary_assembly.annotation.gtf.gz"
 FASTA_IN="${SOURCE_DIR}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
-GTF_IN="${SOURCE_DIR}/gencode.v44.primary_assembly.annotation.gtf"
+GTF_IN="${SOURCE_DIR}/gencode.v35.primary_assembly.annotation.gtf"
 
 echo "Creating necessary folders..."
 mkdir -p "$BUILD_DIR" "$SOURCE_DIR"
