@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Build a 10x Cell Ranger Reference (GRCh38-2024-A) for Flex
+# Build a 10x Cell Ranger Reference (GRCh38-2020) for Flex
 # Based on 10x Genomics instructions: https://support.10xgenomics.com
 #
 # Builds reference in /nfs/turbo/umms-parent/Manny_human_ref
@@ -10,7 +10,7 @@
 set -e  # Exit on any error
 
 GENOME="GRCh38"
-VERSION="2024-A"
+VERSION="2020"
 BUILD="GRCh38-GENCODEv44_build"
 BASE_DIR="/nfs/turbo/umms-parent/Manny_human_ref"
 BUILD_DIR="${BASE_DIR}/${BUILD}"
