@@ -1,28 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ————————————————————————
-# Load user config
-# ————————————————————————
+# ─────────────────────────────────────────────────────────────────────────────
+# scripts/create_project_cellranger.sh
+#
+# - Source config.sh
+# - Auto-detect refdata-gex* under TURBO_REF_BASE
+# - Copy & patch multi_config.csv
+# - Launch Snakemake → cellranger multi
+# ─────────────────────────────────────────────────────────────────────────────
+
+# 1) Load config
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$SCRIPT_DIR/config.sh"
 
-# ————————————————————————
-# Resolve absolute paths
-# ————————————————————————
+# 2) Prep paths
 REPO_ROOT="$( dirname "$SCRIPT_DIR" )"
-
-TEST_DIR_ABS="$TEST_DIR"
-mkdir -p "$TEST_DIR_ABS"
-
-CONFIG_DEST="$TEST_DIR_ABS/multi_config.csv"
+mkdir -p "$TEST_DIR"
+CONFIG_DEST="$TEST_DIR/multi_config.csv"
 PROBE_FILE="$PROBE_PATH"
-REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
 SNAKEFILE_ABS="$REPO_ROOT/$SNAKEFILE"
 
-# ————————————————————————
-# Load modules (workaround for unbound‐var in Cell Ranger module)
-# ————————————————————————
+# 3) Find the correct 10x reference folder automatically
+REF_GENOME="$(find "$TURBO_REF_BASE" -maxdepth 2 -type d -name 'refdata-gex*' | head -n1)"
+if [[ -z "$REF_GENOME" ]]; then
+  echo "❌ ERROR: No refdata-gex* folder found under $TURBO_REF_BASE"
+  echo "Available directories:"
+  ls -1 "$TURBO_REF_BASE"
+  exit 1
+fi
+echo "🧬 Using reference: $REF_GENOME"
+
+# 4) Load modules (disable nounset to avoid CellRanger's unbound vars)
 echo "⏳ Loading modules…"
 set +u
 module purge
@@ -30,9 +39,7 @@ module load Bioinformatics cellranger
 module load snakemake
 set -u
 
-# ————————————————————————
-# Copy & patch multi_config.csv
-# ————————————————————————
+# 5) Copy & patch the multi_config.csv
 echo "📄 Copying original config → $CONFIG_DEST"
 cp -f "$TURBO_CONFIG_SOURCE" "$CONFIG_DEST"
 
@@ -54,13 +61,11 @@ sed -i "s|^reference,.*|reference,$REF_GENOME|" "$CONFIG_DEST"
 echo "🧬 Patching probe-set → $PROBE_FILE"
 sed -i "s|^probe-set,.*|probe-set,$PROBE_FILE|" "$CONFIG_DEST"
 
-# ————————————————————————
-# Run Snakemake → Cell Ranger multi
-# ————————————————————————
+# 6) Run Snakemake → Cell Ranger multi
 echo "🚀 Running Snakemake (Cell Ranger multi)…"
 snakemake -j "$CORES" \
   --snakefile "$SNAKEFILE_ABS" \
-  --directory "$TEST_DIR_ABS" \
+  --directory "$TEST_DIR" \
   "$OUTPUT_ID"
 
 echo "✅ Workflow complete for '$OUTPUT_ID'."
