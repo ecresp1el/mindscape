@@ -46,7 +46,7 @@ BEGIN { inserted = 0 }
 
 # 🧬 Replace reference path to use your reproducible local reference
 echo "Replacing reference path with custom reproducible one..."
-sed -i 's|^reference,.*|reference,/nfs/turbo/umms-parent/Manny_human_ref/GRCh38-GENCODEv44_build/refdata-gex-GRCh38-2024-A|' "$CONFIG_DEST"
+sed -i 's|^reference,.*|reference,/nfs/turbo/umms-parent/Manny_human_ref/GRCh38-GENCODEv35_build/refdata-gex-GRCh38-2020-A|' "$CONFIG_DEST"
 
 # 🧬 Patch the probe-set path to use the manually downloaded Flex file
 echo "Injecting probe-set path for Flex chemistry..."
