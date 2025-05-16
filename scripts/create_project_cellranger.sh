@@ -21,12 +21,10 @@ CONFIG_DEST="$TEST_DIR/multi_config.csv"
 PROBE_FILE="$PROBE_PATH"
 SNAKEFILE_ABS="$REPO_ROOT/$SNAKEFILE"
 
-# 3) Find the correct 10x reference folder automatically
-REF_GENOME="$(find "$TURBO_REF_BASE" -maxdepth 2 -type d -name 'refdata-gex*' | head -n1)"
-if [[ -z "$REF_GENOME" ]]; then
-  echo "❌ ERROR: No refdata-gex* folder found under $TURBO_REF_BASE"
-  echo "Available directories:"
-  ls -1 "$TURBO_REF_BASE"
+# 3) Use manually set reference folder
+REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
+if [[ ! -d "$REF_GENOME" ]]; then
+  echo "❌ ERROR: Reference folder not found at $REF_GENOME"
   exit 1
 fi
 echo "🧬 Using reference: $REF_GENOME"
