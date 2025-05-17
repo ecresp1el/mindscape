@@ -7,7 +7,8 @@ set -euo pipefail
 # - Source config.sh
 # - Auto-detect refdata-gex* under TURBO_REF_BASE
 # - Copy & patch multi_config.csv
-# - Launch Snakemake → cellranger multi
+# - Unlock Snakemake dir if locked
+# - Launch Snakemake with --rerun-incomplete
 # ─────────────────────────────────────────────────────────────────────────────
 
 # 1) Load config
@@ -38,7 +39,7 @@ module load snakemake
 set -u
 
 # 5) Copy & patch the multi_config.csv
-echo "📄 Copying original config → $CONFIG_DEST"
+echo "📄 Copying accessible multi_config file → $CONFIG_DEST"
 cp -f "$TURBO_CONFIG_SOURCE" "$CONFIG_DEST"
 
 echo "🛠  Injecting create-bam after [gene-expression]…"
@@ -59,11 +60,24 @@ sed -i "s|^reference,.*|reference,$REF_GENOME|" "$CONFIG_DEST"
 echo "🧬 Patching probe-set → $PROBE_FILE"
 sed -i "s|^probe-set,.*|probe-set,$PROBE_FILE|" "$CONFIG_DEST"
 
-# 6) Run Snakemake → Cell Ranger multi
+# 5.5) Unlock Snakemake directory if needed
+echo "🔓 Ensuring Snakemake working directory is unlocked…"
+snakemake --unlock \
+  --snakefile "$SNAKEFILE_ABS" \
+  --directory "$TEST_DIR" || true
+
+# 6) Run Snakemake → Cell Ranger multi with --rerun-incomplete and timing
+start_time=$(date +%s)
+
 echo "🚀 Running Snakemake (Cell Ranger multi)…"
-snakemake -j "$CORES" \
+snakemake --rerun-incomplete -j "$CORES" \
   --snakefile "$SNAKEFILE_ABS" \
   --directory "$TEST_DIR" \
   "$OUTPUT_ID"
 
+end_time=$(date +%s)
+elapsed=$(( end_time - start_time ))
+
 echo "✅ Workflow complete for '$OUTPUT_ID'."
+echo "⏱ Finished at: $(date)"
+echo "⏱ Total runtime: $(( elapsed / 60 )) minutes and $(( elapsed % 60 )) seconds"
