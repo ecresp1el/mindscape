@@ -5,8 +5,8 @@ channels:
   - defaults
 dependencies:
   - python=3.11
-  - pip
+  - r-base=4.3
   - scanpy
+  - r-seurat
   - ipykernel
-  - pip:
-      - cellwrangler
+  - r-irkernel
