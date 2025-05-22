@@ -35,8 +35,20 @@ seurat_list <- list()
 # Load each .h5Seurat file directly into memory
 for (file in h5_files) {
   cat(paste0("→ Reading ", file, "\n"))
-  seurat_obj <- LoadH5Seurat(file)
-  seurat_list[[basename(file)]] <- seurat_obj
+
+  # ------------------------------------------------------------------------------
+  # Load each Seurat object safely with tryCatch
+  # Some .h5Seurat files may be incomplete or corrupted (e.g., missing 'data' layer)
+  # This block prevents the whole script from crashing and logs the failing files
+  # so they can be debugged or regenerated. This is especially useful in testing
+  # or mixed-quality batch datasets.
+  # ------------------------------------------------------------------------------
+  tryCatch({
+    seurat_obj <- LoadH5Seurat(file)
+    seurat_list[[basename(file)]] <- seurat_obj
+  }, error = function(e) {
+    cat(paste0("❌ Failed to load ", file, " — ", e$message, "\n"))
+  })
 }
 
 merged_seurat <- merge(
