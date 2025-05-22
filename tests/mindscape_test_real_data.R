@@ -59,6 +59,15 @@ for (sample_id in selected_samples) {
   cat("✅ UMAP plot saved\n")
 
   # ------------------------------------------------------------------------------
+  # Set the default assay and explicitly populate the RNA@data slot
+  # This ensures that when the object is saved as .h5Seurat and later reloaded,
+  # SeuratDisk will find the expected assay data structure. Without this,
+  # loading or merging may fail due to missing 'counts' or 'data' slots.
+  # ------------------------------------------------------------------------------
+  DefaultAssay(seurat_obj) <- "RNA"
+  seurat_obj[["RNA"]]@data <- GetAssayData(seurat_obj, slot = "data")
+
+  # ------------------------------------------------------------------------------
   # Export Seurat object to .h5Seurat format
   # Note: We use overwrite = TRUE to allow repeated test runs to overwrite the same file.
   # This is important during development and testing but should be removed or set to FALSE
