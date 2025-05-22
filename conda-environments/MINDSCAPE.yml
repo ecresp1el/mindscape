@@ -4,9 +4,25 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  # Python core
   - python=3.11
-  - r-base=4.3
   - scanpy
-  - r-seurat
+  - anndata
+  - pandas
+  - matplotlib
+  - seaborn
+  - jupyter
   - ipykernel
+
+  # R core
+  - r-base=4.3
+  - r-seurat
+  - r-ggplot2
+  - r-dplyr
+  - r-readr
+  - r-tibble
   - r-irkernel
+  - r-devtools
+
+  # Interoperability
+  - r-reticulate  # Optional: allows R to call Python
