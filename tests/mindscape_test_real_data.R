@@ -91,13 +91,15 @@ for (sample_id in selected_samples) {
 
   # End per-sample timing
   sample_end_time <- Sys.time()
-  elapsed <- sample_end_time - sample_start_time
-  cat(paste0("⏱️ Sample ", sample_id, " completed in ", elapsed, "\n"))
+  elapsed <- as.numeric(difftime(sample_end_time, sample_start_time, units = "secs"))
+  elapsed_formatted <- sprintf("%02d:%02d:%02d", elapsed %/% 3600, (elapsed %% 3600) %/% 60, round(elapsed %% 60))
+  cat(paste0("⏱️ Sample ", sample_id, " completed in ", elapsed_formatted, " (hh:mm:ss)\n"))
 }
 
 # ------------------------------------------------------------------------------
 # Print total script runtime
 # ------------------------------------------------------------------------------
 script_end_time <- Sys.time()
-total_time <- script_end_time - script_start_time
-cat(paste0("✅ Total script runtime: ", total_time, "\n"))
+total_time <- as.numeric(difftime(script_end_time, script_start_time, units = "secs"))
+total_formatted <- sprintf("%02d:%02d:%02d", total_time %/% 3600, (total_time %% 3600) %/% 60, round(total_time %% 60))
+cat(paste0("✅ Total script runtime: ", total_formatted, " (hh:mm:ss)\n"))
