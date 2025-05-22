@@ -52,7 +52,7 @@ if ! command -v mamba &> /dev/null; then
     conda create -n mamba-bootstrap -y -c conda-forge mamba
     conda activate mamba-bootstrap
 else
-    echo "✅ Mamba is already available."
+    echo "Mamba is already available."
 fi
 
 # Only initialize Conda in bash if it hasn't been done before
@@ -80,19 +80,19 @@ conda config --set channel_priority strict
 # ------------------------------------------------------------------------------
 # Check if the environment YAML file exists
 if [ -f "$YML_PATH" ]; then
-    echo "📄 Found environment file at $YML_PATH"
-    echo "📚 Creating environment from YAML..."
+    echo "Found environment file at $YML_PATH"
+    echo "Creating environment from YAML..."
 
     # Check if the environment 'mindscape-env' exists, update or create accordingly
     if [ -d "$HOME/miniconda3/envs/mindscape-env" ]; then
-        echo "🔁 Environment 'mindscape-env' already exists. Updating it from YAML..."
+        echo "Environment 'mindscape-env' already exists. Updating it from YAML..."
         mamba env update --name mindscape-env --prune -f "$YML_PATH"
     else
-        echo "🆕 Creating new environment 'mindscape-env' from YAML..."
+        echo "Creating new environment 'mindscape-env' from YAML..."
         mamba env create -f "$YML_PATH"
     fi
 else
-    echo "❌ ERROR: Could not find $YML_PATH"
+    echo "ERROR: Could not find $YML_PATH"
     exit 1
 fi
 
