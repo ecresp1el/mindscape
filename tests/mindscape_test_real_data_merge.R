@@ -32,10 +32,10 @@ cat(paste0("✅ Found ", length(h5_files), " .h5Seurat files to merge\n"))
 # Load and merge
 # ------------------------------------------------------------------------------
 seurat_list <- list()
+# Load each .h5Seurat file directly into memory
 for (file in h5_files) {
   cat(paste0("→ Reading ", file, "\n"))
-  Convert(file, dest = "h5seurat", overwrite = TRUE)  # normalize format
-  seurat_obj <- LoadH5Seurat(sub("\\.h5Seurat$", ".h5seurat", file))
+  seurat_obj <- LoadH5Seurat(file)
   seurat_list[[basename(file)]] <- seurat_obj
 }
 
