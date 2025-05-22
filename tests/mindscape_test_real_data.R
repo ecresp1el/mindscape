@@ -77,15 +77,16 @@ for (sample_id in selected_samples) {
   print(Layers(seurat_obj[["RNA"]]))  # Should show "counts" and "data"
 
   # ------------------------------------------------------------------------------
-  # Export Seurat object to .h5Seurat format
-  # Note: We use overwrite = TRUE to allow repeated test runs to overwrite the same file.
-  # This is important during development and testing but should be removed or set to FALSE
-  # in production workflows to avoid accidental data loss.
+  # Save the Seurat object to .h5Seurat with explicit assay and layer declarations
+  # This ensures SeuratDisk saves the required 'counts' and 'data' layers from the RNA assay.
+  # Without this, SeuratDisk may silently omit these layers, causing LoadH5Seurat() or merging to fail.
   # ------------------------------------------------------------------------------
   SaveH5Seurat(
     seurat_obj,
     filename = file.path(output_dir, paste0(sample_id, ".h5Seurat")),
-    overwrite = TRUE
+    overwrite = TRUE,
+    assays = "RNA",
+    layers = c("counts", "data")
   )
   cat("✅ Exported to .h5Seurat file (overwritten if already existed)\n")
 
@@ -94,6 +95,15 @@ for (sample_id in selected_samples) {
   elapsed <- as.numeric(difftime(sample_end_time, sample_start_time, units = "secs"))
   elapsed_formatted <- sprintf("%02d:%02d:%02d", elapsed %/% 3600, (elapsed %% 3600) %/% 60, round(elapsed %% 60))
   cat(paste0("⏱️ Sample ", sample_id, " completed in ", elapsed_formatted, " (hh:mm:ss)\n"))
+
+  # ------------------------------------------------------------------------------
+  # Reload the saved h5Seurat file to verify the layers were written correctly
+  # This step confirms that downstream functions like LoadH5Seurat() will work as expected
+  # and prevents surprises during later merging.
+  # ------------------------------------------------------------------------------
+  reloaded_obj <- LoadH5Seurat(file.path(output_dir, paste0(sample_id, ".h5Seurat")))
+  cat("✅ Reloaded saved file. RNA assay layers:\n")
+  print(Layers(reloaded_obj[["RNA"]]))
 }
 
 # ------------------------------------------------------------------------------
