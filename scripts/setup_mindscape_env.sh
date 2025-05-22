@@ -96,4 +96,12 @@ else
     exit 1
 fi
 
+
+# ------------------------------------------------------------------------------
+# Step 6: Install R packages from GitHub (e.g., SeuratDisk)
+# ------------------------------------------------------------------------------
+echo "Installing R GitHub packages (e.g., SeuratDisk)..."
+conda activate mindscape-env
+Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes"); remotes::install_github("mojaveazure/seurat-disk")'
+
 echo "✅ Setup complete. Run 'conda activate mindscape-env' to begin."
