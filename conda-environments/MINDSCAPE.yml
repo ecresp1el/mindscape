@@ -23,6 +23,11 @@ dependencies:
   - r-tibble
   - r-irkernel
   - r-devtools
+  - # Add this to your dependencies list
+  - r-hdf5r
+  - r-leidenbase
+  - r-httpuv
+  - r-igraph
 
   # Interoperability
   - r-reticulate  # Optional: allows R to call Python
