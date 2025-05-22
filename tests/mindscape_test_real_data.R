@@ -13,16 +13,18 @@ print("✅ Required libraries loaded successfully")
 
 print("✅ Setting up environment variables")
 # ------------------------------------------------------------------------------
-# Define the output directory for storing plots, tables, and converted data
+# Set a dedicated path for all MindScape test outputs
+# This ensures all output files (plots, tables, h5Seurat objects) are written
+# to a structured, shared location that is intentionally separated from any
+# raw input data (e.g., Cell Ranger outputs). This promotes safety, clarity,
+# and long-term reproducibility across different systems and users.
 # ------------------------------------------------------------------------------
-output_dir <- Sys.getenv("MINDSCAPE_OUTPUT_DIR", unset = "/nfs/turbo/umms-parent/Manny_test/mindscape_outputs")
+sample_id <- "10496-MW-1"
+output_base <- "/nfs/turbo/umms-parent/Manny_test/mindscape_test_outputs"
+output_dir <- file.path(output_base, sample_id)
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 print(paste0("✅ Output directory set to: ", output_dir))
 
-# ------------------------------------------------------------------------------
-# Define the path to the Cell Ranger 'count' output directory for the sample
-# ------------------------------------------------------------------------------
-sample_id <- "10496-MW-1"
 data_dir <- file.path("/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs", sample_id, "count")
 
 cat(paste0("✅ Reading 10X matrix from ", data_dir, "\n"))
@@ -74,8 +76,7 @@ dev.off()
 cat("✅ UMAP plot saved\n")
 
 # ------------------------------------------------------------------------------
-# Export Seurat object to h5Seurat and h5ad formats for Python/Scanpy compatibility
+# Export Seurat object to h5Seurat format
 # ------------------------------------------------------------------------------
 SaveH5Seurat(seurat_obj, filename = file.path(output_dir, paste0(sample_id, ".h5Seurat")))
-Convert(file.path(output_dir, paste0(sample_id, ".h5Seurat")), dest = "h5ad")
-cat("✅ Exported to .h5ad for Scanpy\n")
+cat("✅ Exported to .h5Seurat file\n")
