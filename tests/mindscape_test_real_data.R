@@ -13,70 +13,61 @@ print("✅ Required libraries loaded successfully")
 
 print("✅ Setting up environment variables")
 # ------------------------------------------------------------------------------
-# Set a dedicated path for all MindScape test outputs
-# This ensures all output files (plots, tables, h5Seurat objects) are written
-# to a structured, shared location that is intentionally separated from any
-# raw input data (e.g., Cell Ranger outputs). This promotes safety, clarity,
-# and long-term reproducibility across different systems and users.
+# Dynamically identify the first 3 sample IDs from the Cell Ranger output folder
 # ------------------------------------------------------------------------------
-sample_id <- "10496-MW-1"
-output_base <- "/nfs/turbo/umms-parent/Manny_test/mindscape_test_outputs"
-output_dir <- file.path(output_base, sample_id)
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-print(paste0("✅ Output directory set to: ", output_dir))
-
-data_dir <- file.path("/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs", sample_id, "count")
-
-cat(paste0("✅ Reading 10X matrix from ", data_dir, "\n"))
-
-# ------------------------------------------------------------------------------
-# Construct path to the actual expression matrix directory
-# This should point to 'sample_filtered_feature_bc_matrix' inside the sample's count folder
-# ------------------------------------------------------------------------------
-feature_matrix_path <- file.path(data_dir, "sample_filtered_feature_bc_matrix")
-if (!dir.exists(feature_matrix_path)) {
-  stop("❌ Expected feature matrix directory not found: ", feature_matrix_path)
+per_sample_base <- "/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs"
+all_samples <- list.dirs(per_sample_base, recursive = FALSE, full.names = FALSE)
+if (length(all_samples) < 3) {
+  stop("❌ Fewer than 3 samples found in per_sample_outs.")
 }
+selected_samples <- all_samples[1:3]
 
-# Load the 10X gene expression matrix from the sample's filtered feature matrix directory
-counts <- Read10X(data.dir = feature_matrix_path)
+for (sample_id in selected_samples) {
+  print(paste0("🔄 Processing sample: ", sample_id))
+  output_dir <- file.path("/nfs/turbo/umms-parent/Manny_test/mindscape_test_outputs", sample_id)
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  print(paste0("✅ Output directory set to: ", output_dir))
 
-# ------------------------------------------------------------------------------
-# Run a standard Seurat processing pipeline
-# ------------------------------------------------------------------------------
-# Create Seurat object
-seurat_obj <- CreateSeuratObject(counts = counts, project = sample_id, min.cells = 3, min.features = 200)
+  data_dir <- file.path(per_sample_base, sample_id, "count")
+  cat(paste0("✅ Reading 10X matrix from ", data_dir, "\n"))
 
-# Normalize data
-seurat_obj <- NormalizeData(seurat_obj)
-# Identify highly variable features
-seurat_obj <- FindVariableFeatures(seurat_obj)
-# Scale data
-seurat_obj <- ScaleData(seurat_obj)
-# Perform PCA dimensionality reduction
-seurat_obj <- RunPCA(seurat_obj)
-# Find nearest neighbors based on PCA
-seurat_obj <- FindNeighbors(seurat_obj, dims = 1:10)
-# Cluster cells
-seurat_obj <- FindClusters(seurat_obj, resolution = 0.5)
-# Run UMAP for visualization
-seurat_obj <- RunUMAP(seurat_obj, dims = 1:10)
+  feature_matrix_path <- file.path(data_dir, "sample_filtered_feature_bc_matrix")
+  if (!dir.exists(feature_matrix_path)) {
+    warning(paste0("⚠️ Skipping ", sample_id, ": missing expected feature matrix folder"))
+    next
+  }
 
-# ------------------------------------------------------------------------------
-# Save clustering output and visualization to output directory
-# ------------------------------------------------------------------------------
-# Save cluster IDs to CSV
-write.csv(as.data.frame(Idents(seurat_obj)), file = file.path(output_dir, paste0(sample_id, "_cluster_ids.csv")))
-cat("✅ Cluster IDs saved\n")
+  counts <- Read10X(data.dir = feature_matrix_path)
 
-# Save UMAP plot as PNG
-png(file.path(output_dir, paste0(sample_id, "_umap.png")), width = 800, height = 600)
-DimPlot(seurat_obj, reduction = "umap", label = TRUE)
-dev.off()
-cat("✅ UMAP plot saved\n")
+  # Create Seurat object and run the pipeline
+  seurat_obj <- CreateSeuratObject(counts = counts, project = sample_id, min.cells = 3, min.features = 200)
+  seurat_obj <- NormalizeData(seurat_obj)
+  seurat_obj <- FindVariableFeatures(seurat_obj)
+  seurat_obj <- ScaleData(seurat_obj)
+  seurat_obj <- RunPCA(seurat_obj)
+  seurat_obj <- FindNeighbors(seurat_obj, dims = 1:10)
+  seurat_obj <- FindClusters(seurat_obj, resolution = 0.5)
+  seurat_obj <- RunUMAP(seurat_obj, dims = 1:10)
 
-# ------------------------------------------------------------------------------
-# Export Seurat object to h5Seurat format
-# ------------------------------------------------------------------------------
-SaveH5Seurat(seurat_obj, filename = file.path(output_dir, paste0(sample_id, ".h5Seurat")))
-cat("✅ Exported to .h5Seurat file\n")
+  # Save outputs
+  write.csv(as.data.frame(Idents(seurat_obj)), file = file.path(output_dir, paste0(sample_id, "_cluster_ids.csv")))
+  cat("✅ Cluster IDs saved\n")
+
+  png(file.path(output_dir, paste0(sample_id, "_umap.png")), width = 800, height = 600)
+  DimPlot(seurat_obj, reduction = "umap", label = TRUE)
+  dev.off()
+  cat("✅ UMAP plot saved\n")
+
+  # ------------------------------------------------------------------------------
+  # Export Seurat object to .h5Seurat format
+  # Note: We use overwrite = TRUE to allow repeated test runs to overwrite the same file.
+  # This is important during development and testing but should be removed or set to FALSE
+  # in production workflows to avoid accidental data loss.
+  # ------------------------------------------------------------------------------
+  SaveH5Seurat(
+    seurat_obj,
+    filename = file.path(output_dir, paste0(sample_id, ".h5Seurat")),
+    overwrite = TRUE
+  )
+  cat("✅ Exported to .h5Seurat file (overwritten if already existed)\n")
+}
