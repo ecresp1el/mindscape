@@ -65,7 +65,8 @@ for (sample_id in selected_samples) {
   # loading or merging may fail due to missing 'counts' or 'data' slots.
   # ------------------------------------------------------------------------------
   DefaultAssay(seurat_obj) <- "RNA"
-  seurat_obj[["RNA"]]@data <- GetAssayData(seurat_obj, slot = "data")
+  # NOTE: Seurat v5 replaces slots with layers; use SetAssayData() for compatibility.
+  seurat_obj <- SetAssayData(seurat_obj, layer = "data", new.data = GetAssayData(seurat_obj, layer = "data"))
 
   # ------------------------------------------------------------------------------
   # Export Seurat object to .h5Seurat format
