@@ -1,3 +1,7 @@
+# ------------------------------------------------------------------------------
+# Track total script runtime
+# ------------------------------------------------------------------------------
+script_start_time <- Sys.time()
 # mindscape_test_real_data.R
 
 #add print statements to the script
@@ -23,6 +27,8 @@ if (length(all_samples) < 3) {
 selected_samples <- all_samples[1:3]
 
 for (sample_id in selected_samples) {
+  # Per-sample timing
+  sample_start_time <- Sys.time()
   print(paste0("🔄 Processing sample: ", sample_id))
   output_dir <- file.path("/nfs/turbo/umms-parent/Manny_test/mindscape_test_outputs", sample_id)
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -67,6 +73,8 @@ for (sample_id in selected_samples) {
   DefaultAssay(seurat_obj) <- "RNA"
   # NOTE: Seurat v5 replaces slots with layers; use SetAssayData() for compatibility.
   seurat_obj <- SetAssayData(seurat_obj, layer = "data", new.data = GetAssayData(seurat_obj, layer = "data"))
+  cat("✅ Seurat data layer set — RNA@data confirmed for saving\n")
+  print(Layers(seurat_obj[["RNA"]]))  # Should show "counts" and "data"
 
   # ------------------------------------------------------------------------------
   # Export Seurat object to .h5Seurat format
@@ -80,4 +88,16 @@ for (sample_id in selected_samples) {
     overwrite = TRUE
   )
   cat("✅ Exported to .h5Seurat file (overwritten if already existed)\n")
+
+  # End per-sample timing
+  sample_end_time <- Sys.time()
+  elapsed <- sample_end_time - sample_start_time
+  cat(paste0("⏱️ Sample ", sample_id, " completed in ", elapsed, "\n"))
 }
+
+# ------------------------------------------------------------------------------
+# Print total script runtime
+# ------------------------------------------------------------------------------
+script_end_time <- Sys.time()
+total_time <- script_end_time - script_start_time
+cat(paste0("✅ Total script runtime: ", total_time, "\n"))
