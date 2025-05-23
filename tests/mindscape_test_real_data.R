@@ -78,6 +78,14 @@ for (sample_id in selected_samples) {
   print(Layers(seurat_obj[["RNA"]]))  # Should show "counts" and "data"
 
   # ------------------------------------------------------------------------------
+  # Convert RNA assay from Seurat v5 Assay5 object to legacy Assay class
+  # SeuratDisk does not fully support the Assay5 format introduced in Seurat v5.
+  # This conversion ensures the object can be saved and later reloaded or merged
+  # without triggering slot-related errors or data loss.
+  # ------------------------------------------------------------------------------
+  seurat_obj[["RNA"]] <- as(seurat_obj[["RNA"]], "Assay")
+
+  # ------------------------------------------------------------------------------
   # Save the Seurat object to .h5Seurat with explicit assay and layer declarations
   # This ensures SeuratDisk saves the required 'counts' and 'data' layers from the RNA assay.
   # Without this, SeuratDisk may silently omit these layers, causing LoadH5Seurat() or merging to fail.
