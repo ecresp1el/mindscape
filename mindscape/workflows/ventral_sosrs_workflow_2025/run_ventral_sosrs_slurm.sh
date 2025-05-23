@@ -47,8 +47,8 @@
 
 #SBATCH --job-name=ventral_sosrs                         # Job name shown in job queue
 #SBATCH --account=parent0                               # UMich HPC billing account (confirmed)
-#SBATCH --output=logs/sosrs_%A_%a.out                    # Log file (STDOUT)
-#SBATCH --error=logs/sosrs_%A_%a.err                     # Log file (STDERR)
+#SBATCH --output=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/sosrs_%A_%a.out                    # Log file (STDOUT)
+#SBATCH --error=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/sosrs_%A_%a.err                     # Log file (STDERR)
 #SBATCH --time=8:00:00                                   # Time allocation per sample
 #SBATCH --mem=32G                                        # Memory per task
 #SBATCH --cpus-per-task=8                                # CPU cores per task
@@ -78,8 +78,8 @@ SCRIPT_DIR="$BASE_DIR/MindScape/mindscape/workflows/ventral_sosrs_workflow_2025"
 # Path to the per-sample R script that handles processing logic
 SCRIPT_PATH="$SCRIPT_DIR/mindscape_process_sample.R"
 
-# Log output folder (used by SLURM directives above)
-LOG_DIR="$SCRIPT_DIR/logs"
+# Log output folder now set to Turbo output location for consistency
+LOG_DIR="$OUTPUT_DIR/logs"
 
 # Define a structured output location outside the Git repo, named after the job
 OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
