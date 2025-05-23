@@ -73,16 +73,16 @@ conda activate mindscape-env
 BASE_DIR="/nfs/turbo/umms-parent/Manny_test"
 
 # Folder containing your custom R script
-SCRIPT_DIR="$BASE_DIR/MindScape/mindscape/workflows/ventral_sosrs_workflow_2025"
+SCRIPT_DIR="/home/elcrespo/Desktop/githubprojects/MindScape/mindscape/workflows/ventral_sosrs_workflow_2025"
 
 # Path to the per-sample R script that handles processing logic
 SCRIPT_PATH="$SCRIPT_DIR/mindscape_process_sample.R"
 
-# Log output folder now set to Turbo output location for consistency
-LOG_DIR="$OUTPUT_DIR/logs"
-
 # Define a structured output location outside the Git repo, named after the job
 OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
+
+# Log output folder now set to Turbo output location for consistency
+LOG_DIR="$OUTPUT_DIR/logs"
 
 mkdir -p $LOG_DIR $OUTPUT_DIR
 
@@ -99,6 +99,16 @@ SAMPLE_ID=${SAMPLE_LIST[$SLURM_ARRAY_TASK_ID]}
 export MINDSCAPE_SINGLE_SAMPLE=$SAMPLE_ID
 export MINDSCAPE_OUTPUT_DIR="$OUTPUT_DIR/$SAMPLE_ID"
 mkdir -p $MINDSCAPE_OUTPUT_DIR
+
+# ------------------------------------------------------------------------------
+# Echo useful runtime info to log
+# ------------------------------------------------------------------------------
+echo "🧠 SLURM Job ID: $SLURM_JOB_ID"
+echo "🧠 SLURM Array Task ID: $SLURM_ARRAY_TASK_ID"
+echo "🧠 Running sample: $SAMPLE_ID"
+echo "🧠 Output directory: $MINDSCAPE_OUTPUT_DIR"
+echo "🧠 Script being run: $SCRIPT_PATH"
+echo "🧠 Conda environment: $CONDA_DEFAULT_ENV"
 
 # ------------------------------------------------------------------------------
 # Run the R script for the selected sample
