@@ -65,14 +65,15 @@ for (sample_id in selected_samples) {
   cat("✅ UMAP plot saved\n")
 
   # ------------------------------------------------------------------------------
-  # Set the default assay and explicitly populate the RNA@data slot
-  # This ensures that when the object is saved as .h5Seurat and later reloaded,
-  # SeuratDisk will find the expected assay data structure. Without this,
-  # loading or merging may fail due to missing 'counts' or 'data' slots.
+  # Write the 'data' layer explicitly back to the legacy @data slot
+  # While Seurat v5 uses a layer-based model, SeuratDisk currently expects
+  # the traditional 'data' slot to be present when reading an object from .h5Seurat.
+  # Without this, LoadH5Seurat() will fail even if the data layer exists.
+  # This step ensures compatibility with merging and reloading workflows.
   # ------------------------------------------------------------------------------
   DefaultAssay(seurat_obj) <- "RNA"
-  # NOTE: Seurat v5 replaces slots with layers; use SetAssayData() for compatibility.
-  seurat_obj <- SetAssayData(seurat_obj, layer = "data", new.data = GetAssayData(seurat_obj, layer = "data"))
+  assay_data <- GetAssayData(seurat_obj, layer = "data")
+  slot(seurat_obj[["RNA"]], "data") <- assay_data
   cat("✅ Seurat data layer set — RNA@data confirmed for saving\n")
   print(Layers(seurat_obj[["RNA"]]))  # Should show "counts" and "data"
 
