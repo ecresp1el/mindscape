@@ -73,17 +73,14 @@ for (sample_id in selected_samples) {
   # ------------------------------------------------------------------------------
   DefaultAssay(seurat_obj) <- "RNA"
   assay_data <- GetAssayData(seurat_obj, layer = "data")
-  slot(seurat_obj[["RNA"]], "data") <- assay_data
+  # Use SetAssayData to assign data slot safely (now that RNA is a legacy Assay object)
+  # First, convert to legacy Assay class, then assign the data slot via SetAssayData
+  seurat_obj[["RNA"]] <- as(seurat_obj[["RNA"]], "Assay")
+  seurat_obj <- SetAssayData(seurat_obj, slot = "data", new.data = assay_data)
   cat("✅ Seurat data layer set — RNA@data confirmed for saving\n")
   print(Layers(seurat_obj[["RNA"]]))  # Should show "counts" and "data"
 
-  # ------------------------------------------------------------------------------
-  # Convert RNA assay from Seurat v5 Assay5 object to legacy Assay class
-  # SeuratDisk does not fully support the Assay5 format introduced in Seurat v5.
-  # This conversion ensures the object can be saved and later reloaded or merged
-  # without triggering slot-related errors or data loss.
-  # ------------------------------------------------------------------------------
-  seurat_obj[["RNA"]] <- as(seurat_obj[["RNA"]], "Assay")
+  # (Already converted to legacy Assay and set data slot above)
 
   # ------------------------------------------------------------------------------
   # Save the Seurat object to .h5Seurat with explicit assay and layer declarations
