@@ -42,6 +42,10 @@ for (file in h5_files) {
   # This block prevents the whole script from crashing and logs the failing files
   # so they can be debugged or regenerated. This is especially useful in testing
   # or mixed-quality batch datasets.
+  #
+  # IMPORTANT: This assumes that all input .h5Seurat files were saved using a legacy
+  # Seurat v4-compatible Assay object (not Assay5), with both 'counts' and 'data' slots.
+  # This is critical because SeuratDisk cannot load files that only use the Seurat v5 layered model.
   # ------------------------------------------------------------------------------
   tryCatch({
     seurat_obj <- LoadH5Seurat(file)
@@ -61,6 +65,9 @@ merged_seurat <- merge(
 # ------------------------------------------------------------------------------
 # Save merged object
 # ------------------------------------------------------------------------------
+# Save the merged Seurat object.
+# The output file will use the Seurat v4 Assay structure (as long as input objects were converted properly),
+# which ensures compatibility with downstream SeuratDisk tools and reloading workflows.
 merged_path <- file.path(output_path, "merged_mindscape.h5Seurat")
 SaveH5Seurat(merged_seurat, filename = merged_path, overwrite = TRUE)
 cat("✅ Merged Seurat object saved to: ", merged_path, "\n")
