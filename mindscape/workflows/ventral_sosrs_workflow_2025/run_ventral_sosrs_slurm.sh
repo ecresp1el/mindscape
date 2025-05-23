@@ -2,6 +2,32 @@
 
 # ==============================================================================
 # SLURM Job Script for MindScape - ventral_sosrs_workflow_2025
+# ==============================================================================
+# HOW TO USE THIS SLURM SCRIPT (for UMich Great Lakes)
+#
+# This script runs 6 SLURM array jobs, each processing one sample using the
+# MindScape R script for FLEX organoid scRNA-seq data. You must:
+#
+# 1. Place your R script at:
+#    /nfs/turbo/umms-parent/Manny_test/MindScape/mindscape/workflows/ventral_sosrs_workflow_2025/mindscape_process_sample.R
+#
+# 2. Ensure Cell Ranger outputs exist at:
+#    /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/<sample_id>/count/
+#
+# 3. Submit the job using:
+#    sbatch run_ventral_sosrs_slurm.sh
+#
+# Each task will:
+# - Run the R script on one sample from SAMPLE_LIST
+# - Save outputs to:
+#     /nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/<sample_id>/
+# - Save logs to:
+#     logs/sosrs_<jobid>_<taskid>.out and .err
+#
+# You can monitor jobs with:
+#     squeue -u $USER
+#     tail -f logs/sosrs_<jobid>_<taskid>.out
+# ==============================================================================
 #
 # This script runs per-sample processing for a list of single-cell RNA-seq
 # datasets produced using Cell Ranger multi. Each sample is processed using an
