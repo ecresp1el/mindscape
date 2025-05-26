@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # mindscape_integrate_and_analyze.R
-
+# hello world
 # -------------------------------------------------------------------------------
 # PURPOSE:
 # Load normalized Seurat objects (.h5Seurat), integrate them, and run
