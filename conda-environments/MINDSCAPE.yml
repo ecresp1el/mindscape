@@ -23,7 +23,6 @@ dependencies:
   - r-tibble
   - r-irkernel
   - r-devtools
-  - # Add this to your dependencies list
   - r-hdf5r
   - r-leidenbase
   - r-httpuv
