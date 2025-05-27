@@ -79,10 +79,10 @@ SCRIPT_DIR="/home/oltij/githubprojectfolder/mindscape/mindscape/workflows/ventra
 SCRIPT_PATH="$SCRIPT_DIR/mindscape_process_sample_normalized.R"
 
 # Define a structured output location outside the Git repo, named after the job
-OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
+OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output__only_normalized"
 
 # Log output folder now set to Turbo output location for consistency
-LOG_DIR="$OUTPUT_DIR/logs"
+LOG_DIR="$OUTPUT_DIR/logs_for_normalization"
 
 mkdir -p $LOG_DIR $OUTPUT_DIR
 
