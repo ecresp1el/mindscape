@@ -32,7 +32,7 @@ dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 # ------------------------------------------------------------------------------
 # Load all .h5Seurat normalized objects
 # ------------------------------------------------------------------------------
-h5_files <- list.files(input_base, pattern = "\\.h5Seurat$", full.names = TRUE)
+h5_files <- list.files(input_base, pattern = "\\.h5Seurat$", full.names = TRUE, recursive = TRUE)
 if (length(h5_files) == 0) stop("❌ No .h5Seurat files found in input directory.")
 
 seurat_list <- list()
