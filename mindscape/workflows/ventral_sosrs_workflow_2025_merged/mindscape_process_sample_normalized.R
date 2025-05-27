@@ -71,7 +71,6 @@ seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 25
 cat(paste0("✅ QC filtering complete: ", ncol(seurat_obj), " cells retained\n"))
 
 seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000)
-seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000)
 cat("✅ Normalization and variable feature selection complete\n")
 
 # ------------------------------------------------------------------------------
