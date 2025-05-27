@@ -97,6 +97,17 @@ save_path <- file.path(output_dir, "integrated_analysis.h5Seurat")
 cat(paste0("💾 Saving integrated object to: ", save_path, "\n"))
 SaveH5Seurat(integrated, filename = save_path, overwrite = TRUE)
 
+# ------------------------------------------------------------------------------
+# Save outputs
+# ------------------------------------------------------------------------------
+write.csv(as.data.frame(Idents(integrated)), file = file.path(output_dir, paste0(sample_id, "_cluster_ids.csv")))
+cat("✅ Cluster IDs saved\n")
+
+png(file.path(output_dir, paste0(integrated, "_umap.png")), width = 800, height = 600)
+DimPlot(integrated, reduction = "umap", label = TRUE)
+dev.off()
+cat("✅ UMAP plot saved\n")
+
 script_end_time <- Sys.time()
 elapsed <- difftime(script_end_time, script_start_time, units = "mins")
 cat(paste0("⏱️ Completed in ", round(elapsed, 2), " minutes\n"))
