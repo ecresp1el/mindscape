@@ -28,8 +28,8 @@ echo "🔁 Running integration script"
 echo "📄 Script: $SCRIPT_PATH"
 echo "📁 Output dir: $OUTPUT_DIR"
 
-export MINDSCAPE_INPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output"
-export MINDSCAPE_OUTPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/integrated"
+export MINDSCAPE_INPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output__only_normalized"
+export MINDSCAPE_OUTPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output_integrated_analysis"
 
 # ------------------------------------------------------------------------------
 # Run the R integration script
