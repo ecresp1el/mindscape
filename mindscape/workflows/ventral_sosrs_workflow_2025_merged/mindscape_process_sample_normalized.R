@@ -61,7 +61,7 @@ cat(paste0("📥 Reading 10X matrix from: ", feature_matrix_path, "\n"))
 counts <- Read10X(data.dir = feature_matrix_path)
 
 # ------------------------------------------------------------------------------
-# Minimal Seurat pipeline for normalization
+# Minimal Seurat pipeline for normalization and inidvidual variable features
 # ------------------------------------------------------------------------------
 seurat_obj <- CreateSeuratObject(counts = counts, project = sample_id, min.cells = 3, min.features = 200)
 seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
@@ -70,6 +70,7 @@ seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 cat(paste0("✅ QC filtering complete: ", ncol(seurat_obj), " cells retained\n"))
 
+# Normalization
 seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000)
 cat("✅ Normalization and variable feature selection complete\n")
 
