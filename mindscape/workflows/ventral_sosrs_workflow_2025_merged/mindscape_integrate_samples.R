@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # mindscape_integrate_and_analyze.R
-# hello world
+
 # -------------------------------------------------------------------------------
 # PURPOSE:
 # Load normalized Seurat objects (.h5Seurat), integrate them, and run
@@ -49,18 +49,15 @@ for (f in h5_files) {
 # ------------------------------------------------------------------------------
 # Integration using Seurat standard workflow
 # ------------------------------------------------------------------------------
-cat("🔑 Selecting integration features...\n")
-features <- SelectIntegrationFeatures(object.list = seurat_list, nfeatures = 2000)
 
-cat("🛠 Preparing objects (ScaleData + RunPCA)...\n")
+cat("🛠 Preparing objects (Find Variable Features)...\n")
 seurat_list <- lapply(seurat_list, function(x) {
-  x <- ScaleData(x, features = features, verbose = FALSE)
-  x <- RunPCA(x, features = features, verbose = FALSE)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000, verbose = FALSE)
   return(x)
 })
 
 cat("🔗 Finding integration anchors...\n")
-anchors <- FindIntegrationAnchors(object.list = seurat_list, anchor.features = features, reduction = "rpca")
+anchors <- FindIntegrationAnchors(object.list = seurat_list)
 
 cat("🧬 Integrating data...\n")
 integrated <- IntegrateData(anchorset = anchors)
@@ -75,8 +72,19 @@ integrated <- FindVariableFeatures(integrated, selection.method = "vst", nfeatur
 
 all.genes <- rownames(integrated)
 
+# A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can
+# segregate this list into markers of G2/M phase and markers of S phase
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
+
+cat("🔄 Cell Cycle Scoring...\n")
+integrated <- CellCycleScoring(integrated, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
+
+cat ("🔄 Cell Cycle Scoring Difference...\n")
+integrated$CC.Difference <- integrated$S.Score - integrated$G2M.Score
+
 cat("🔄 Scaling data...\n")
-integrated <- ScaleData(integrated, features = all.genes)
+integrated <- ScaleData(integrated, vars.to.regress = "CC.Difference", features = all.genes)
 
 cat("🎯 Running PCA...\n")
 integrated <- RunPCA(integrated, features = VariableFeatures(object = integrated))
@@ -103,7 +111,7 @@ SaveH5Seurat(integrated, filename = save_path, overwrite = TRUE)
 write.csv(as.data.frame(Idents(integrated)), file = file.path(output_dir, paste0("integrated_cluster_ids.csv")))
 cat("✅ Cluster IDs saved\n")
 
-png(file.path(output_dir, "integrated_umap.png"), width = 800, height = 600)
+png(file.path(output_dir, "integrated_umap2.png"), width = 800, height = 600)
 DimPlot(integrated, reduction = "umap", label = TRUE)
 dev.off()
 cat("✅ UMAP plot saved\n")
