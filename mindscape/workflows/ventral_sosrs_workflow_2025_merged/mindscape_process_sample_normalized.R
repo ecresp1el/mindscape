@@ -67,7 +67,7 @@ seurat_obj <- CreateSeuratObject(counts = counts, project = sample_id, min.cells
 seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 
 # Optional QC filtering (adjust thresholds if needed)
-seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 6000 & percent.mt < 15)
 cat(paste0("✅ QC filtering complete: ", ncol(seurat_obj), " cells retained\n"))
 
 # Normalization
