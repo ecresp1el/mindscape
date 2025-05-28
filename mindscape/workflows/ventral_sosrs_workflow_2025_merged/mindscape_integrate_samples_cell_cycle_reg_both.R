@@ -124,7 +124,7 @@ SaveH5Seurat(integrated, filename = save_path, overwrite = TRUE)
 write.csv(as.data.frame(Idents(integrated)), file = file.path(output_dir, paste0("integrated_cluster_ids.csv")))
 cat("✅ Cluster IDs saved\n")
 
-png(file.path(output_dir, "integrated_umap_cell_cycle_ref_both.png"), width = 800, height = 600)
+png(file.path(output_dir, "integrated_umap_cell_cycle_reg_both.png"), width = 800, height = 600)
 DimPlot(integrated, reduction = "umap", label = TRUE)
 dev.off()
 cat("✅ UMAP plot saved\n")
