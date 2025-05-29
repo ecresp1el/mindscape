@@ -19,6 +19,10 @@ def test_create_new_project_cli():
         project_name, experimenter_name,
         "--working-directory", working_directory
     ]
+    ## the above would like like in the terminal:
+    # python -m mindscape create-project TestProjectCLI TestUser --working-directory /nfs/turbo/umms-parent/
+    # Print the command for debugging
+    print("Running CLI test to create a new project...")
 
     print(f"Running command: {' '.join(command)}")
 
