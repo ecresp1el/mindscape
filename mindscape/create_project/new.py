@@ -3,7 +3,7 @@ import shutil
 import warnings
 from pathlib import Path
 from datetime import datetime as dt
-from mindscape.utils.auxilliaryfunction import create_config_template, write_config, read_config
+from mindscape.utils.auxilliaryfunctions import *
 
 
 def create_new_project(
