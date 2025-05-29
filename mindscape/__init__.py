@@ -11,3 +11,6 @@ from mindscape.version import __version__, VERSION
 
 # Print a message when the package is loaded
 print(f"Loading MindScape {VERSION}...")
+
+from mindscape.create_project import (
+    create_new_project)
