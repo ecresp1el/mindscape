@@ -3,12 +3,12 @@ import os
 
 def test_create_new_project_cli():
     """
-    Test the MindScape CLI for creating a new project.
+    Test the MindScape CLI for creating a new project on Turbo storage.
     """
     # Define test inputs
     project_name = "TestProjectCLI"
     experimenter_name = "TestUser"
-    working_directory = "/tmp/mindscape_test_cli"
+    working_directory = "/nfs/turbo/umms-parent/"  # Turbo directory
 
     # Ensure the working directory exists
     os.makedirs(working_directory, exist_ok=True)
