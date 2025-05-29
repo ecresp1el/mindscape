@@ -17,7 +17,8 @@ path_config_file = ms.create_new_project(
     experimenter=experimenter_name,
     working_directory=turbo_shared_directory
 )
-prin(f(f"Project created at: {path_config_file}")
+
+print(f"Project created successfully at: {path_config_file}")
 # Note: The above function creates a new project directory structure
 # and initializes a configuration file in the specified working directory.
 # The project is created in the specified NFS directory, which is shared

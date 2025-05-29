@@ -1,0 +1,22 @@
+# Project definitions (do not edit)
+project_name: TestProject
+experimenter: TestUser
+date: '2025-05-29'
+
+
+# Project path (change when moving around)
+project_path: 
+  /home/elcrespo/Desktop/githubprojects/MindScape/nfs/turbo/umms-parent/TestProject-TestUser-2025-05-29
+
+
+# Data and results directories
+data_dir: data
+results_dir: results
+logs_dir: logs
+
+
+# Analysis parameters
+parameters:
+  analysis_type: default
+  threshold: 0.5
+  max_iterations: 1000
