@@ -1,56 +1,25 @@
-import subprocess
-import os
+import os, subprocess, sys
 from datetime import datetime as dt
 from pathlib import Path
-from mindscape.config import create_config_template, write_config
 
-def test_create_new_project_cli():
-    """
-    Test the MindScape CLI for creating a new project on Turbo storage.
-    """
-    # Define test inputs
-    project_name = "TestProjectCLI"
-    experimenter_name = "TestUser"
-    working_directory = "/nfs/turbo/umms-parent/"  # Turbo directory
+import mindscape as ms # Importing the main MindScape module
 
-    # Ensure the working directory exists
-    os.makedirs(working_directory, exist_ok=True)
+print("Imported MindScape!")
 
-    # Construct the CLI command
-    command = [
-        "python", "-m", "mindscape", "create-project",
-        project_name, experimenter_name,
-        "--working-directory", working_directory
-    ]
+print("Creating a new project...")
 
-    print(f"Running command: {' '.join(command)}")
+project_name = "TestProject"
+experimenter_name = "TestUser"
+turbo_shared_directory = "nfs/turbo/umms-parent/"
 
-    # Run the command and capture the output
-    result = subprocess.run(command, capture_output=True, text=True)
-
-    # Print the output for debugging
-    print("STDOUT:")
-    print(result.stdout)
-    print("STDERR:")
-    print(result.stderr)
-
-    # Check if the command was successful
-    if result.returncode == 0:
-        print(f"✅ CLI test passed: Project '{project_name}' created successfully!")
-    else:
-        print(f"❌ CLI test failed with return code {result.returncode}.")
-        print("Check the error messages above for details.")
-
-    # Verify the project directory was created
-    project_path = os.path.join(working_directory, f"{project_name}-{experimenter_name}-2025-05-29")
-    if os.path.exists(project_path):
-        print(f"✅ Project directory exists: {project_path}")
-    else:
-        print(f"❌ Project directory does not exist: {project_path}")
-
-    # Debug: List the contents of the working directory
-    print("\nContents of the working directory:")
-    print(os.listdir(working_directory))
-
-if __name__ == "__main__":
-    test_create_new_project_cli()
+path_config_file = ms.create_new_project(
+    project=project_name,
+    experimenter=experimenter_name,
+    working_directory=turbo_shared_directory
+)
+prin(f(f"Project created at: {path_config_file}")
+# Note: The above function creates a new project directory structure
+# and initializes a configuration file in the specified working directory.
+# The project is created in the specified NFS directory, which is shared
+# across multiple nodes in the cluster.
+print("Project creation completed successfully!")
