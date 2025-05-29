@@ -10,7 +10,7 @@ print("Creating a new project...")
 
 project_name = "TestProject"
 experimenter_name = "TestUser"
-turbo_shared_directory = "nfs/turbo/umms-parent/"
+turbo_shared_directory = "/nfs/turbo/umms-parent/"
 
 path_config_file = ms.create_new_project(
     project=project_name,
