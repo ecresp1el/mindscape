@@ -19,10 +19,6 @@ def test_create_new_project_cli():
         project_name, experimenter_name,
         "--working-directory", working_directory
     ]
-    ## the above would like like in the terminal:
-    # python -m mindscape create-project TestProjectCLI TestUser --working-directory /nfs/turbo/umms-parent/
-    # Print the command for debugging
-    print("Running CLI test to create a new project...")
 
     print(f"Running command: {' '.join(command)}")
 
@@ -43,11 +39,15 @@ def test_create_new_project_cli():
         print("Check the error messages above for details.")
 
     # Verify the project directory was created
-    project_path = os.path.join(working_directory, f"{project_name}-{experimenter_name}-{os.getenv('DATE', '2025-05-29')}")
+    project_path = os.path.join(working_directory, f"{project_name}-{experimenter_name}-2025-05-29")
     if os.path.exists(project_path):
         print(f"✅ Project directory exists: {project_path}")
     else:
         print(f"❌ Project directory does not exist: {project_path}")
+
+    # Debug: List the contents of the working directory
+    print("\nContents of the working directory:")
+    print(os.listdir(working_directory))
 
 
 if __name__ == "__main__":
