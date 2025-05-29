@@ -1,1 +1,1 @@
-from mindscape.create_project.new import create_new_projectimport 
+from mindscape.create_project.new import create_new_project
