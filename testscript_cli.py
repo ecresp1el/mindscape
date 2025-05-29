@@ -12,6 +12,10 @@ project_name = "TestProject"
 experimenter_name = "TestUser"
 turbo_shared_directory = "/nfs/turbo/umms-parent/"
 
+## this will create a new project directory structure like:
+# /nfs/turbo/umms-parent/TestProject-TestUser-2023-10-01/
+# and initialize a configuration file in the specified working directory.
+
 path_config_file = ms.create_new_project(
     project=project_name,
     experimenter=experimenter_name,
@@ -23,4 +27,5 @@ print(f"Project created successfully at: {path_config_file}")
 # and initializes a configuration file in the specified working directory.
 # The project is created in the specified NFS directory, which is shared
 # across multiple nodes in the cluster.
+
 print("Project creation completed successfully!")
