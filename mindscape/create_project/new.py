@@ -13,21 +13,10 @@ def create_new_project(
 ):
     """
     Creates a new MindScape project directory with the necessary structure.
-
-    Parameters
-    ----------
-    project : str
-        Name of the project.
-    experimenter : str
-        Name of the experimenter.
-    working_directory : str, optional
-        Directory where the project will be created. Defaults to the current working directory.
-
-    Returns
-    -------
-    str
-        Path to the new project directory.
     """
+    # Debug: Print the working directory
+    print(f"DEBUG: Received working_directory = {working_directory}")
+
     # Get the current date
     date = dt.today().strftime("%Y-%m-%d")
 
@@ -36,9 +25,15 @@ def create_new_project(
         working_directory = "."
     wd = Path(working_directory).resolve()
 
+    # Debug: Print the resolved working directory
+    print(f"DEBUG: Resolved working_directory = {wd}")
+
     # Create the project name and path
     project_name = f"{project}-{experimenter}-{date}"
     project_path = wd / project_name
+
+    # Debug: Print the project path
+    print(f"DEBUG: Project path = {project_path}")
 
     # Check if the project already exists
     if project_path.exists():
