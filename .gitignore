@@ -1,2 +1,6 @@
 # ignoe pycaches
 __pycache__/
+
+#ignore egg files
+*.egg
+# ignore build directorie
