@@ -6,14 +6,15 @@ channels:
 dependencies:
   # Python core
   - python=3.11
-  - scanpy
-  - anndata
-  - pandas
-  - matplotlib
-  - seaborn
-  - jupyter
-  - ipykernel
-
+  - pip
+  - ipython
+  - jupyter 
+  - nb_conda # Optional: for managing conda environments in Jupyter
+  - notebook<7.0.0 # Optional: to ensure compatibility with Jupyter Notebook  
+  - pytables==3.8.0 # Optional: for handling large datasets
+  - pip: 
+      - mindscape  # Ensures the package is installed after the environment is created
+  
   # R core
   - r-base=4.3
   - r-seurat
@@ -27,6 +28,4 @@ dependencies:
   - r-leidenbase
   - r-httpuv
   - r-igraph
-
-  # Interoperability
-  - r-reticulate  # Optional: allows R to call Python
+  - r-reticulate  # Optional: allows R to call Pythons
