@@ -47,29 +47,28 @@ def create_new_project(
     # Check if the project already exists
     if project_path.exists():
         print(f"⚠️ Project '{project_name}' already exists at {project_path}.")
-        return str(project_path)
+    else:
+        # Try creating the project directory
+        try:
+            print(f"DEBUG: Attempting to create project directory at {project_path}")
+            project_path.mkdir(parents=True, exist_ok=True)
+            (project_path / "data").mkdir(exist_ok=True)
+            (project_path / "results").mkdir(exist_ok=True)
+            (project_path / "logs").mkdir(exist_ok=True)
+            (project_path / "config").mkdir(exist_ok=True)
+            print(f"DEBUG: Successfully created project directory at {project_path}")
+        except Exception as e:
+            print(f"❌ Failed to create project directories: {e}")
+            return None
 
-    # Try creating the project directory
-    try:
-        print(f"DEBUG: Attempting to create project directory at {project_path}")
-        project_path.mkdir(parents=True, exist_ok=True)
-        (project_path / "data").mkdir(exist_ok=True)
-        (project_path / "results").mkdir(exist_ok=True)
-        (project_path / "logs").mkdir(exist_ok=True)
-        (project_path / "config").mkdir(exist_ok=True)
-        print(f"DEBUG: Successfully created project directory at {project_path}")
-    except Exception as e:
-        print(f"❌ Failed to create project directories: {e}")
-        return None
-
-    # Generate the configuration file
-    config_path = project_path / "config/config.yaml"
-    cfg, ruamelFile = create_config_template()
-    cfg["project_name"] = project
-    cfg["experimenter"] = experimenter
-    cfg["date"] = date
-    cfg["project_path"] = str(project_path)
-    write_config(config_path, cfg)
+        # Generate the configuration file
+        config_path = project_path / "config/config.yaml"
+        cfg, ruamelFile = create_config_template()
+        cfg["project_name"] = project
+        cfg["experimenter"] = experimenter
+        cfg["date"] = date
+        cfg["project_path"] = str(project_path)
+        write_config(config_path, cfg)
 
     # Collect SLURM configuration
     print("DEBUG: Starting SLURM configuration collection...")
