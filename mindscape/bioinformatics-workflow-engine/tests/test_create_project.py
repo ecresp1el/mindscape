@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+from datetime import datetime as dt
 from mindscape.create_project.new import create_new_project
 
 class TestCreateProject(unittest.TestCase):
@@ -9,6 +10,7 @@ class TestCreateProject(unittest.TestCase):
         self.project_name = "TestProject"
         self.experimenter_name = "TestUser"
         self.turbo_shared_directory = "/tmp"  # Use /tmp for testing to avoid modifying real directories
+        self.date = dt.today().strftime("%Y-%m-%d")  # Get the full date (YYYY-MM-DD)
 
     def test_create_new_project(self):
         # Call the create_new_project function
@@ -19,7 +21,7 @@ class TestCreateProject(unittest.TestCase):
         )
 
         # Verify the project path
-        expected_path = Path(self.turbo_shared_directory) / f"{self.project_name}-{self.experimenter_name}-{Path(project_path).stem.split('-')[-1]}"
+        expected_path = Path(self.turbo_shared_directory) / f"{self.project_name}-{self.experimenter_name}-{self.date}"
         self.assertEqual(Path(project_path), expected_path)
 
         # Verify the directory structure
@@ -30,7 +32,7 @@ class TestCreateProject(unittest.TestCase):
 
     def tearDown(self):
         # Clean up the created project directory
-        project_path = Path(self.turbo_shared_directory) / f"{self.project_name}-{self.experimenter_name}-{Path().stem.split('-')[-1]}"
+        project_path = Path(self.turbo_shared_directory) / f"{self.project_name}-{self.experimenter_name}-{self.date}"
         if project_path.exists():
             for sub in project_path.iterdir():
                 if sub.is_dir():
