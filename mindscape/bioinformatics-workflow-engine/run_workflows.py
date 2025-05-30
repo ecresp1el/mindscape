@@ -56,8 +56,10 @@ if __name__ == "__main__":
         project_config_path = project_path / "config/config.yaml"
         if not project_config_path.exists():
             raise FileNotFoundError(f"Configuration file not found at {project_config_path}")
+        log_dir = project_path / "logs"  # Use the logs directory in the project path
     else:
         project_config_path = None
+        log_dir = None  # Default to the current behavior
 
     default_config_path = Path(__file__).parent / "config/default_config.yaml"
 
@@ -69,6 +71,7 @@ if __name__ == "__main__":
         merged_config_path = default_config_path
 
     # Initialize the WorkflowManager and run workflows
+    logger = setup_logger("workflow_manager", "workflow_manager.log", log_dir=log_dir)
     workflow_manager = WorkflowManager(config_path=merged_config_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
