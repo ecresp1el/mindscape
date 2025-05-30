@@ -51,7 +51,8 @@ class CellRangerWorkflow(BaseWorkflow):
 
     def prepare_multi_config(self):
         """Prepare the multi_config.csv file."""
-        config_dest = self.results_dir / "multi_config.csv"
+        config_dest = self.project_path / "config" / "cellranger_multi_config.csv"
+        config_dest.parent.mkdir(parents=True, exist_ok=True)
 
         # Ensure the results directory exists
         print(f"Ensuring results directory exists: {self.results_dir}")
@@ -117,9 +118,6 @@ class CellRangerWorkflow(BaseWorkflow):
         with open(config_dest, "r") as file:
             print(file.read())
 
-
-
-
     def run_cellranger_multi(self):
         """Run the Cell Ranger multi command with module loading."""
         print("🚀 Running Cell Ranger multi with module loading...")
@@ -135,7 +133,7 @@ class CellRangerWorkflow(BaseWorkflow):
 
         # Define the Cell Ranger command
         output_dir = self.results_dir
-        config_file = self.results_dir / "multi_config.csv"  # Use the patched version
+        config_file = self.project_path / "config" / "cellranger_multi_config.csv"
 
         # Ensure the logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)
