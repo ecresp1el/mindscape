@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from .base_workflow import BaseWorkflow
+from mindscape.create_slurm.slurm_manager import SlurmManager
 
 class CellRangerWorkflow(BaseWorkflow):
     def __init__(self, config):
