@@ -10,7 +10,7 @@ import yaml
 
 class WorkflowManager:
     def __init__(self, config_path):
-        self.config_path = config_path
+        self.config_path = config_path  # Save the path to the configuration file
         self.config = self.load_config()
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
         self.workflows = []
@@ -28,7 +28,8 @@ class WorkflowManager:
             if workflow.get("enabled", False):
                 workflow_class = globals().get(workflow_name)
                 if workflow_class:
-                    self.workflows.append(workflow_class(config=self.config))
+                    # Pass the path to the configuration file instead of the loaded dictionary
+                    self.workflows.append(workflow_class(config=self.config_path))
                 else:
                     self.logger.warning(f"Workflow {workflow_name} not found.")
 
