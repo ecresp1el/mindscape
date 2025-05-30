@@ -1,14 +1,15 @@
 import unittest
+import os
+import sys
 
 def run_all_tests():
-    # Create a test suite
-    loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
+    # Ensure the 'tests' directory is in the Python module search path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, current_dir)
 
-    # Add tests in the desired order
-    suite.addTests(loader.loadTestsFromModule(__import__('tests.test_utils')))
-    suite.addTests(loader.loadTestsFromModule(__import__('tests.test_base_workflow')))
-    suite.addTests(loader.loadTestsFromModule(__import__('tests.test_workflow_manager')))
+    # Discover and run all tests in the 'tests' directory
+    loader = unittest.TestLoader()
+    suite = loader.discover(start_dir=current_dir, pattern="test_*.py")
 
     # Run the test suite
     runner = unittest.TextTestRunner(verbosity=2)
