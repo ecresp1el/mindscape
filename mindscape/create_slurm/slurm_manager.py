@@ -44,34 +44,54 @@ class SlurmManager:
         Returns:
             str: SLURM job ID.
         """
+        print("🔍 [DEBUG] Loading SLURM configuration...")
         self.load_slurm_config()
+        print(f"✅ [DEBUG] SLURM configuration loaded: {self.slurm_config}")
 
-        # Add virtual environment activation to the command
-        activate_env = "source /path/to/mindscape-env/bin/activate"  # Replace with the actual path to your virtual environment
-        full_command = f"{activate_env} && {command}"
+        # Minimal module initialization and environment setup
+        setup_env = """
+        source /etc/profile.d/modules.sh
+        module purge
+        module load Bioinformatics cellranger
+        """
 
-        slurm_command = [
-            "sbatch",
-            f"--job-name={job_name}_{pipeline_step}",
-            f"--account={self.slurm_config.get('account', 'parent0')}",
-            f"--time={self.slurm_config.get('time', '8:00:00')}",
-            f"--mem={self.slurm_config.get('memory', '32G')}",
-            f"--cpus-per-task={self.slurm_config.get('cpus', 8)}",
-            f"--mail-type={self.slurm_config.get('mail-type', 'FAIL')}",
-            f"--mail-user={self.slurm_config.get('mail-user', 'default@example.com')}",
-            f"--output={self.log_dir}/{job_name}_{pipeline_step}.out",
-            f"--error={self.log_dir}/{job_name}_{pipeline_step}.err",
-            "--wrap",
-            full_command,
-        ]
+        print("🔍 [DEBUG] Preparing full command for SLURM...")
+        full_command = f"{setup_env}\n{command}"
+        print(f"✅ [DEBUG] Full command prepared:\n{full_command}")
 
-        self.logger.info(f"Submitting SLURM job: {' '.join(slurm_command)}")
-        result = subprocess.run(slurm_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # Write the SLURM script to a file
+        slurm_script_path = self.log_dir / f"{job_name}_{pipeline_step}.slurm"
+        with open(slurm_script_path, "w") as script_file:
+            script_file.write("#!/bin/bash\n")
+            script_file.write(f"#SBATCH --job-name={job_name}_{pipeline_step}\n")
+            script_file.write(f"#SBATCH --account={self.slurm_config.get('account', 'parent0')}\n")
+            script_file.write(f"#SBATCH --time={self.slurm_config.get('time', '8:00:00')}\n")
+            script_file.write(f"#SBATCH --mem={self.slurm_config.get('memory', '32G')}\n")
+            script_file.write(f"#SBATCH --cpus-per-task={self.slurm_config.get('cpus', 8)}\n")
+            script_file.write(f"#SBATCH --mail-type={self.slurm_config.get('mail-type', 'FAIL')}\n")
+            script_file.write(f"#SBATCH --mail-user={self.slurm_config.get('mail-user', 'default@example.com')}\n")
+            script_file.write(f"#SBATCH --output={self.log_dir}/{job_name}_{pipeline_step}.out\n")
+            script_file.write(f"#SBATCH --error={self.log_dir}/{job_name}_{pipeline_step}.err\n")
+            script_file.write("\n")
+            script_file.write(setup_env)
+            script_file.write("\n")
+            script_file.write(command)
+            script_file.write("\n")
+
+        # Submit the script via sbatch
+        print("🔍 [DEBUG] Submitting SLURM job script...")
+        result = subprocess.run(["sbatch", str(slurm_script_path)],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        print("🔍 [DEBUG] SLURM submission result:")
+        print(f"STDOUT:\n{result.stdout}")
+        print(f"STDERR:\n{result.stderr}")
 
         if result.returncode != 0:
-            self.logger.error(f"SLURM job submission failed: {result.stderr}")
+            print("❌ [ERROR] SLURM job submission failed!")
             raise RuntimeError(f"SLURM job submission failed: {result.stderr}")
 
         job_id = result.stdout.strip().split()[-1]
-        self.logger.info(f"SLURM job submitted successfully. Job ID: {job_id}")
+
+
         return job_id
