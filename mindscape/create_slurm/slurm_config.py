@@ -1,40 +1,38 @@
 import yaml
+from pathlib import Path
 
 def collect_slurm_config():
     """
-    Collect SLURM-specific details from the user.
+    Collect only the email for SLURM notifications. Use default parameters for everything else.
 
     Returns:
         dict: SLURM configuration.
     """
     print("🔧 Collecting SLURM configuration...")
-    account = input("Enter your SLURM account (default: 'default_account'): ") or "default_account"
     email = input("Enter your email for SLURM notifications (default: 'default@example.com'): ") or "default@example.com"
-    partition = input("Enter the SLURM partition (default: 'default'): ") or "default"
-    time = input("Enter the default time allocation (e.g., '1:00:00', default: '1:00:00'): ") or "1:00:00"
-    memory = input("Enter the default memory allocation (e.g., '4G', default: '4G'): ") or "4G"
-    cpus = input("Enter the default number of CPUs (default: 1): ") or 1
 
+    # Default SLURM parameters
     slurm_config = {
-        "account": account,
-        "mail-user": email,
-        "partition": partition,
-        "time": time,
-        "memory": memory,
-        "cpus": int(cpus),
+        "account": "parent0",
+        "time": "8:00:00",
+        "memory": "32G",
+        "cpus": 8,
         "mail-type": "FAIL",
+        "mail-user": email,
     }
     print(f"Collected SLURM configuration: {slurm_config}")
     return slurm_config
 
-def save_slurm_config(config_path, slurm_config):
-    print(f"Saving SLURM configuration to {config_path}...")
-    with open(config_path, "r") as file:
-        config = yaml.safe_load(file)
+def save_slurm_config(project_path, slurm_config):
+    """
+    Save SLURM configuration to a separate slurm_config.yaml file.
 
-    config["slurm"] = slurm_config
+    Args:
+        project_path (str or Path): Path to the project directory.
+        slurm_config (dict): SLURM configuration.
+    """
+    slurm_config_path = Path(project_path) / "config/slurm_config.yaml"
+    with open(slurm_config_path, "w") as file:
+        yaml.safe_dump(slurm_config, file)
 
-    with open(config_path, "w") as file:
-        yaml.safe_dump(config, file)
-
-    print(f"✅ SLURM configuration saved: {slurm_config}")
+    print(f"✅ SLURM configuration saved to {slurm_config_path}")

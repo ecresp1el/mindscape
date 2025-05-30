@@ -1,27 +1,29 @@
+import yaml
+from pathlib import Path
 import subprocess
 import logging
-from pathlib import Path
 
 class SlurmManager:
     """
     Handles SLURM job submission and resource allocation.
     """
 
-    def __init__(self, slurm_config, log_dir=None):
+    def __init__(self, project_path, log_dir=None):
         """
         Initialize the SlurmManager with SLURM-specific configurations.
 
         Args:
-            slurm_config (dict): SLURM configuration (e.g., memory, cores, partition).
+            project_path (str or Path): Path to the project directory.
             log_dir (str or Path, optional): Directory for SLURM log files. Defaults to None.
         """
-        self.slurm_config = slurm_config
-        self.log_dir = Path(log_dir) if log_dir else None
-        self.logger = logging.getLogger("SlurmManager")
+        slurm_config_path = Path(project_path) / "config/slurm_config.yaml"
+        with open(slurm_config_path, "r") as file:
+            self.slurm_config = yaml.safe_load(file)
 
-        # Ensure the log directory exists
-        if self.log_dir:
-            self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir = Path(log_dir) if log_dir else Path(project_path) / "logs"
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+
+        self.logger = logging.getLogger("SlurmManager")
 
     def submit_job(self, command, job_name, pipeline_step):
         """
@@ -38,18 +40,15 @@ class SlurmManager:
         slurm_command = [
             "sbatch",
             f"--job-name={job_name}_{pipeline_step}",
-            f"--cpus-per-task={self.slurm_config.get('cpus', 1)}",
-            f"--mem={self.slurm_config.get('memory', '4G')}",
-            f"--partition={self.slurm_config.get('partition', 'default')}",
-            f"--time={self.slurm_config.get('time', '1:00:00')}",
+            f"--account={self.slurm_config.get('account', 'parent0')}",
+            f"--time={self.slurm_config.get('time', '8:00:00')}",
+            f"--mem={self.slurm_config.get('memory', '32G')}",
+            f"--cpus-per-task={self.slurm_config.get('cpus', 8)}",
             f"--mail-type={self.slurm_config.get('mail-type', 'FAIL')}",
             f"--mail-user={self.slurm_config.get('mail-user', 'default@example.com')}",
+            f"--output={self.log_dir}/{job_name}_{pipeline_step}.out",
+            f"--error={self.log_dir}/{job_name}_{pipeline_step}.err",
         ]
-
-        # Add log file paths
-        if self.log_dir:
-            slurm_command.append(f"--output={self.log_dir}/{job_name}_{pipeline_step}.out")
-            slurm_command.append(f"--error={self.log_dir}/{job_name}_{pipeline_step}.err")
 
         # Add the command to execute
         slurm_command.append("--wrap")
