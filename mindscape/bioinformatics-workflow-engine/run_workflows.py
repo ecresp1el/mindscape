@@ -4,6 +4,9 @@ from pipelines.base_workflow import BaseWorkflow
 from utils.logger import setup_logger
 from utils.config_merger import merge_configs  # Import the new utility function
 import yaml
+from pipelines.cell_ranger_workflow import CellRangerWorkflow
+from pipelines.ventral_workflow import VentralWorkflow
+from pipelines.qc_workflow import QCWorkflow
 
 class WorkflowManager:
     def __init__(self, config_path):
