@@ -72,8 +72,12 @@ def create_new_project(
     write_config(config_path, cfg)
 
     # Collect SLURM configuration
+    print("DEBUG: Starting SLURM configuration collection...")
     slurm_config = collect_slurm_config()
+    print("DEBUG: SLURM configuration collected:", slurm_config)
+
     save_slurm_config(project_path, slurm_config)
+    print("DEBUG: SLURM configuration saved.")
 
     print(f"✅ New MindScape project created at: {project_path}")
     return str(project_path)
