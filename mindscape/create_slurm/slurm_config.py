@@ -28,13 +28,6 @@ def collect_slurm_config():
     return slurm_config
 
 def save_slurm_config(config_path, slurm_config):
-    """
-    Save SLURM configuration to the project's config.yaml file.
-
-    Args:
-        config_path (str or Path): Path to the config.yaml file.
-        slurm_config (dict): SLURM configuration.
-    """
     print(f"Saving SLURM configuration to {config_path}...")
     with open(config_path, "r") as file:
         config = yaml.safe_load(file)
