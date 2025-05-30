@@ -26,7 +26,7 @@ class CellRangerWorkflow(BaseWorkflow):
         self.ref_subpath = "2020-A/Ref_genome/refdata-gex-GRCh38-2020-A"
         self.ref_genome = Path(self.turbo_ref_base) / self.ref_subpath
 
-        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"
+        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq/90 Day results/fastqs_10496-MW/multi-config.csv"
         self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv"
         self.output_id = "10496-MW-reanalysis"
 
@@ -52,14 +52,22 @@ class CellRangerWorkflow(BaseWorkflow):
         config_dest = self.results_dir / "multi_config.csv"
 
         # Ensure the results directory exists
+        print(f"Ensuring results directory exists: {self.results_dir}")
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy the multi_config.csv file
-        print(f"📄 Copying multi_config.csv to {config_dest}")
-        shutil.copy(self.multi_config_source, config_dest)
+        print(f"Copying multi_config.csv from {self.multi_config_source} to {config_dest}")
+        try:
+            shutil.copy(self.multi_config_source, config_dest)
+        except Exception as e:
+            raise RuntimeError(f"Failed to copy multi_config.csv: {e}")
+
+        # Verify the file was copied
+        if not config_dest.exists():
+            raise FileNotFoundError(f"multi_config.csv was not copied to {config_dest}")
 
         # Patch the multi_config.csv file
-        print("🛠 Patching multi_config.csv...")
+        print("Patching multi_config.csv...")
         with open(config_dest, "r") as file:
             lines = file.readlines()
 
@@ -68,8 +76,11 @@ class CellRangerWorkflow(BaseWorkflow):
                 file.write(line)
                 if "[gene-expression]" in line:
                     file.write("create-bam,true\n")
-            file.write(f"reference,{self.ref_genome}\n")
-            file.write(f"probe-set,{self.probe_file}\n")
+                file.write(f"reference,{self.ref_genome}\n")
+                file.write(f"probe-set,{self.probe_file}\n")
+
+        # Verify the file was patched
+        print(f"multi_config.csv successfully prepared at {config_dest}")
 
     def run_cellranger_multi(self):
         """Run the Cell Ranger multi command with module loading."""
