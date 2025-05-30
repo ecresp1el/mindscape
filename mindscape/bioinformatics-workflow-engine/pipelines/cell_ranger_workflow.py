@@ -98,8 +98,7 @@ class CellRangerWorkflow(BaseWorkflow):
 
         # Define the Cell Ranger command
         output_dir = self.results_dir
-        slurm_output_log = self.logs_dir / f"{self.output_id}.out"
-        slurm_error_log = self.logs_dir / f"{self.output_id}.err"
+        config_file = self.results_dir / "multi_config.csv"
 
         # Ensure the logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)
@@ -107,25 +106,24 @@ class CellRangerWorkflow(BaseWorkflow):
         # Ensure the output directory is empty or non-existent
         if output_dir.exists():
             print(f"⚠️ Output directory {output_dir} already exists. Deleting it to avoid conflicts.")
-            shutil.rmtree(output_dir)  # Remove the directory and its contents
+            shutil.rmtree(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Verify the multi_config.csv file exists
+        if not config_file.exists():
+            raise FileNotFoundError(f"multi_config.csv not found at {config_file}")
 
         cellranger_command = (
             f"cellranger multi --id={self.output_id} "
-            f"--csv={self.results_dir / 'multi_config.csv'} "
+            f"--csv={config_file} "
             f"--output-dir={output_dir}"
         )
 
         # Combine the commands
         full_command = f"{module_commands} && {cellranger_command}"
 
-        # Submit the job using SlurmManager
-        slurm_manager = SlurmManager(self.project_path, log_dir=self.logs_dir)
-        slurm_manager.submit_job(
-            command=full_command,
-            job_name="cellranger_multi",
-            pipeline_step="CellRangerWorkflow"
-        )
+        print(f"Executing command: {full_command}")
+        subprocess.run(full_command, shell=True, check=True)
 
     def run(self):
         """Execute the Cell Ranger workflow."""
