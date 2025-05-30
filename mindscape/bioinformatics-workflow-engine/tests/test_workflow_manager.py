@@ -2,16 +2,16 @@ import unittest
 from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
-from utils.logger import setup_logger
+from pathlib import Path
 
 class TestWorkflowManager(unittest.TestCase):
 
     def setUp(self):
-        self.logger = setup_logger("test_workflow_manager", "test_workflow_manager.log")
-        test_config_path = 'config/default_config.yaml'
-        self.cell_ranger_workflow = CellRangerWorkflow(config=test_config_path)
-        self.ventral_workflow = VentralWorkflow(config=test_config_path)
-        self.qc_workflow = QCWorkflow(config=test_config_path)
+        # Provide an absolute path to the config file
+        config_path = Path(__file__).parent.parent / 'config/default_config.yaml'
+        self.cell_ranger_workflow = CellRangerWorkflow(config=config_path)
+        self.ventral_workflow = VentralWorkflow(config=config_path)
+        self.qc_workflow = QCWorkflow(config=config_path)
 
     def test_cell_ranger_workflow_initialization(self):
         self.assertIsInstance(self.cell_ranger_workflow, CellRangerWorkflow)

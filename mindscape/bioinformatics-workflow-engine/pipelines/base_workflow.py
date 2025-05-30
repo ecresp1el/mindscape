@@ -7,7 +7,8 @@ import yaml
 
 class BaseWorkflow:
     def __init__(self, config_path):
-        self.config_path = config_path
+        # Resolve the config path to an absolute path
+        self.config_path = Path(config_path).resolve()
         self.config = self.load_config()
         self.workflow_name = self.__class__.__name__
 
