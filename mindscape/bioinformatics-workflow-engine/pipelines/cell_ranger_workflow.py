@@ -2,6 +2,7 @@ import yaml
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
 from .base_workflow import BaseWorkflow
 from mindscape.create_slurm.slurm_manager import SlurmManager
 
@@ -67,6 +68,11 @@ class CellRangerWorkflow(BaseWorkflow):
         if not config_dest.exists():
             raise FileNotFoundError(f"multi_config.csv was not copied to {config_dest}")
 
+        # Debug: Print the copied file before patching
+        print("Copied multi_config.csv before patching:")
+        with open(config_dest, "r") as file:
+            print(file.read())
+
         # Patch the multi_config.csv file
         print("Patching multi_config.csv...")
         with open(config_dest, "r") as file:
@@ -80,8 +86,10 @@ class CellRangerWorkflow(BaseWorkflow):
                 file.write(f"reference,{self.ref_genome}\n")
                 file.write(f"probe-set,{self.probe_file}\n")
 
-        # Verify the file was patched
-        print(f"multi_config.csv successfully prepared at {config_dest}")
+        # Debug: Print the patched file
+        print("Patched multi_config.csv:")
+        with open(config_dest, "r") as file:
+            print(file.read())
 
     def run_cellranger_multi(self):
         """Run the Cell Ranger multi command with module loading."""
@@ -98,29 +106,28 @@ class CellRangerWorkflow(BaseWorkflow):
 
         # Define the Cell Ranger command
         output_dir = self.results_dir
-        config_file = self.results_dir / "multi_config.csv"
+        config_file = self.multi_config_source  # Use the source file directly
 
         # Ensure the logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)
 
-        # Clear the output directory but preserve the multi_config.csv file
+        # Delete the output directory if it exists
         if output_dir.exists():
-            print(f"⚠️ Output directory {output_dir} already exists. Clearing its contents...")
-            for item in output_dir.iterdir():
-                if item.name != "multi_config.csv":  # Preserve the multi_config.csv file
-                    if item.is_dir():
-                        shutil.rmtree(item)
-                    else:
-                        item.unlink()
+            print(f"⚠️ Output directory {output_dir} already exists. Deleting it to avoid conflicts.")
+            shutil.rmtree(output_dir)
 
         # Verify the multi_config.csv file exists
-        if not config_file.exists():
+        if not Path(config_file).exists():
             raise FileNotFoundError(f"multi_config.csv not found at {config_file}")
+
+        # Properly quote the path to handle spaces
+        quoted_config_file = f'"{config_file}"'
+        quoted_output_dir = f'"{output_dir}"'
 
         cellranger_command = (
             f"cellranger multi --id={self.output_id} "
-            f"--csv={config_file} "
-            f"--output-dir={output_dir}"
+            f"--csv={quoted_config_file} "
+            f"--output-dir={quoted_output_dir}"
         )
 
         # Combine the commands
