@@ -9,15 +9,17 @@ class CellRangerWorkflow(BaseWorkflow):
         self.workflow_name = "CellRangerWorkflow"
 
         # Base paths and subpaths
+        self.project_path = Path(config["project_path"])
+        self.results_dir = self.project_path / "results" / f"cellranger_multi_{self.workflow_name}"
+        self.logs_dir = self.project_path / "logs"
+
+        # Reference genome and other files
         self.turbo_ref_base = "/nfs/turbo/umms-parent/10X_Human_Refs"
         self.ref_subpath = "2020-A/Ref_genome/refdata-gex-GRCh38-2020-A"
         self.ref_genome = Path(self.turbo_ref_base) / self.ref_subpath
 
-        # Hardcoded paths for other files
-        self.test_dir = Path("/nfs/turbo/umms-parent/Manny_test")
         self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"
         self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv"
-        self.snakefile = "mindscape/workflows/cellranger.smk"
         self.output_id = "10496-MW-reanalysis"
 
     def validate_paths(self):
@@ -39,7 +41,10 @@ class CellRangerWorkflow(BaseWorkflow):
 
     def prepare_multi_config(self):
         """Prepare the multi_config.csv file."""
-        config_dest = self.test_dir / "multi_config.csv"
+        config_dest = self.results_dir / "multi_config.csv"
+
+        # Ensure the results directory exists
+        self.results_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy the multi_config.csv file
         print(f"📄 Copying multi_config.csv to {config_dest}")
@@ -72,9 +77,17 @@ class CellRangerWorkflow(BaseWorkflow):
         )
 
         # Define the Cell Ranger command
+        output_dir = self.results_dir
+        slurm_output_log = self.logs_dir / f"{self.output_id}.out"
+        slurm_error_log = self.logs_dir / f"{self.output_id}.err"
+
+        # Ensure the logs directory exists
+        self.logs_dir.mkdir(parents=True, exist_ok=True)
+
         cellranger_command = (
             f"cellranger multi --id={self.output_id} "
-            f"--csv={self.test_dir / 'multi_config.csv'}"
+            f"--csv={self.results_dir / 'multi_config.csv'} "
+            f"--output-dir={output_dir}"
         )
 
         # Combine the commands
@@ -86,7 +99,11 @@ class CellRangerWorkflow(BaseWorkflow):
     def run(self):
         """Execute the Cell Ranger workflow."""
         print(f"🔬 Starting {self.workflow_name}...")
-        self.validate_paths()
+
+
+
+
+        print(f"✅ {self.workflow_name} completed successfully!")        self.run_cellranger_multi()        self.prepare_multi_config()        self.validate_paths()        self.validate_paths()
         self.prepare_multi_config()
         self.run_cellranger_multi()
         print(f"✅ {self.workflow_name} completed successfully!")
