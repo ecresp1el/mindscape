@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from pipelines.base_workflow import BaseWorkflow
 from utils.logger import setup_logger
+from utils.config_merger import merge_configs  # Import the new utility function
 import yaml
 
 class WorkflowManager:
@@ -45,17 +46,24 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Determine which configuration file to use
+    # Determine which configuration files to use
     if args.project_path:
         project_path = Path(args.project_path)
-        config_path = project_path / "config/config.yaml"
-        if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found at {config_path}")
+        project_config_path = project_path / "config/config.yaml"
+        if not project_config_path.exists():
+            raise FileNotFoundError(f"Configuration file not found at {project_config_path}")
     else:
-        # Fallback to default_config.yaml in the repository
-        config_path = Path(__file__).parent / "config/default_config.yaml"
+        project_config_path = None
 
-    # Load the configuration
-    workflow_manager = WorkflowManager(config_path=config_path)
+    default_config_path = Path(__file__).parent / "config/default_config.yaml"
+
+    # Generate the merged configuration file
+    if project_config_path:
+        merged_config_path = merge_configs(default_config_path, project_config_path)
+    else:
+        merged_config_path = default_config_path
+
+    # Initialize the WorkflowManager and run workflows
+    workflow_manager = WorkflowManager(config_path=merged_config_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
