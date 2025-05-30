@@ -80,25 +80,35 @@ class CellRangerWorkflow(BaseWorkflow):
 
         patched_lines = []
         in_gene_expression = False
-        extra_lines_inserted = False
+        section_replaced = False
 
         for line in lines:
             stripped = line.strip()
 
-            # Start of a new section
-            if stripped.startswith("[") and "]" in stripped:
-                in_gene_expression = stripped == "[gene-expression]"
+            if stripped == "[gene-expression]":
+                # Start of gene-expression section
+                in_gene_expression = True
+                continue  # Skip this header for now
 
-            patched_lines.append(line)
-
-            # After [gene-expression] header, insert extra lines once
-            if in_gene_expression and not extra_lines_inserted and stripped == "[gene-expression]":
+            # If another section begins, insert new gene-expression section before continuing
+            if stripped.startswith("[") and in_gene_expression and not section_replaced:
+                patched_lines.append("[gene-expression]\n")
                 patched_lines.append("create-bam,true\n")
                 patched_lines.append(f"reference,{self.ref_genome}\n")
                 patched_lines.append(f"probe-set,{self.probe_file}\n")
-                extra_lines_inserted = True
+                section_replaced = True
+                in_gene_expression = False
 
-        # Write patched file
+            if not in_gene_expression:
+                patched_lines.append(line)
+
+        # Edge case: if gene-expression was last section and never replaced
+        if in_gene_expression and not section_replaced:
+            patched_lines.append("[gene-expression]\n")
+            patched_lines.append("create-bam,true\n")
+            patched_lines.append(f"reference,{self.ref_genome}\n")
+            patched_lines.append(f"probe-set,{self.probe_file}\n")
+
         with open(config_dest, "w") as file:
             file.writelines(patched_lines)
 
@@ -125,7 +135,7 @@ class CellRangerWorkflow(BaseWorkflow):
 
         # Define the Cell Ranger command
         output_dir = self.results_dir
-        config_file = self.multi_config_source  # Use the source file directly
+        config_file = self.results_dir / "multi_config.csv"  # Use the patched version
 
         # Ensure the logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)
