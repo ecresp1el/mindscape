@@ -8,7 +8,8 @@ from utils.logger import setup_logger
 class TestWorkflowManager(unittest.TestCase):
 
     def setUp(self):
-        self.logger = setup_logger()
+        # Provide valid arguments for setup_logger
+        self.logger = setup_logger("test_workflow_manager", "test_workflow_manager.log")
         self.cell_ranger_workflow = CellRangerWorkflow()
         self.ventral_workflow = VentralWorkflow()
         self.qc_workflow = QCWorkflow()
