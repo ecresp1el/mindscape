@@ -78,18 +78,37 @@ class CellRangerWorkflow(BaseWorkflow):
         with open(config_dest, "r") as file:
             lines = file.readlines()
 
+        patched_lines = []
+        in_gene_expression = False
+        extra_lines_inserted = False
+
+        for line in lines:
+            stripped = line.strip()
+
+            # Start of a new section
+            if stripped.startswith("[") and "]" in stripped:
+                in_gene_expression = stripped == "[gene-expression]"
+
+            patched_lines.append(line)
+
+            # After [gene-expression] header, insert extra lines once
+            if in_gene_expression and not extra_lines_inserted and stripped == "[gene-expression]":
+                patched_lines.append("create-bam,true\n")
+                patched_lines.append(f"reference,{self.ref_genome}\n")
+                patched_lines.append(f"probe-set,{self.probe_file}\n")
+                extra_lines_inserted = True
+
+        # Write patched file
         with open(config_dest, "w") as file:
-            for line in lines:
-                file.write(line)
-                if "[gene-expression]" in line:
-                    file.write("create-bam,true\n")
-                file.write(f"reference,{self.ref_genome}\n")
-                file.write(f"probe-set,{self.probe_file}\n")
+            file.writelines(patched_lines)
 
         # Debug: Print the patched file
         print("Patched multi_config.csv:")
         with open(config_dest, "r") as file:
             print(file.read())
+
+
+
 
     def run_cellranger_multi(self):
         """Run the Cell Ranger multi command with module loading."""
