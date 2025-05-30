@@ -3,9 +3,10 @@ import os
 import sys
 
 def run_all_tests():
-    # Ensure the 'tests' directory is in the Python module search path
+    # Add the project root directory to the Python module search path
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, current_dir)
+    root_dir = os.path.abspath(os.path.join(current_dir, ".."))
+    sys.path.insert(0, root_dir)
 
     # Discover and run all tests in the 'tests' directory
     loader = unittest.TestLoader()
