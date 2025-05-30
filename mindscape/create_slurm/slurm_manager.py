@@ -44,8 +44,11 @@ class SlurmManager:
         Returns:
             str: SLURM job ID.
         """
-        # Reload the SLURM configuration to ensure it's up-to-date
         self.load_slurm_config()
+
+        # Add virtual environment activation to the command
+        activate_env = "source /path/to/mindscape-env/bin/activate"  # Replace with the actual path to your virtual environment
+        full_command = f"{activate_env} && {command}"
 
         slurm_command = [
             "sbatch",
@@ -58,11 +61,9 @@ class SlurmManager:
             f"--mail-user={self.slurm_config.get('mail-user', 'default@example.com')}",
             f"--output={self.log_dir}/{job_name}_{pipeline_step}.out",
             f"--error={self.log_dir}/{job_name}_{pipeline_step}.err",
+            "--wrap",
+            full_command,
         ]
-
-        # Add the command to execute
-        slurm_command.append("--wrap")
-        slurm_command.append(command)
 
         self.logger.info(f"Submitting SLURM job: {' '.join(slurm_command)}")
         result = subprocess.run(slurm_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
