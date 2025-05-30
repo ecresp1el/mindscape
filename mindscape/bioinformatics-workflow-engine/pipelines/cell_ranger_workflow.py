@@ -13,11 +13,7 @@ class CellRangerWorkflow(BaseWorkflow):
         """
         Execute the Cell Ranger workflow steps.
         """
-        self.setup_logging()
-        self.load_config()
-        self.setup_paths()
-
-        # Implement specific steps for the Cell Ranger workflow
+        self.setup_paths()  # This now works as expected
         self.step1()
         self.step2()
         self.step3()
