@@ -15,7 +15,7 @@ class CellRangerWorkflow(BaseWorkflow):
 
         # Hardcoded paths for other files
         self.test_dir = Path("/nfs/turbo/umms-parent/Manny_test")
-        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq/90 Day results/fastqs_10496-MW/multi-config.csv"
+        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"
         self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv"
         self.snakefile = "mindscape/workflows/cellranger.smk"
         self.output_id = "10496-MW-reanalysis"
