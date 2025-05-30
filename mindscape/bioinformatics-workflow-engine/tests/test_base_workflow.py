@@ -1,6 +1,11 @@
 import unittest
-from pipelines.base_workflow import BaseWorkflow
+import sys
 from pathlib import Path
+
+# Add the project root directory to sys.path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from pipelines.base_workflow import BaseWorkflow
 import yaml
 
 class TestBaseWorkflow(unittest.TestCase):

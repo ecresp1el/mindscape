@@ -1,8 +1,13 @@
 import unittest
+import sys
+from pathlib import Path
+
+# Add the project root directory to sys.path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
-from pathlib import Path
 
 class TestWorkflowManager(unittest.TestCase):
 

@@ -1,4 +1,10 @@
 import unittest
+import sys
+from pathlib import Path
+
+# Add the project root directory to sys.path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils.logger import setup_logger
 from utils.paths import get_project_root
 
@@ -17,5 +23,5 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(self.project_root.exists())
         self.logger.info(f"Project root is: {self.project_root}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
