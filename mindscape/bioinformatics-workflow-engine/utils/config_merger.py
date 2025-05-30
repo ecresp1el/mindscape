@@ -1,14 +1,14 @@
 import yaml
 from pathlib import Path
-import tempfile
 
-def merge_configs(default_config_path, project_config_path):
+def merge_configs(default_config_path, project_config_path, output_path=None):
     """
     Merge default_config.yaml with project-specific config.yaml.
 
     Args:
         default_config_path (str or Path): Path to default_config.yaml.
         project_config_path (str or Path): Path to project-specific config.yaml.
+        output_path (str or Path, optional): Path to save the merged configuration. Defaults to project config directory.
 
     Returns:
         str: Path to the merged configuration file.
@@ -24,9 +24,13 @@ def merge_configs(default_config_path, project_config_path):
         if key in project_config:
             default_config[key] = project_config[key]
 
-    # Write the merged configuration to a temporary file
-    temp_config_file = tempfile.NamedTemporaryFile(delete=False, suffix=".yaml")
-    with open(temp_config_file.name, 'w') as temp_file:
-        yaml.dump(default_config, temp_file)
+    # Determine the output path
+    if output_path is None:
+        project_dir = Path(project_config_path).parent
+        output_path = project_dir / "merged_config.yaml"
 
-    return temp_config_file.name
+    # Save the merged configuration to the output path
+    with open(output_path, 'w') as output_file:
+        yaml.dump(default_config, output_file)
+
+    return str(output_path)

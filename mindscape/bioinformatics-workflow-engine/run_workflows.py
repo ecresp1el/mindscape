@@ -1,12 +1,12 @@
 import argparse
 from pathlib import Path
 from pipelines.base_workflow import BaseWorkflow
-from utils.logger import setup_logger
-from utils.config_merger import merge_configs  # Import the new utility function
-import yaml
 from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
+from utils.logger import setup_logger
+from utils.config_merger import merge_configs
+import yaml
 
 class WorkflowManager:
     def __init__(self, config_path):
@@ -63,6 +63,7 @@ if __name__ == "__main__":
     # Generate the merged configuration file
     if project_config_path:
         merged_config_path = merge_configs(default_config_path, project_config_path)
+        print(f"Merged configuration saved to: {merged_config_path}")
     else:
         merged_config_path = default_config_path
 
