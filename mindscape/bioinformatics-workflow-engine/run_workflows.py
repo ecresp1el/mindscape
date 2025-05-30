@@ -1,19 +1,22 @@
-import argparse
 from pathlib import Path
+import argparse
+import yaml  # Ensure YAML is imported
+from mindscape.create_slurm.slurm_manager import SlurmManager  # Import SlurmManager
 from pipelines.base_workflow import BaseWorkflow
 from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
 from utils.logger import setup_logger
 from utils.config_merger import merge_configs
-import yaml
 
 class WorkflowManager:
-    def __init__(self, config_path):
+    def __init__(self, config_path, project_path):
         self.config_path = config_path  # Save the path to the configuration file
         self.config = self.load_config()
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
         self.workflows = []
+        self.project_path = project_path  # Save the project path
+        self.slurm_manager = SlurmManager(project_path)  # Initialize SlurmManager
 
     def load_config(self):
         """Load the YAML configuration file."""
@@ -34,11 +37,24 @@ class WorkflowManager:
                     self.logger.warning(f"Workflow {workflow_name} not found.")
 
     def run_workflows(self):
-        """Run all registered workflows."""
+        """Run all registered workflows using SLURM."""
         for workflow in self.workflows:
-            self.logger.info(f"Starting workflow: {workflow.__class__.__name__}")
-            workflow.run()
-            self.logger.info(f"Completed workflow: {workflow.__class__.__name__}")
+            workflow_name = workflow.__class__.__name__
+            self.logger.info(f"Submitting workflow: {workflow_name} to SLURM")
+
+            # Define the command to run the workflow
+            command = f"python -c 'from pipelines.{workflow_name.lower()} import {workflow_name}; {workflow_name}(\"{self.config_path}\").run()'"
+
+            # Submit the workflow as a SLURM job
+            try:
+                job_id = self.slurm_manager.submit_job(
+                    command=command,
+                    job_name=workflow_name,
+                    pipeline_step="run"
+                )
+                self.logger.info(f"Workflow {workflow_name} submitted as SLURM job {job_id}")
+            except RuntimeError as e:
+                self.logger.error(f"Failed to submit workflow {workflow_name}: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Bioinformatics Workflows")
@@ -72,6 +88,6 @@ if __name__ == "__main__":
 
     # Initialize the WorkflowManager and run workflows
     logger = setup_logger("workflow_manager", "workflow_manager.log", log_dir=log_dir)
-    workflow_manager = WorkflowManager(config_path=merged_config_path)
+    workflow_manager = WorkflowManager(config_path=merged_config_path, project_path=args.project_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()

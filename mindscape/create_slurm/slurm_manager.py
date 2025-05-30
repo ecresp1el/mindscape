@@ -16,14 +16,21 @@ class SlurmManager:
             project_path (str or Path): Path to the project directory.
             log_dir (str or Path, optional): Directory for SLURM log files. Defaults to None.
         """
-        slurm_config_path = Path(project_path) / "config/slurm_config.yaml"
-        with open(slurm_config_path, "r") as file:
-            self.slurm_config = yaml.safe_load(file)
-
-        self.log_dir = Path(log_dir) if log_dir else Path(project_path) / "logs"
+        self.project_path = Path(project_path)
+        self.slurm_config_path = self.project_path / "config/slurm_config.yaml"
+        self.log_dir = Path(log_dir) if log_dir else self.project_path / "logs"
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         self.logger = logging.getLogger("SlurmManager")
+        self.load_slurm_config()
+
+    def load_slurm_config(self):
+        """Load the SLURM configuration from the project folder."""
+        if not self.slurm_config_path.exists():
+            raise FileNotFoundError(f"SLURM configuration file not found at {self.slurm_config_path}")
+        with open(self.slurm_config_path, "r") as file:
+            self.slurm_config = yaml.safe_load(file)
+        self.logger.info(f"Loaded SLURM configuration: {self.slurm_config}")
 
     def submit_job(self, command, job_name, pipeline_step):
         """
@@ -37,6 +44,9 @@ class SlurmManager:
         Returns:
             str: SLURM job ID.
         """
+        # Reload the SLURM configuration to ensure it's up-to-date
+        self.load_slurm_config()
+
         slurm_command = [
             "sbatch",
             f"--job-name={job_name}_{pipeline_step}",
