@@ -1,17 +1,16 @@
 import yaml
 from pathlib import Path
+import sys
 
 def collect_slurm_config():
-    """
-    Collect only the email for SLURM notifications. Use default parameters for everything else.
-
-    Returns:
-        dict: SLURM configuration.
-    """
     print("DEBUG: Collecting SLURM configuration...")
-    email = input("Enter your email for SLURM notifications (default: 'default@example.com'): ") or "default@example.com"
+    
+    if sys.stdin.isatty():
+        email = input("Enter your email for SLURM notifications (default: 'default@example.com'): ") or "default@example.com"
+    else:
+        print("⚠️ No interactive terminal detected. Using default email.")
+        email = "default@example.com"
 
-    # Default SLURM parameters
     slurm_config = {
         "account": "parent0",
         "time": "8:00:00",
