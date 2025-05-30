@@ -1,11 +1,18 @@
-from .base_workflow import BaseWorkflow
+import yaml
 from pathlib import Path
 import shutil
 import subprocess
+from .base_workflow import BaseWorkflow
 
 class CellRangerWorkflow(BaseWorkflow):
     def __init__(self, config):
         super().__init__(config)
+
+        # Load the configuration if a path is provided
+        if isinstance(config, str) or isinstance(config, Path):
+            with open(config, "r") as file:
+                config = yaml.safe_load(file)
+
         self.workflow_name = "CellRangerWorkflow"
 
         # Base paths and subpaths
