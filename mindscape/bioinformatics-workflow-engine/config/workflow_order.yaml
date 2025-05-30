@@ -1,0 +1,4 @@
+workflow_order:
+  - CellRangerWorkflow
+  - QCWorkflow
+  - VentralWorkflow

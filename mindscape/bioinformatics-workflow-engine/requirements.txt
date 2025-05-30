@@ -1,0 +1,10 @@
+# requirements.txt
+
+ruamel.yaml
+pytest
+pandas
+numpy
+scipy
+matplotlib
+snakemake
+```
