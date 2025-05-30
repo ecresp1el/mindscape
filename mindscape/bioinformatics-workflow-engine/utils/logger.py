@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 
 def setup_logger(name: str, log_file: str, log_dir: str = None, level=logging.INFO) -> logging.Logger:
@@ -16,6 +15,11 @@ def setup_logger(name: str, log_file: str, log_dir: str = None, level=logging.IN
         logging.Logger: Configured logger.
     """
     logger = logging.getLogger(name)
+
+    # Avoid adding duplicate handlers
+    if logger.hasHandlers():
+        return logger
+
     logger.setLevel(level)
 
     # Determine the log file path
@@ -40,9 +44,8 @@ def setup_logger(name: str, log_file: str, log_dir: str = None, level=logging.IN
     ch.setFormatter(formatter)
 
     # Add the handlers to the logger
-    if not logger.handlers:  # Avoid adding duplicate handlers
-        logger.addHandler(fh)
-        logger.addHandler(ch)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
     return logger
 
