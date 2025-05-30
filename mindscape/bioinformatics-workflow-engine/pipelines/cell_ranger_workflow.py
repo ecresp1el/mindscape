@@ -8,21 +8,38 @@ class CellRangerWorkflow(BaseWorkflow):
         super().__init__(config)
         self.workflow_name = "CellRangerWorkflow"
 
-        # Hardcoded parameters for now
-        self.test_dir = Path(self.config["project_path"]) / "data"
-        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/multi-config.csv"
-        self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/Probe_Set.csv"
-        self.ref_genome = "/nfs/turbo/umms-parent/10X_Human_Refs/Refdata/refdata-gex-GRCh38-2020-A"
+        # Base paths and subpaths
+        self.turbo_ref_base = "/nfs/turbo/umms-parent/10X_Human_Refs"
+        self.ref_subpath = "2020-A/Ref_genome/refdata-gex-GRCh38-2020-A"
+        self.ref_genome = Path(self.turbo_ref_base) / self.ref_subpath
+
+        # Hardcoded paths for other files
+        self.test_dir = Path("/nfs/turbo/umms-parent/Manny_test")
+        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq/90 Day results/fastqs_10496-MW/multi-config.csv"
+        self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv"
+        self.snakefile = "mindscape/workflows/cellranger.smk"
         self.output_id = "10496-MW-reanalysis"
+
+    def validate_paths(self):
+        """Validate that required paths exist."""
+        # Validate reference genome
+        if not self.ref_genome.exists():
+            raise FileNotFoundError(f"❌ ERROR: Reference folder not found at {self.ref_genome}")
+        print(f"🧬 Using reference genome: {self.ref_genome}")
+
+        # Validate multi_config.csv source
+        if not Path(self.multi_config_source).exists():
+            raise FileNotFoundError(f"❌ ERROR: Multi-config file not found at {self.multi_config_source}")
+        print(f"📄 Multi-config source found: {self.multi_config_source}")
+
+        # Validate probe file
+        if not Path(self.probe_file).exists():
+            raise FileNotFoundError(f"❌ ERROR: Probe file not found at {self.probe_file}")
+        print(f"🧬 Probe file found: {self.probe_file}")
 
     def prepare_multi_config(self):
         """Prepare the multi_config.csv file."""
         config_dest = self.test_dir / "multi_config.csv"
-
-        # Ensure the reference genome exists
-        if not Path(self.ref_genome).exists():
-            raise FileNotFoundError(f"Reference genome not found at {self.ref_genome}")
-        print(f"🧬 Using reference genome: {self.ref_genome}")
 
         # Copy the multi_config.csv file
         print(f"📄 Copying multi_config.csv to {config_dest}")
@@ -69,6 +86,7 @@ class CellRangerWorkflow(BaseWorkflow):
     def run(self):
         """Execute the Cell Ranger workflow."""
         print(f"🔬 Starting {self.workflow_name}...")
+        self.validate_paths()
         self.prepare_multi_config()
         self.run_cellranger_multi()
         print(f"✅ {self.workflow_name} completed successfully!")
