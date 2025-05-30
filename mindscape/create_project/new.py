@@ -10,9 +10,17 @@ def create_new_project(
     project: str,
     experimenter: str,
     working_directory: str | None = None,
-):
+) -> str:
     """
     Creates a new MindScape project directory with the necessary structure.
+
+    Args:
+        project (str): The name of the project.
+        experimenter (str): The name of the experimenter.
+        working_directory (str | None): The base directory where the project will be created.
+
+    Returns:
+        str: The full path to the created project directory.
     """
     # Debug: Print the working directory
     print(f"DEBUG: Received working_directory = {working_directory}")
