@@ -42,8 +42,12 @@ class WorkflowManager:
             workflow_name = workflow.__class__.__name__
             self.logger.info(f"Submitting workflow: {workflow_name} to SLURM")
 
-            # Define the command to run the workflow
-            command = f"python -c 'from pipelines.{workflow_name.lower()} import {workflow_name}; {workflow_name}(\"{self.config_path}\").run()'"
+            # Define the command to run the workflow with properly escaped quotes for embedding in a SLURM script
+            command = (
+                "python -c \""
+                f"from pipelines.{workflow_name.lower()} import {workflow_name}; "
+                f"{workflow_name}(\\\"{self.config_path}\\\").run()\""
+            )
 
             # Submit the workflow as a SLURM job
             try:
