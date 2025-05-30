@@ -26,7 +26,7 @@ class CellRangerWorkflow(BaseWorkflow):
         self.ref_subpath = "2020-A/Ref_genome/refdata-gex-GRCh38-2020-A"
         self.ref_genome = Path(self.turbo_ref_base) / self.ref_subpath
 
-        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq/90 Day results/fastqs_10496-MW/multi-config.csv"
+        self.multi_config_source = "/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"
         self.probe_file = "/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv"
         self.output_id = "10496-MW-reanalysis"
 
@@ -38,6 +38,7 @@ class CellRangerWorkflow(BaseWorkflow):
         print(f"🧬 Using reference genome: {self.ref_genome}")
 
         # Validate multi_config.csv source
+        print(f"DEBUG: Checking multi-config source path: {self.multi_config_source}")
         if not Path(self.multi_config_source).exists():
             raise FileNotFoundError(f"❌ ERROR: Multi-config file not found at {self.multi_config_source}")
         print(f"📄 Multi-config source found: {self.multi_config_source}")
