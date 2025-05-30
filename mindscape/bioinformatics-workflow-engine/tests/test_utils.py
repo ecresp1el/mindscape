@@ -5,7 +5,8 @@ from utils.paths import get_project_root
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
-        self.logger = setup_logger("test_logger")
+        # Provide a valid log file path for testing
+        self.logger = setup_logger("test_logger", "test_log.log")
         self.project_root = get_project_root()
 
     def test_logger_setup(self):
