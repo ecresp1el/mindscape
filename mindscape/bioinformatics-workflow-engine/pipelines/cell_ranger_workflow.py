@@ -99,11 +99,7 @@ class CellRangerWorkflow(BaseWorkflow):
     def run(self):
         """Execute the Cell Ranger workflow."""
         print(f"🔬 Starting {self.workflow_name}...")
-
-
-
-
-        print(f"✅ {self.workflow_name} completed successfully!")        self.run_cellranger_multi()        self.prepare_multi_config()        self.validate_paths()        self.validate_paths()
+        self.validate_paths()
         self.prepare_multi_config()
         self.run_cellranger_multi()
         print(f"✅ {self.workflow_name} completed successfully!")
