@@ -8,16 +8,13 @@ class VentralWorkflow(BaseWorkflow):
 
     def __init__(self, config):
         super().__init__(config)
-        # Additional initialization specific to VentralWorkflow can be added here
 
     def run(self):
         """
         Execute the Ventral workflow.
         """
-        # Implement the logic for the Ventral workflow here
-        self.load_config()
-        self.setup_paths()
         self.log_start()
+        self.setup_paths()
 
         # Add workflow steps here
         # Example: self.step_one()
