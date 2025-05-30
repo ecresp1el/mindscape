@@ -103,15 +103,10 @@ class CellRangerWorkflow(BaseWorkflow):
         # Ensure the logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)
 
-        # Ensure the output directory exists and clear its contents (except multi_config.csv)
+        # Delete the output directory if it exists
         if output_dir.exists():
-            print(f"⚠️ Output directory {output_dir} already exists. Clearing its contents...")
-            for item in output_dir.iterdir():
-                if item.name != "multi_config.csv":
-                    if item.is_dir():
-                        shutil.rmtree(item)
-                    else:
-                        item.unlink()
+            print(f"⚠️ Output directory {output_dir} already exists. Deleting it to avoid conflicts.")
+            shutil.rmtree(output_dir)
 
         # Verify the multi_config.csv file exists
         if not config_file.exists():
