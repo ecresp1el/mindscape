@@ -3,7 +3,7 @@ experimenter: "Your Name"
 date: "YYYY-MM-DD"  # Update with the current date
 
 # Project paths
-project_path: "/tmp/test_project"  # Update with the actual project path
+project_path: "/nfs/turbo/umms-parent/test_project_bioinfo_workflow"  # Update with the actual project path
 data_dir: "data"
 results_dir: "results"
 logs_dir: "logs"
