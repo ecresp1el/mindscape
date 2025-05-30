@@ -4,7 +4,8 @@ from pipelines.base_workflow import BaseWorkflow
 class TestBaseWorkflow(unittest.TestCase):
 
     def setUp(self):
-        self.workflow = BaseWorkflow()
+        # Provide a valid config path for testing
+        self.workflow = BaseWorkflow(config_path='config/default_config.yaml')
 
     def test_load_config(self):
         # Test loading a valid configuration file
