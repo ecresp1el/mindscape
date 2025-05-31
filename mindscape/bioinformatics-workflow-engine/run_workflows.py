@@ -1,7 +1,6 @@
 from pathlib import Path
 import argparse
 import yaml  # Ensure YAML is imported
-from mindscape.create_slurm.slurm_manager import SlurmManager  # Import SlurmManager
 from pipelines.base_workflow import BaseWorkflow
 from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow

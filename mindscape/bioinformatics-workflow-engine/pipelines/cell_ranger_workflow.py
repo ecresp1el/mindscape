@@ -4,7 +4,6 @@ import shutil
 import subprocess
 import tempfile
 from .base_workflow import BaseWorkflow
-from mindscape.create_slurm.slurm_manager import SlurmManager
 
 class CellRangerWorkflow(BaseWorkflow):
     """
