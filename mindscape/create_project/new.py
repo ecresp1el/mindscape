@@ -45,6 +45,9 @@ def create_new_project(
     # Check if the project already exists
     if project_path.exists():
         print(f"⚠️ Project '{project_name}' already exists at {project_path}.")
+        #if it exists, we will not overwrite it
+        warnings.warn(f"Project '{project_name}' already exists. No changes made.")
+        return str(project_path)
     else:
         # Try creating the project directory
         try:
