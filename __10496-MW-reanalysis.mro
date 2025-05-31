@@ -21,7 +21,7 @@ call SC_MULTI_CS(
     sample_desc  = "",
     config       = {
         bytes: null,
-        file:  "/nfs/turbo/umms-parent/TestProject-TestUser-2025-05-30/config/cellranger_multi_config.csv",
+        file:  "/nfs/turbo/umms-parent/TestProject-TestUser-2025-05-31/config/cellranger_multi_config.csv",
     },
     config_hash  = "d5fd0ddb0e1437945ca4edb47a851d9f2a9604c125c1c8f9948a3d661ac376bd",
     no_preflight = false,
