@@ -51,6 +51,18 @@ class BaseWorkflow:
         self.config_path = Path(config_path).resolve()  # Convert the config path to an absolute path
         self.config = self.load_config()  # Load the configuration file
         self.workflow_name = self.__class__.__name__  # Get the name of the workflow (e.g., "CellRangerWorkflow")
+        # This line dynamically retrieves the name of the class to which the current object belongs.
+        # It uses the `__class__` attribute of the object to access its class and then retrieves the
+        # `__name__` attribute of the class, which contains the name of the class as a string.
+        # For example, if the current object is an instance of the `CellRangerWorkflow` class,
+        # this line will set `self.workflow_name` to the string "CellRangerWorkflow".
+        #
+        # Why is this useful?
+        # - It allows the workflow to "know" its own name, which can be used for logging, debugging,
+        #   or dynamically identifying the type of workflow at runtime.
+        # - This approach ensures that the workflow name is always consistent with the class name,
+        #   even if the class is renamed or subclassed in the future.
+        # - It avoids hardcoding the workflow name, making the code more flexible and maintainable.
 
     def load_config(self):
         """
