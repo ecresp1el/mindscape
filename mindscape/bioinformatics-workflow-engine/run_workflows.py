@@ -35,28 +35,17 @@ class WorkflowManager:
                     self.logger.warning(f"Workflow {workflow_name} not found.")
 
     def run_workflows(self):
-        """Run all registered workflows using SLURM."""
+        """Run all registered workflows."""
         for workflow in self.workflows:
             workflow_name = workflow.__class__.__name__
-            self.logger.info(f"Submitting workflow: {workflow_name} to SLURM")
+            self.logger.info(f"Running workflow: {workflow_name}")
 
-            # Define the command to run the workflow with properly escaped quotes for embedding in a SLURM script
-            command = (
-                "python -c \""
-                f"from pipelines.{workflow_name.lower()} import {workflow_name}; "
-                f"{workflow_name}(\\\"{self.config_path}\\\").run()\""
-            )
-
-            # Submit the workflow as a SLURM job
+            # Run the workflow directly
             try:
-                job_id = self.slurm_manager.submit_job(
-                    command=command,
-                    job_name=workflow_name,
-                    pipeline_step="run"
-                )
-                self.logger.info(f"Workflow {workflow_name} submitted as SLURM job {job_id}")
+                workflow.run()
+                self.logger.info(f"Workflow {workflow_name} completed successfully.")
             except RuntimeError as e:
-                self.logger.error(f"Failed to submit workflow {workflow_name}: {e}")
+                self.logger.error(f"Failed to run workflow {workflow_name}: {e}")
 
 if __name__ == "__main__":
     # This line checks if the script is being run directly (as the main program) or being imported as a module.

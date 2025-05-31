@@ -29,3 +29,18 @@ print(f"Project created successfully at: {path_config_file}")
 # across multiple nodes in the cluster.
 
 print("Project creation completed successfully!")
+
+# Run the workflow script using subprocess
+try:
+    subprocess.run(
+        [
+            "python",
+            "mindscape/bioinformatics-workflow-engine/run_workflows.py",
+            "--project_path",
+            str(path_config_file)  # Pass the dynamically determined project path
+        ],
+        check=True
+    )
+    print("Workflows executed successfully!")
+except subprocess.CalledProcessError as e:
+    print(f"Error while running workflows: {e}")
