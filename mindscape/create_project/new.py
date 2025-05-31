@@ -42,14 +42,15 @@ def create_new_project(
     # Debug: Print the project path
     print(f"DEBUG: Project path = {project_path}")
 
-    # Check if the project already exists
+    # Check if the project already exists, if so, do not overwrite it
     if project_path.exists():
         print(f"⚠️ Project '{project_name}' already exists at {project_path}.")
         #if it exists, we will not overwrite it
         warnings.warn(f"Project '{project_name}' already exists. No changes made.")
         return str(project_path)
     else:
-        # Try creating the project directory
+        # Try creating the project directory becaue it does not exist
+        print(f"DEBUG: Project directory does not exist, creating at {project_path}")
         try:
             print(f"DEBUG: Attempting to create project directory at {project_path}")
             project_path.mkdir(parents=True, exist_ok=True)
@@ -70,6 +71,7 @@ def create_new_project(
         cfg["date"] = date
         cfg["project_path"] = str(project_path)
         write_config(config_path, cfg)
+        
 
     print(f"✅ New MindScape project created at: {project_path}")
     return str(project_path)
