@@ -15,7 +15,6 @@ class WorkflowManager:
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
         self.workflows = []
         self.project_path = project_path  # Save the project path
-        self.slurm_manager = SlurmManager(project_path)  # Initialize SlurmManager
 
     def load_config(self):
         """Load the YAML configuration file."""

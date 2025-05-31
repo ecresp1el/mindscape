@@ -4,8 +4,6 @@ import warnings
 from pathlib import Path
 from datetime import datetime as dt
 from mindscape.utils.auxilliaryfunctions import create_config_template, write_config
-from mindscape.create_slurm.slurm_config import collect_slurm_config, save_slurm_config
-
 
 def create_new_project(
     project: str,
@@ -69,14 +67,6 @@ def create_new_project(
         cfg["date"] = date
         cfg["project_path"] = str(project_path)
         write_config(config_path, cfg)
-
-    # Collect SLURM configuration
-    print("DEBUG: Starting SLURM configuration collection...")
-    slurm_config = collect_slurm_config()
-    print("DEBUG: SLURM configuration collected:", slurm_config)
-
-    save_slurm_config(project_path, slurm_config)
-    print("DEBUG: SLURM configuration saved.")
 
     print(f"✅ New MindScape project created at: {project_path}")
     return str(project_path)
