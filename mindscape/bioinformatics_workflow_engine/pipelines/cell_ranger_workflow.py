@@ -19,6 +19,7 @@ class CellRangerWorkflow(BaseWorkflow):
     """
     def __init__(self, config):
         super().__init__(config)
+        self.use_slurm = True  # Use SLURM for job management
 
         # Load the configuration if a path is provided
         if isinstance(config, str) or isinstance(config, Path):
@@ -195,11 +196,51 @@ class CellRangerWorkflow(BaseWorkflow):
 
         print(f"Executing command: {full_command}")
         subprocess.run(full_command, shell=True, check=True)
+        
+    def build_cellranger_command(self):
+        """Build the full shell command for SLURM submission."""
+        module_commands = (
+            "set +u && "
+            "module purge && "
+            "module load Bioinformatics cellranger && "
+            "module load snakemake && "
+            "set -u"
+        )
+
+        config_file = self.project_path / "config" / "cellranger_multi_config.csv"
+        output_dir = self.results_dir
+
+        quoted_config_file = f'"{config_file}"'
+        quoted_output_dir = f'"{output_dir}"'
+
+        cellranger_command = (
+            f"cellranger multi --id={self.output_id} "
+            f"--csv={quoted_config_file} "
+            f"--output-dir={quoted_output_dir}"
+        )
+
+        return f"{module_commands} && {cellranger_command}"
 
     def run(self):
         """Execute the Cell Ranger workflow."""
         print(f"🔬 Starting {self.workflow_name}...")
         self.validate_paths()
         self.prepare_multi_config()
-        self.run_cellranger_multi()
+        
+        #self.run_cellranger_multi()
+
+
+        command = self.build_cellranger_command()
+        
+        job_id = self.submit_job(
+            command=command,
+            job_name=f"cellranger_{self.output_id}",
+            dry_run=False  # ✅ Generates .slurm only
+        )
+        
+        if job_id:
+            print(f"✅ SLURM job submitted for {self.workflow_name} (Job ID: {job_id})")
+        else:
+            print(f"✅ Job for {self.workflow_name} was run locally or as a dry run.")
+        
         print(f"✅ {self.workflow_name} completed successfully!")

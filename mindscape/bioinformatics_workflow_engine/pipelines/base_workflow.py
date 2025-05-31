@@ -5,6 +5,9 @@ import logging
 from pathlib import Path
 import yaml
 
+from mindscape.bioinformatics_workflow_engine.utils.slurm_job import SLURMJob
+import subprocess
+
 class BaseWorkflow:
     """
     BaseWorkflow: A Foundation for All Workflows
@@ -164,3 +167,22 @@ class BaseWorkflow:
             NotImplementedError: If a subclass does not implement this method.
         """
         raise NotImplementedError("Subclasses must implement the run method.")
+    
+    def submit_job(self, command: str, job_name: str, dry_run: bool = True):
+        """
+        Submit a command either via SLURM or locally, based on self.use_slurm and dry_run.
+        """
+        if getattr(self, "use_slurm", False):
+            print(f"[Dry Run] Generating SLURM job: {job_name}")
+            job = SLURMJob(
+                job_name=job_name,
+                command=command,
+                project_path=self.project_path,
+                dry_run=dry_run
+            )
+            return job.generate_script() if dry_run else job.submit()
+        else:
+            print(f"[Dry Run] Would run locally: {command}")
+            if not dry_run:
+                subprocess.run(command, shell=True, check=True)
+            return None

@@ -35,7 +35,7 @@ try:
     subprocess.run(
         [
             "python",
-            "mindscape/bioinformatics-workflow-engine/run_workflows.py",
+            "mindscape/bioinformatics_workflow_engine/run_workflows.py",
             "--project_path",
             str(path_config_file)  # Pass the dynamically determined project path
         ],
