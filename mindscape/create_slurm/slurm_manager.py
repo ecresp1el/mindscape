@@ -48,11 +48,29 @@ class SlurmManager:
         self.load_slurm_config()
         print(f"✅ [DEBUG] SLURM configuration loaded: {self.slurm_config}")
 
-        # Minimal module initialization and environment setup
         setup_env = """
-        source /etc/profile.d/modules.sh
+        # ------------------------------------------------------------------------------
+        # Environment and software setup
+        # ------------------------------------------------------------------------------
+
+        # Initialize Conda (needed to use 'conda activate')
+        source ~/.bashrc
+
+        # Load required UMich modules first (do not override Conda Python later)
         module purge
         module load Bioinformatics cellranger
+
+        # Activate your fully configured MindScape Conda environment
+        conda activate mindscape-env
+
+        # Ensure Python can find the MindScape package
+        export PYTHONPATH=/home/elcrespo/Desktop/githubprojects/MindScape
+
+        # Sanity checks
+        echo "✅ Python path: $(which python)"
+        python --version
+        echo "✅ Cell Ranger path: $(which cellranger)"
+        cellranger --version
         """
 
         print("🔍 [DEBUG] Preparing full command for SLURM...")
