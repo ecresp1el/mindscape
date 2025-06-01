@@ -1,6 +1,7 @@
 # utils/slurm_job.py
 from pathlib import Path
 import uuid
+import re
 
 class SLURMJob:
     def __init__(
@@ -24,6 +25,8 @@ class SLURMJob:
         self.account = account
         self.email = email
         self.dry_run = dry_run
+
+        self.time = self._validate_time_format(self.time)
 
         self.slurm_dir = self.project_path / "logs" / "slurm_scripts"
         self.log_dir = self.project_path / "logs" / "slurm_logs"
@@ -79,3 +82,15 @@ set -e
         job_id = result.stdout.strip().split()[-1]
         print(f"✅ SLURM job submitted: {self.job_name} (Job ID: {job_id})")
         return job_id
+
+    def _validate_time_format(self, time_str):
+        """
+        Validates and auto-corrects SLURM time format.
+        Accepts formats like 'HH:MM:SS' or integers in hours (e.g., '12').
+        """
+        if re.fullmatch(r"\d{1,2}:\d{2}:\d{2}", time_str):
+            return time_str
+        elif time_str.isdigit():
+            return f"{time_str.zfill(2)}:00:00"
+        else:
+            raise ValueError(f"Invalid SLURM time format: {time_str}. Use 'HH:MM:SS' or an integer representing hours.")
