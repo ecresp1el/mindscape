@@ -66,6 +66,13 @@ class BaseWorkflow:
         # - This approach ensures that the workflow name is always consistent with the class name,
         #   even if the class is renamed or subclassed in the future.
         # - It avoids hardcoding the workflow name, making the code more flexible and maintainable.
+        
+        # SLRUM resources configuration, pulls cpu, memory, and time from the config file
+        # defaults are set if not specified in the config file 
+        slurm_cfg = self.config.get("slurm", {}) # Default to an empty dictionary if 'slurm' is not defined
+        self.slurm_cpus = slurm_cfg.get("cpus", 8) # Default to 8 CPUs if not specified
+        self.slurm_mem = slurm_cfg.get("mem", "32G") # Default to 32G memory if not specified
+        self.slurm_time = slurm_cfg.get("time", "08:00:00") # Default to 8 hours if not specified
 
     def load_config(self):
         """
@@ -173,7 +180,9 @@ class BaseWorkflow:
         Submit a command either via SLURM or locally, based on self.use_slurm and dry_run.
         """
         if getattr(self, "use_slurm", False):
+            
             email = self.config.get("email", "elcrespo@umich.edu") # Default email if not specified
+            
             print(f"[Dry Run] Generating SLURM job: {job_name} with the user email {email}")
             # Create a SLURM job instance
             job = SLURMJob(
@@ -181,7 +190,10 @@ class BaseWorkflow:
                 command=command,
                 email=email,
                 project_path=self.project_path,
-                dry_run=dry_run
+                dry_run=dry_run, 
+                cpus=self.slurm_cpus,
+                mem=self.slurm_mem, #i.e. 64G so remember to use the string format within 
+                time=self.slurm_time
             )
             return job.generate_script() if dry_run else job.submit()
         else:

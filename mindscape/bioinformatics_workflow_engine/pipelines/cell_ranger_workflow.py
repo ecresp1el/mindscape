@@ -212,11 +212,18 @@ class CellRangerWorkflow(BaseWorkflow):
 
         quoted_config_file = f'"{config_file}"'
         quoted_output_dir = f'"{output_dir}"'
-
+        
+        #parse memory string (e.g 64G) to integer GB
+        mem_value = int(str(self.slurm_mem).replace("G", "").replace("g", "").replace(" ", "")) 
+        
+        # Build the Cell Ranger command
+        # note that the spaces are critical here, as they are used to separate the parameters in the command
         cellranger_command = (
             f"cellranger multi --id={self.output_id} "
             f"--csv={quoted_config_file} "
-            f"--output-dir={quoted_output_dir}"
+            f"--output-dir={quoted_output_dir} "
+            f"--localcores={self.slurm_cpus} "
+            f"--localmem={mem_value} "
         )
 
         return f"{module_commands} && {cellranger_command}"
@@ -235,7 +242,7 @@ class CellRangerWorkflow(BaseWorkflow):
         job_id = self.submit_job(
             command=command,
             job_name=f"cellranger_{self.output_id}",
-            dry_run=False  # ✅ Generates .slurm only
+            dry_run=True  # Generates .slurm only if dry_run is True, if False, it submits the job directly
         )
         
         if job_id:
