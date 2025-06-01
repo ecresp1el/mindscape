@@ -1,7 +1,7 @@
 """This script demonstrates how to create a new MindScape project and run bioinformatics workflows.
 
 Usage:
-    python testscript_cli.py
+    python testscript_cli.py [--project_name PROJECT_NAME] [--experimenter_name EXPERIMENTER_NAME]
 
 Description:
     - Creates a new project directory structure in a specified shared directory.
@@ -10,6 +10,9 @@ Description:
 
 Customization:
     - Modify 'project_name' and 'experimenter_name' to reflect your project details.
+      You can also specify these as command line arguments:
+        --project_name PROJECT_NAME
+        --experimenter_name EXPERIMENTER_NAME
     - Set 'turbo_shared_directory' to the path where you want the project directory to be created.
     - Ensure that the MindScape module is installed and accessible in your Python environment.
 
@@ -19,12 +22,34 @@ Alternate CLI usage:
     --email EMAIL_ADDRESS
         Specify an email address to receive notifications about the workflow status.
         This can be passed as a command line argument or set as an environment variable:
-            export MIND_EMAIL=your_email@example.com
+            export MINDSCAPE_EMAIL=your_email@example.com
 
-    --dry_run
+    --mindscape_dry_run
         Perform a dry run of the workflows without executing them.
         This flag can be passed directly via the CLI or set as an environment variable:
-            export MIND_DRY_RUN=1
+            export MINDSCAPE_DRY_RUN=1
+
+## 🧪 Example CLI Usage
+
+Run the script with default project and experimenter names:
+    python testscript_cli.py
+
+Specify a custom project name and experimenter name:
+    python testscript_cli.py --project_name MyProject --experimenter_name Alice
+
+Include an email address for notifications:
+    python testscript_cli.py --email alice@umich.edu
+
+Perform a dry run without executing workflows:
+    python testscript_cli.py --mindscape_dry_run
+
+Combine all options:
+    python testscript_cli.py --project_name MyProject --experimenter_name Alice --email alice@umich.edu --mindscape_dry_run
+
+Set environment variables instead of passing arguments:
+    export MINDSCAPE_EMAIL=alice@umich.edu
+    export MINDSCAPE_DRY_RUN=1
+    python testscript_cli.py --project_name MyProject --experimenter_name Alice
 """
 
 import os, subprocess, sys
@@ -38,15 +63,17 @@ import mindscape as ms # Importing the main MindScape module
 print("Imported MindScape!")
 
 parser = argparse.ArgumentParser(description="Create a MindScape project and run workflows.")
-parser.add_argument("--email", type=str, default=os.getenv("MIND_EMAIL"), help="Email address for notifications")
-parser.add_argument("--dry_run", action="store_true", default=bool(int(os.getenv("MIND_DRY_RUN", "0"))), help="Perform a dry run without executing workflows")
+parser.add_argument("--email", type=str, default=os.getenv("MINDSCAPE_EMAIL"), help="Email address for notifications")
+parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int(os.getenv("MINDSCAPE_DRY_RUN", "0"))), help="Perform a dry run without executing workflows")
+parser.add_argument("--project_name", type=str, default="TestProject", help="Name of the project")
+parser.add_argument("--experimenter_name", type=str, default="TestUser", help="Name of the experimenter")
 args = parser.parse_args()
 
-print("Creating a new project...")
+print("Creating a new Mindscape project...")
 
-# Define project and experimenter names
-project_name = "TestProject"
-experimenter_name = "TestUser"
+# Define project and experimenter names from CLI arguments
+project_name = args.project_name
+experimenter_name = args.experimenter_name
 
 # Define the directory where the project will be created (shared NFS directory)
 turbo_shared_directory = "/nfs/turbo/umms-parent/"
@@ -71,8 +98,8 @@ print(f"Project created successfully at: {path_config_file}")
 
 print("Project creation completed successfully!")
 
-# If dry_run is set, update the config file's dry_run field before running the workflow
-if args.dry_run:
+# If mindscape_dry_run is set, update the config file's dry_run field before running the workflow
+if args.mindscape_dry_run:
     try:
         with open(path_config_file, "r") as f:
             config_data = json.load(f)
