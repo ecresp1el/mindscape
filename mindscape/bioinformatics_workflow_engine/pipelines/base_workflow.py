@@ -69,10 +69,18 @@ class BaseWorkflow:
         
         # SLRUM resources configuration, pulls cpu, memory, and time from the config file
         # defaults are set if not specified in the config file 
-        slurm_cfg = self.config.get("slurm", {}) # Default to an empty dictionary if 'slurm' is not defined
-        self.slurm_cpus = slurm_cfg.get("cpus", 8) # Default to 8 CPUs if not specified
-        self.slurm_mem = slurm_cfg.get("mem", "32G") # Default to 32G memory if not specified
-        self.slurm_time = slurm_cfg.get("time", "08:00:00") # Default to 8 hours if not specified
+        slurm_cfg = self.config.get("slurm", {})
+        self.slurm_cpus = int(slurm_cfg.get("cpus", 8)) #ensure cpus is an integer
+        self.slurm_mem = str(slurm_cfg.get("mem", "32G")) # ensure memory is a string
+        print(f"DEBUG: Parsed SLURM resources: {self.slurm_cpus} CPUs, {self.slurm_mem} memory (type: {type(self.slurm_mem)})")
+        
+        raw_time = slurm_cfg.get("time", "08:00:00") # Default time if not specified
+        if isinstance(raw_time, int):
+            self.slurm_time = f"{str(raw_time).zfill(2)}:00:00" # Ensure time is in HH:MM:SS format
+        else:
+            self.slurm_time = str(raw_time) 
+
+        print(f"DEBUG: Parsed SLURM time: {self.slurm_time} (type: {type(self.slurm_time)})")
 
     def load_config(self):
         """
