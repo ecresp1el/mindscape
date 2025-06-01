@@ -30,7 +30,7 @@ email: {email}
 slurm:
   cpus: "8"
   mem: "64G"
-  time: '"12:00:00"'
+  time: "12:00:00"
 
 parameters:
   analysis_type: default
