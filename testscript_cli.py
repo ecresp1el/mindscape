@@ -100,15 +100,22 @@ print("Project creation completed successfully!")
 
 # If mindscape_dry_run is set, update the config file's dry_run field before running the workflow
 if args.mindscape_dry_run:
-    try:
-        with open(path_config_file, "r") as f:
-            config_data = json.load(f)
-        config_data["dry_run"] = True
-        with open(path_config_file, "w") as f:
-            json.dump(config_data, f, indent=4)
-        print("Updated configuration file for dry run.")
-    except Exception as e:
-        print(f"Failed to update config file for dry run: {e}")
+    if not os.path.isfile(path_config_file):
+        print(f"Error: Configuration file '{path_config_file}' does not exist. Cannot perform dry run update.")
+    else:
+        try:
+            with open(path_config_file, "r") as f:
+                config_data = json.load(f)
+        except Exception as read_err:
+            print(f"Error reading configuration file '{path_config_file}': {read_err}")
+        else:
+            config_data["dry_run"] = True
+            try:
+                with open(path_config_file, "w") as f:
+                    json.dump(config_data, f, indent=4)
+                print("Dry run enabled: updated configuration file successfully.")
+            except Exception as write_err:
+                print(f"Error writing to configuration file '{path_config_file}': {write_err}")
 
 # Run the workflow script using subprocess to process the created project
 try:
