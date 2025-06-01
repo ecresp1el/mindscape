@@ -11,10 +11,10 @@ from utils.config_merger import merge_configs
 class WorkflowManager:
     def __init__(self, config_path, project_path):
         self.config_path = config_path  # Save the path to the configuration file
+        self.project_path = project_path  # Save the project path
         self.config = self.load_config()
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
         self.workflows = []
-        self.project_path = project_path  # Save the project path
 
     def load_config(self):
         """Load the YAML configuration file."""

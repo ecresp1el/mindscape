@@ -6,31 +6,38 @@ from pathlib import Path
 from ruamel.yaml import YAML
 import yaml
 
+def create_config_template(project_path: str, project_name: str, experimenter: str, date: str):
+    """
+    Creates a complete and usable config.yaml with default values (SLURM disabled).
+    """
+    yaml_str = f"""\
+project_name: {project_name}
+experimenter: {experimenter}
+date: {date}
 
-def create_config_template():
-    """
-    Creates a template for the config.yaml file.
-    """
-    yaml_str = """\
-# Project definitions (do not edit)
-project_name:
-experimenter:
-date:
-\n
-# Project path (change when moving around)
-project_path:
-\n
-# Data and results directories
+project_path: {project_path}
+
 data_dir: data
 results_dir: results
 logs_dir: logs
-\n
-# Analysis parameters
+
+use_slurm: false
+dry_run: false
+force_rerun: false
+
 parameters:
   analysis_type: default
   threshold: 0.5
   max_iterations: 1000
-    """
+
+workflows:
+  - name: CellRangerWorkflow
+    enabled: true
+  - name: QCWorkflow
+    enabled: true
+  - name: VentralWorkflow
+    enabled: false
+"""
     ruamelFile = YAML()
     cfg_file = ruamelFile.load(yaml_str)
     return cfg_file, ruamelFile
