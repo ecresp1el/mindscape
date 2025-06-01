@@ -70,7 +70,7 @@ def main():
     filename = to_snake_case(class_name) + ".py"
 
     # Paths
-    project_root = Path(__file__).resolve().parent.parent
+    project_root = Path(__file__).resolve().parents[2]
     target_dir = project_root / "mindscape" / "bioinformatics_workflow_engine" / "pipelines"
     target_path = target_dir / filename
 
