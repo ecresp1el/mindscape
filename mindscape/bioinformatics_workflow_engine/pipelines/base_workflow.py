@@ -74,11 +74,14 @@ class BaseWorkflow:
         self.slurm_mem = str(slurm_cfg.get("mem", "32G")) # ensure memory is a string
         print(f"DEBUG: Parsed SLURM resources: {self.slurm_cpus} CPUs, {self.slurm_mem} memory (type: {type(self.slurm_mem)})")
         
-        raw_time = slurm_cfg.get("time", "08:00:00") # Default time if not specified
+        raw_time = slurm_cfg.get("time", "08:00:00")
+        print(f"DEBUG: Raw SLURM time: {raw_time} (type: {type(raw_time)})")
         if isinstance(raw_time, int):
-            self.slurm_time = f"{str(raw_time).zfill(2)}:00:00" # Ensure time is in HH:MM:SS format
+            self.slurm_time = f"{str(raw_time).zfill(2)}:00:00"
+        elif isinstance(raw_time, str) and raw_time.isdigit():
+            self.slurm_time = f"{raw_time.zfill(2)}:00:00"
         else:
-            self.slurm_time = str(raw_time) 
+            self.slurm_time = raw_time
 
         print(f"DEBUG: Parsed SLURM time: {self.slurm_time} (type: {type(self.slurm_time)})")
 
