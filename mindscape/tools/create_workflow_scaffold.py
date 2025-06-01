@@ -49,7 +49,7 @@ class {class_name}(BaseWorkflow):
         Execute the {class_name} workflow.
         """
         if not self.config.get("force_rerun", False) and self.is_already_completed():
-            print(f"✅ Skipping {self.workflow_name}; already completed.")
+            print(f"✅ Skipping {{self.workflow_name}}; already completed.")
             return
 
         self.log_start()
