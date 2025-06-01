@@ -16,19 +16,12 @@ class BaseWorkflow:
     It provides common functionality that all workflows can use, such as loading configuration files, setting up
     project paths, and logging the start and end of a workflow.
 
-    Think of this class as a template. Other workflows (like CellRangerWorkflow or QCWorkflow) will "inherit" from
-    this class, meaning they will reuse the functionality provided here while adding their own specific behavior.
-
-    Key Features:
-    - **Configuration Management**: Automatically loads a configuration file (YAML format) for the workflow.
-    - **Path Setup**: Ensures that required directories for the workflow exist.
-    - **Logging**: Provides simple methods to log when a workflow starts and ends.
-    - **Extensibility**: Requires subclasses to define their own `run` method, which contains the specific steps
-      for that workflow.
-
-    Why Use This Class?
-    - It avoids repeating the same code in every workflow.
-    - It ensures all workflows follow the same structure, making the system easier to maintain and extend.
+    Workflow Completion Tracking:
+    - Workflows that complete successfully mark themselves using a `.completed` file located in:
+        <project_path>/logs/<workflow_name>.completed
+    - When `run_workflows.py` is executed, it uses `is_already_completed()` to skip rerunning steps
+      that have already finished.
+    - If you need to force re-run, delete the `.completed` file manually or implement a `force_rerun` flag check.
 
     Example:
         class MyWorkflow(BaseWorkflow):
@@ -149,18 +142,35 @@ class BaseWorkflow:
         """
         print(f"Starting workflow: {self.workflow_name}")
 
+    def get_completion_marker_path(self) -> Path:
+        """
+        Return the path to the marker file used to indicate this workflow is completed.
+        """
+        # The marker file is stored under <project_path>/logs/<workflow_name>.completed
+        return self.project_path / "logs" / f"{self.workflow_name}.completed"
+
+    def is_already_completed(self) -> bool:
+        """
+        Check whether this workflow has already been completed by looking for a .completed marker file.
+        """
+        # Use the completion marker path to check if the workflow has been completed before
+        return self.get_completion_marker_path().exists()
+
+    def mark_completed(self):
+        """
+        Mark this workflow as completed by writing a .completed file.
+        """
+        # Write a marker file to indicate successful completion of the workflow
+        marker = self.get_completion_marker_path()
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text("COMPLETED\n")
+
     def log_end(self):
         """
-        Log the end of the workflow.
-
-        This method prints a message to indicate that the workflow has completed. It is useful for tracking
-        the progress of workflows, especially when running multiple workflows in a pipeline.
-
-        Example Output:
-            If the workflow is named "QCWorkflow", this method will print:
-            "Completed workflow: QCWorkflow"
+        Log the end of the workflow and mark it as completed.
         """
         print(f"Completed workflow: {self.workflow_name}")
+        self.mark_completed()
 
     def run(self):
         """

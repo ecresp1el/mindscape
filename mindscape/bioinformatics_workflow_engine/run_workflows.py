@@ -1,3 +1,5 @@
+import os
+import re
 from pathlib import Path
 import argparse
 import yaml  # Ensure YAML is imported
@@ -7,11 +9,16 @@ from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
 from utils.logger import setup_logger
 
+
 class WorkflowManager:
     def __init__(self, config_path, project_path):
         self.config_path = config_path  # Save the path to the configuration file
         self.project_path = project_path  # Save the project path
         self.config = self.load_config()
+        # Warn about workflows that exist as files but aren't declared in config.yaml
+        pipeline_dir = Path(__file__).parent / "pipelines"
+        configured_names = {wf["name"] for wf in self.config.get("workflows", [])}
+        warn_if_missing_from_config(pipeline_dir, configured_names)
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
         self.workflows = []
 
@@ -28,23 +35,41 @@ class WorkflowManager:
             if workflow.get("enabled", False):
                 workflow_class = globals().get(workflow_name)
                 if workflow_class:
-                    # Pass the path to the configuration file instead of the loaded dictionary
+                    # Check if the workflow has overridden the BaseWorkflow.run() method
+                    # This prevents registration of placeholder or scaffolded workflows
+                    #
+                    # Explanation:
+                    # - If a workflow class does not implement its own .run() method, it inherits BaseWorkflow.run.
+                    # - Registering such a workflow is likely a mistake (scaffolded but not implemented).
+                    # - This check skips registration and warns the developer.
+                    if workflow_class.run == BaseWorkflow.run:
+                        print(f"⚠️ Skipping '{workflow_name}': .run() is not implemented.")
+                        continue
                     self.workflows.append(workflow_class(config=self.config_path))
                 else:
                     self.logger.warning(f"Workflow {workflow_name} not found.")
 
     def run_workflows(self):
-        """Run all registered workflows."""
+        """Run all registered workflows with per-step completion checks."""
+        force_rerun = self.config.get("force_rerun", False)
+
         for workflow in self.workflows:
             workflow_name = workflow.__class__.__name__
             self.logger.info(f"Running workflow: {workflow_name}")
 
-            # Run the workflow directly
+            # Only apply per-workflow skipping if force_rerun is False
+            if not force_rerun:
+                if hasattr(workflow, "is_already_completed") and workflow.is_already_completed():
+                    self.logger.info(f"✅ Skipping {workflow_name}: already completed.")
+                    continue
+
             try:
                 workflow.run()
-                self.logger.info(f"Workflow {workflow_name} completed successfully.")
+                if hasattr(workflow, "mark_completed"):
+                    workflow.mark_completed()
+                self.logger.info(f"✅ Workflow {workflow_name} completed successfully.")
             except RuntimeError as e:
-                self.logger.error(f"Failed to run workflow {workflow_name}: {e}")
+                self.logger.error(f"❌ Failed to run workflow {workflow_name}: {e}")
 
 if __name__ == "__main__":
     # This line checks if the script is being run directly (as the main program) or being imported as a module.
@@ -90,3 +115,24 @@ if __name__ == "__main__":
     workflow_manager = WorkflowManager(config_path=project_config_path, project_path=args.project_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
+
+def warn_if_missing_from_config(pipelines_dir: Path, config_workflow_names: set):
+    """
+    Warns if any Python workflow file in the pipelines directory is not listed in config.yaml.
+    This helps developers detect unregistered workflows that won't be executed.
+
+    Parameters
+    ----------
+    pipelines_dir : Path
+        The directory containing all pipeline Python files.
+
+    config_workflow_names : set
+        Set of workflow class names (e.g., {'CellRangerWorkflow', 'QCWorkflow'}) declared in config.yaml.
+    """
+
+    for file in os.listdir(pipelines_dir):
+        match = re.match(r"(.+)_workflow\.py", file)
+        if match:
+            class_name = match.group(1).title().replace("_", "") + "Workflow"
+            if class_name not in config_workflow_names:
+                print(f"⚠️ Workflow class '{class_name}' exists but is not listed in config.yaml.")
