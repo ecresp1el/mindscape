@@ -9,13 +9,12 @@ class VentralWorkflow(BaseWorkflow):
     def __init__(self, config):
         super().__init__(config)
         self.workflow_name = "VentralWorkflow"
+        self.setup_paths()
 
     def run(self):
         """
         Execute the Ventral workflow.
         """
-        self.setup_paths()
-
         if not self.config.get("force_rerun", False) and self.is_already_completed():
             print(f"✅ Skipping {self.workflow_name}; already completed.")
             return

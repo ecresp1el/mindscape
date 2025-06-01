@@ -8,15 +8,14 @@ class QCWorkflow(BaseWorkflow):
 
     def __init__(self, config):
         super().__init__(config)
-        self.workflow_name = "QualityControlWorkflow"
+        self.workflow_name = "QCWorkflow"
+        self.setup_paths()
 
     def run(self):
         """
         Execute the Quality Control workflow.
         This method will implement the specific steps for QC.
         """
-        self.setup_paths()
-
         if not self.config.get("force_rerun", False) and self.is_already_completed():
             print(f"✅ Skipping {self.workflow_name}; already completed.")
             return
