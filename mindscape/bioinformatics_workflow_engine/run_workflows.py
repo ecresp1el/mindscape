@@ -8,6 +8,7 @@ from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
 from utils.logger import setup_logger
+from utils.validation import warn_if_missing_from_config
 
 
 class WorkflowManager:
@@ -115,24 +116,3 @@ if __name__ == "__main__":
     workflow_manager = WorkflowManager(config_path=project_config_path, project_path=args.project_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
-
-def warn_if_missing_from_config(pipelines_dir: Path, config_workflow_names: set):
-    """
-    Warns if any Python workflow file in the pipelines directory is not listed in config.yaml.
-    This helps developers detect unregistered workflows that won't be executed.
-
-    Parameters
-    ----------
-    pipelines_dir : Path
-        The directory containing all pipeline Python files.
-
-    config_workflow_names : set
-        Set of workflow class names (e.g., {'CellRangerWorkflow', 'QCWorkflow'}) declared in config.yaml.
-    """
-
-    for file in os.listdir(pipelines_dir):
-        match = re.match(r"(.+)_workflow\.py", file)
-        if match:
-            class_name = match.group(1).title().replace("_", "") + "Workflow"
-            if class_name not in config_workflow_names:
-                print(f"⚠️ Workflow class '{class_name}' exists but is not listed in config.yaml.")
