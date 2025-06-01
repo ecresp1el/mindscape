@@ -8,16 +8,23 @@ class VentralWorkflow(BaseWorkflow):
 
     def __init__(self, config):
         super().__init__(config)
+        self.workflow_name = "Ventral Workflow"
 
     def run(self):
         """
         Execute the Ventral workflow.
         """
-        self.log_start()
         self.setup_paths()
+
+        if not self.config.get("force_rerun", False) and self.is_already_completed():
+            print(f"✅ Skipping {self.workflow_name}; already completed.")
+            return
+
+        self.log_start()
 
         # Add workflow steps here
         # Example: self.step_one()
         # Example: self.step_two()
 
         self.log_end()
+        self.mark_completed()

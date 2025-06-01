@@ -8,7 +8,7 @@ class QCWorkflow(BaseWorkflow):
 
     def __init__(self, config):
         super().__init__(config)
-        self.workflow_name = "Quality Control Workflow"
+        self.workflow_name = "QualityControlWorkflow"
 
     def run(self):
         """
