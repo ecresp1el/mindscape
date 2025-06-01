@@ -46,6 +46,7 @@ workflows:
     enabled: false
 """
     ruamelFile = YAML()
+    ruamelFile.preserve_quotes = True
     cfg_file = ruamelFile.load(yaml_str)
     return cfg_file, ruamelFile
 
@@ -95,6 +96,7 @@ def write_config(configname: str | Path, cfg: dict):
         Fully formed configuration data to write.
     """
     yaml = YAML()
+    yaml.preserve_quotes = True
     with open(configname, "w") as f:
         yaml.dump(cfg, f)
 
