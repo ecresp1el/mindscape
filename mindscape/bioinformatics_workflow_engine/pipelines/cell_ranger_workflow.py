@@ -233,16 +233,13 @@ class CellRangerWorkflow(BaseWorkflow):
         print(f"🔬 Starting {self.workflow_name}...")
         self.validate_paths()
         self.prepare_multi_config()
-        
-        #self.run_cellranger_multi()
-
-
         command = self.build_cellranger_command()
-        
+        dry_run = self.config.get("dry_run", True)
+
         job_id = self.submit_job(
             command=command,
             job_name=f"cellranger_{self.output_id}",
-            dry_run=True  # Generates .slurm only if dry_run is True, if False, it submits the job directly
+            dry_run=dry_run #driven by the config.yaml file or CLI user input via MINDSCAPE_DRY_RUN environment variable
         )
         
         if job_id:

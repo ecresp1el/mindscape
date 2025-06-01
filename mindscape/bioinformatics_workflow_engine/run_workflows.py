@@ -6,7 +6,6 @@ from pipelines.cell_ranger_workflow import CellRangerWorkflow
 from pipelines.ventral_workflow import VentralWorkflow
 from pipelines.qc_workflow import QCWorkflow
 from utils.logger import setup_logger
-from utils.config_merger import merge_configs
 
 class WorkflowManager:
     def __init__(self, config_path, project_path):
@@ -72,34 +71,22 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Determine which configuration files to use
-    if args.project_path:
-        # If the user provides a `--project_path` argument, use it to locate the project-specific configuration file.
-        project_path = Path(args.project_path)
-        project_config_path = project_path / "config/config.yaml"
-        if not project_config_path.exists():
-            # Raise an error if the project-specific configuration file does not exist.
-            raise FileNotFoundError(f"Configuration file not found at {project_config_path}")
-        log_dir = project_path / "logs"  # Use the logs directory in the project path
-    else:
-        # If no `--project_path` is provided, fall back to default behavior.
-        project_config_path = None
-        log_dir = None  # Default to the current behavior
+    parser = argparse.ArgumentParser(description="Run Bioinformatics Workflows")
+    parser.add_argument(
+        "--project_path",
+        type=str,
+        required=True,
+        help="Path to the project directory created by create_project",
+    )
+    args = parser.parse_args()
 
-    # Define the path to the default configuration file
-    default_config_path = Path(__file__).parent / "config/default_config.yaml"
+    project_path = Path(args.project_path)
+    project_config_path = project_path / "config/config.yaml"
+    if not project_config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {project_config_path}")
+    log_dir = project_path / "logs"
 
-    # Generate the merged configuration file
-    if project_config_path:
-        # If a project-specific configuration file exists, merge it with the default configuration.
-        merged_config_path = merge_configs(default_config_path, project_config_path)
-        print(f"Merged configuration saved to: {merged_config_path}")
-    else:
-        # If no project-specific configuration file exists, use the default configuration.
-        merged_config_path = default_config_path
-
-    # Initialize the WorkflowManager and run workflows
     logger = setup_logger("workflow_manager", "workflow_manager.log", log_dir=log_dir)
-    workflow_manager = WorkflowManager(config_path=merged_config_path, project_path=args.project_path)
+    workflow_manager = WorkflowManager(config_path=project_config_path, project_path=args.project_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
