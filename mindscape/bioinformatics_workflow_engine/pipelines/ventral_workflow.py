@@ -8,7 +8,7 @@ class VentralWorkflow(BaseWorkflow):
 
     def __init__(self, config):
         super().__init__(config)
-        self.workflow_name = "Ventral Workflow"
+        self.workflow_name = "VentralWorkflow"
 
     def run(self):
         """
