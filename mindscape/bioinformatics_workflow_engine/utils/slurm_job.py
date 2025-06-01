@@ -25,9 +25,7 @@ class SLURMJob:
         self.account = account
         self.email = email
         self.dry_run = dry_run
-
-        self.time = self._validate_time_format(self.time)
-
+        self.time = self._validate_time_format(str(self.time))
         self.slurm_dir = self.project_path / "logs" / "slurm_scripts"
         self.log_dir = self.project_path / "logs" / "slurm_logs"
         self.script_path = self.slurm_dir / f"{job_name}_{uuid.uuid4().hex[:6]}.slurm" # Unique script name to avoid collisions
