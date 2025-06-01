@@ -19,6 +19,15 @@ class CellRangerWorkflow(BaseWorkflow):
     """
     def __init__(self, config):
         super().__init__(config)
+        self.workflow_name = "CellRangerWorkflow"
+        self.setup_paths()
+
+        if not self.config.get("force_rerun", False) and self.is_already_completed():
+            print(f"✅ Skipping {self.workflow_name}; already completed.")
+            self._skip_execution = True
+        else:
+            self._skip_execution = False
+
         self.use_slurm = True  # Use SLURM for job management
 
         # Load the configuration if a path is provided
@@ -171,6 +180,8 @@ class CellRangerWorkflow(BaseWorkflow):
 
     def run(self):
         """Execute the Cell Ranger workflow."""
+        if self._skip_execution:
+            return
         print(f"🔬 Starting {self.workflow_name}...")
         self.validate_paths()
         self.prepare_multi_config()
@@ -189,3 +200,4 @@ class CellRangerWorkflow(BaseWorkflow):
             print(f"✅ Job for {self.workflow_name} was run locally or as a dry run.")
         
         print(f"✅ {self.workflow_name} completed successfully!")
+        self.mark_completed()
