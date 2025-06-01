@@ -125,7 +125,9 @@ class BaseWorkflow:
         - It prevents errors caused by missing directories.
         - It ensures all workflows follow the same directory structure.
         """
-        self.project_path = Path(self.config.get('project_path', '/tmp/default_project'))
+        if "project_path" not in self.config:
+            raise KeyError("❌ 'project_path' is missing from the configuration file.")
+        self.project_path = Path(self.config["project_path"])
         if not self.project_path.exists():
             self.project_path.mkdir(parents=True, exist_ok=True)
 
