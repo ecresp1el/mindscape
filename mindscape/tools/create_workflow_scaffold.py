@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# NOTE: This script is located in tools/create_workflow_scaffold.py and is intended for developer use.
 """
 🛠 MindScape Workflow Scaffold Generator
 
@@ -7,7 +8,7 @@ using the MindScape modular workflow framework. It creates a new class that
 inherits from `BaseWorkflow` and sets up boilerplate for configuration,
 logging, and execution.
 
-Usage:
+Usage (from project root):
     python tools/create_workflow_scaffold.py --name MyNewWorkflow
 
 Options:
@@ -86,6 +87,8 @@ def main():
     print(" - Implement your workflow logic inside the class")
     print(" - Add the workflow to your config.yaml under 'workflows'")
     print(" - Commit the new file to GitHub")
+    print(" - This developer tool lives in: tools/create_workflow_scaffold.py")
+    print(" - Run this script from the root of the MindScape repo")
 
 if __name__ == "__main__":
     main()
