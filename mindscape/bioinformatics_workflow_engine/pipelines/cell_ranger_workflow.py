@@ -137,65 +137,6 @@ class CellRangerWorkflow(BaseWorkflow):
         print("Patched multi_config.csv:")
         with open(config_dest, "r") as file:
             print(file.read())
-
-    def run_cellranger_multi(self):
-        """
-        Runs the Cell Ranger 'multi' command with required environment modules loaded.
-
-        This method performs the following steps:
-        1. Loads necessary modules (Bioinformatics, cellranger, snakemake) using the environment's module system.
-        2. Ensures the logs directory exists.
-        3. Deletes the output directory if it already exists to avoid conflicts.
-        4. Verifies the presence of the Cell Ranger multi configuration CSV file.
-        5. Constructs and executes the Cell Ranger 'multi' command with the specified configuration and output directory.
-
-        Raises:
-            FileNotFoundError: If the Cell Ranger multi configuration CSV file does not exist.
-            subprocess.CalledProcessError: If the command execution fails.
-        """
-        """Run the Cell Ranger multi command with module loading."""
-        print("🚀 Running Cell Ranger multi with module loading...")
-
-        # Define the module commands
-        module_commands = (
-            "set +u && "
-            "module purge && "
-            "module load Bioinformatics cellranger && "
-            "module load snakemake && "
-            "set -u"
-        )
-
-        # Define the Cell Ranger command
-        output_dir = self.results_dir
-        config_file = self.project_path / "config" / "cellranger_multi_config.csv"
-
-        # Ensure the logs directory exists
-        self.logs_dir.mkdir(parents=True, exist_ok=True)
-
-        # Delete the output directory if it exists
-        if output_dir.exists():
-            print(f"⚠️ Output directory {output_dir} already exists. Deleting it to avoid conflicts.")
-            shutil.rmtree(output_dir)
-
-        # Verify the multi_config.csv file exists
-        if not Path(config_file).exists():
-            raise FileNotFoundError(f"multi_config.csv not found at {config_file}")
-
-        # Properly quote the path to handle spaces
-        quoted_config_file = f'"{config_file}"'
-        quoted_output_dir = f'"{output_dir}"'
-
-        cellranger_command = (
-            f"cellranger multi --id={self.output_id} "
-            f"--csv={quoted_config_file} "
-            f"--output-dir={quoted_output_dir}"
-        )
-
-        # Combine the commands
-        full_command = f"{module_commands} && {cellranger_command}"
-
-        print(f"Executing command: {full_command}")
-        subprocess.run(full_command, shell=True, check=True)
         
     def build_cellranger_command(self):
         """Build the full shell command for SLURM submission."""
@@ -226,7 +167,7 @@ class CellRangerWorkflow(BaseWorkflow):
             f"--localmem={mem_value} "
         )
 
-        return f"{module_commands} && {cellranger_command}"
+        return f"{module_commands} && cd {quoted_output_dir} && {cellranger_command}"
 
     def run(self):
         """Execute the Cell Ranger workflow."""
