@@ -57,6 +57,7 @@ from datetime import datetime as dt
 from pathlib import Path
 import argparse
 import json
+import yaml
 
 import mindscape as ms # Importing the main MindScape module
 
@@ -100,22 +101,23 @@ print("Project creation completed successfully!")
 
 # If mindscape_dry_run is set, update the config file's dry_run field before running the workflow
 if args.mindscape_dry_run:
-    if not os.path.isfile(path_config_file):
-        print(f"Error: Configuration file '{path_config_file}' does not exist. Cannot perform dry run update.")
+    config_path = Path(path_config_file) / "config/config.yaml"
+    if not os.path.isfile(config_path):
+        print(f"Error: Configuration file '{config_path}' does not exist. Cannot perform dry run update.")
     else:
         try:
-            with open(path_config_file, "r") as f:
-                config_data = json.load(f)
+            with open(config_path, "r") as f:
+                config_data = yaml.safe_load(f)
         except Exception as read_err:
-            print(f"Error reading configuration file '{path_config_file}': {read_err}")
+            print(f"Error reading configuration file '{config_path}': {read_err}")
         else:
             config_data["dry_run"] = True
             try:
-                with open(path_config_file, "w") as f:
-                    json.dump(config_data, f, indent=4)
+                with open(config_path, "w") as f:
+                    yaml.dump(config_data, f)
                 print("Dry run enabled: updated configuration file successfully.")
             except Exception as write_err:
-                print(f"Error writing to configuration file '{path_config_file}': {write_err}")
+                print(f"Error writing to configuration file '{config_path}': {write_err}")
 
 # Run the workflow script using subprocess to process the created project
 try:

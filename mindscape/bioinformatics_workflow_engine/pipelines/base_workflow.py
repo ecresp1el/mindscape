@@ -152,8 +152,10 @@ class BaseWorkflow:
     def is_already_completed(self) -> bool:
         """
         Check whether this workflow has already been completed by looking for a .completed marker file.
+        If 'force_rerun' is True in config, always return False to force re-execution.
         """
-        # Use the completion marker path to check if the workflow has been completed before
+        if self.config.get("force_rerun", False):
+            return False
         return self.get_completion_marker_path().exists()
 
     def mark_completed(self):
@@ -167,14 +169,10 @@ class BaseWorkflow:
 
     def log_end(self):
         """
-        Log the end of the workflow and mark it as completed, unless forced rerun is enabled.
-
-        If the configuration contains 'force_rerun' set to True, the workflow will not be marked as completed,
-        allowing it to be rerun even if previously completed.
+        Log the end of the workflow and always mark it as completed.
         """
         print(f"Completed workflow: {self.workflow_name}")
-        if not self.config.get("force_rerun", False):
-            self.mark_completed()
+        self.mark_completed()
 
     def run(self):
         """
