@@ -66,6 +66,7 @@ class WorkflowManager:
 
             try:
                 workflow.run()
+                # Always mark completion centrally (do not do this in the workflow itself)
                 if hasattr(workflow, "mark_completed"):
                     workflow.mark_completed()
                 self.logger.info(f"✅ Workflow {workflow_name} completed successfully.")

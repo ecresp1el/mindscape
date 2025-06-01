@@ -182,6 +182,7 @@ class CellRangerWorkflow(BaseWorkflow):
         """Execute the Cell Ranger workflow."""
         if self._skip_execution:
             return
+        self.log_start()
         print(f"🔬 Starting {self.workflow_name}...")
         self.validate_paths()
         self.prepare_multi_config()
@@ -199,5 +200,5 @@ class CellRangerWorkflow(BaseWorkflow):
         else:
             print(f"✅ Job for {self.workflow_name} was run locally or as a dry run.")
         
+        self.log_end()
         print(f"✅ {self.workflow_name} completed successfully!")
-        self.mark_completed()

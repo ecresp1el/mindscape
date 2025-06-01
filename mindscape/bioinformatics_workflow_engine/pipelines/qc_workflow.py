@@ -26,4 +26,3 @@ class QCWorkflow(BaseWorkflow):
         # Example: self.perform_qc_analysis()
 
         self.log_end()
-        self.mark_completed()

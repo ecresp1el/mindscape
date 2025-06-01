@@ -26,4 +26,3 @@ class VentralWorkflow(BaseWorkflow):
         # Example: self.step_two()
 
         self.log_end()
-        self.mark_completed()
