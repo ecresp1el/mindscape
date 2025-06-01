@@ -39,8 +39,8 @@ class SLURMJob:
 # SLURM Configuration
 # ----------------------------------------------------------------------------
 #SBATCH --job-name={self.job_name}
-#SBATCH --output={self.log_dir}/{self.job_name}.out
-#SBATCH --error={self.log_dir}/{self.job_name}.err
+#SBATCH --output={self.log_dir}/{self.job_name}_{self.script_path.stem}.out
+#SBATCH --error={self.log_dir}/{self.job_name}_{self.script_path.stem}.err
 #SBATCH --account={self.account}
 #SBATCH --time={self.time}
 #SBATCH --mem={self.mem}
