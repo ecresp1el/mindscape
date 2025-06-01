@@ -167,10 +167,14 @@ class BaseWorkflow:
 
     def log_end(self):
         """
-        Log the end of the workflow and mark it as completed.
+        Log the end of the workflow and mark it as completed, unless forced rerun is enabled.
+
+        If the configuration contains 'force_rerun' set to True, the workflow will not be marked as completed,
+        allowing it to be rerun even if previously completed.
         """
         print(f"Completed workflow: {self.workflow_name}")
-        self.mark_completed()
+        if not self.config.get("force_rerun", False):
+            self.mark_completed()
 
     def run(self):
         """
