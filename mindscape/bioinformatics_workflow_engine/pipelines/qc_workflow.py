@@ -15,11 +15,16 @@ class QCWorkflow(BaseWorkflow):
         Execute the Quality Control workflow.
         This method will implement the specific steps for QC.
         """
-        self.load_config()
         self.setup_paths()
+
+        if not self.config.get("force_rerun", False) and self.is_already_completed():
+            print(f"✅ Skipping {self.workflow_name}; already completed.")
+            return
+
         self.log_start()
 
         # Implement QC steps here
         # Example: self.perform_qc_analysis()
 
         self.log_end()
+        self.mark_completed()
