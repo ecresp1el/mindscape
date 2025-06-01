@@ -8,7 +8,8 @@ from mindscape.utils.auxilliaryfunctions import create_config_template, write_co
 def create_new_project(
     project: str,
     experimenter: str,
-    working_directory: str | None = None,
+    working_directory: str | None = None, # Default to current directory if None
+    email: str = "elcrespo@umich.edu", # Default email for SLURM job notifications, but can be overridden by user
 ) -> str:
     """
     Creates a new MindScape project directory with the necessary structure.
@@ -65,11 +66,16 @@ def create_new_project(
 
         # Generate the configuration file
         config_path = project_path / "config/config.yaml"
-        cfg, ruamelFile = create_config_template()
-        cfg["project_name"] = project
-        cfg["experimenter"] = experimenter
-        cfg["date"] = date
-        cfg["project_path"] = str(project_path)
+        cfg, ruamelFile = create_config_template(
+            project_path=str(project_path),
+            project_name=project_name,
+            experimenter=experimenter,
+            date=date,
+            email=email #dynamically set email for SLURM job notifications per project creation
+        )
+        
+        # Write the configuration file to the project directory provided by the user
+        print(f"DEBUG: Writing configuration to {config_path}")
         write_config(config_path, cfg)
         
 

@@ -27,7 +27,7 @@ class SLURMJob:
 
         self.slurm_dir = self.project_path / "logs" / "slurm_scripts"
         self.log_dir = self.project_path / "logs" / "slurm_logs"
-        self.script_path = self.slurm_dir / f"{job_name}_{uuid.uuid4().hex[:6]}.slurm"
+        self.script_path = self.slurm_dir / f"{job_name}_{uuid.uuid4().hex[:6]}.slurm" # Unique script name to avoid collisions
 
     def generate_script(self):
         self.slurm_dir.mkdir(parents=True, exist_ok=True)

@@ -6,7 +6,7 @@ from pathlib import Path
 from ruamel.yaml import YAML
 import yaml
 
-def create_config_template(project_path: str, project_name: str, experimenter: str, date: str):
+def create_config_template(project_path: str, project_name: str, experimenter: str, date: str, email: str ="elcrespo@umich.edu"):
     """
     Creates a complete and usable config.yaml with default values (SLURM disabled).
     """
@@ -21,9 +21,11 @@ data_dir: data
 results_dir: results
 logs_dir: logs
 
+
 use_slurm: false
 dry_run: false
 force_rerun: false
+email: {email}
 
 parameters:
   analysis_type: default
@@ -78,20 +80,18 @@ def read_config(configname: str | Path) -> dict:
 
 def write_config(configname: str | Path, cfg: dict):
     """
-    Writes a structured config file.
+    Writes a structured config file to disk.
 
     Parameters
     ----------
     configname : str or Path
         Path to the configuration file.
     cfg : dict
-        Configuration data to write.
+        Fully formed configuration data to write.
     """
-    with open(configname, "w") as cf:
-        cfg_file, ruamelFile = create_config_template()
-        for key in cfg.keys():
-            cfg_file[key] = cfg[key]
-        ruamelFile.dump(cfg_file, cf)
+    yaml = YAML()
+    with open(configname, "w") as f:
+        yaml.dump(cfg, f)
 
 
 def edit_config(configname: str | Path, edits: dict, output_name: str = "") -> dict:

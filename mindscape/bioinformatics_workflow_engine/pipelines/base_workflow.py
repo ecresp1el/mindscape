@@ -173,10 +173,13 @@ class BaseWorkflow:
         Submit a command either via SLURM or locally, based on self.use_slurm and dry_run.
         """
         if getattr(self, "use_slurm", False):
-            print(f"[Dry Run] Generating SLURM job: {job_name}")
+            email = self.config.get("email", "elcrespo@umich.edu") # Default email if not specified
+            print(f"[Dry Run] Generating SLURM job: {job_name} with the user email {email}")
+            # Create a SLURM job instance
             job = SLURMJob(
                 job_name=job_name,
                 command=command,
+                email=email,
                 project_path=self.project_path,
                 dry_run=dry_run
             )
