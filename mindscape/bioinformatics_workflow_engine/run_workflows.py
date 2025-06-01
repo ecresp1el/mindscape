@@ -92,15 +92,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--project_path",
         type=str,
-        required=False,
-        help="Path to the project directory created by create_project",
-    )
-    args = parser.parse_args()
-
-    parser = argparse.ArgumentParser(description="Run Bioinformatics Workflows")
-    parser.add_argument(
-        "--project_path",
-        type=str,
         required=True,
         help="Path to the project directory created by create_project",
     )
