@@ -118,7 +118,8 @@ def test_baseworkflow_end_to_end():
             with config_yaml_path.open("r") as f:
                 config = yaml.load(f)
             # Patch the workflow entry to use FailingWorkflow
-            config["workflows"] = [{"runner": "FailingWorkflow"}]
+            if not any(wf.get("name") == "FailingWorkflow" for wf in config.get("workflows", [])):
+                config["workflows"].append({"name": "FailingWorkflow", "enabled": True})
             with config_yaml_path.open("w") as f:
                 yaml.dump(config, f)
             print("[DEBUG] Patched config.yaml to use FailingWorkflow.")
