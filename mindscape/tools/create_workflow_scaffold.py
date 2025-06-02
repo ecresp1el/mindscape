@@ -13,6 +13,7 @@ Usage (from project root):
 
 Options:
     --name WORKFLOW_NAME   Name of the workflow class and file (e.g., "CellRangerWorkflow")
+    --force                Overwrite the existing workflow file if it already exists
 
 Example:
     python tools/create_workflow_scaffold.py --name AnnotateClustersWorkflow
@@ -60,9 +61,10 @@ class {class_name}(BaseWorkflow):
 
         # TODO: Add your workflow steps here
         # Example: self.step_one()
+        #
+        # No need to call self.mark_completed() — handled automatically by the base class logic.
 
         self.log_end()
-        self.mark_completed()
 '''
 
 def to_snake_case(name):
@@ -73,7 +75,9 @@ def to_snake_case(name):
 def main():
     parser = argparse.ArgumentParser(description="Generate a new MindScape workflow scaffold")
     parser.add_argument("--name", required=True, help="Name of the workflow class (e.g., MyNewWorkflow)")
+    parser.add_argument("--force", action="store_true", help="Force overwrite if the workflow file already exists")
     args = parser.parse_args()
+    force = args.force
 
     workflow_name = args.name
     class_name = workflow_name if workflow_name.endswith("Workflow") else workflow_name + "Workflow"
@@ -85,13 +89,21 @@ def main():
     target_path = target_dir / filename
 
     if target_path.exists():
-        print(f"❌ File already exists: {target_path}")
-        return
+        if not force:
+            print(f"⚠️  File already exists: {target_path}")
+            print("❌ Aborting to avoid overwriting existing workflow code.")
+            print("💡 Tip: Use the --force flag to overwrite it.")
+            return
+        else:
+            print(f"⚠️  Overwriting existing workflow file: {target_path}")
 
     target_dir.mkdir(parents=True, exist_ok=True)
     with open(target_path, "w") as f:
         f.write(TEMPLATE.format(class_name=class_name, filename=filename))
 
+    print("📂 Scaffold generation complete!")
+    print(f"🔧 Workflow class: {class_name}")
+    print(f"📄 Workflow file : {filename}")
     print(f"✅ Created workflow scaffold: {target_path}")
     print(f"ℹ️  Note: '{filename}' must match the snake_case of class name '{class_name}' for proper dynamic loading.")
     print("📌 Next steps:")
