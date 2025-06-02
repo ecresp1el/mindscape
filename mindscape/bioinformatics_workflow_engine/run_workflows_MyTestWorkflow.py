@@ -69,7 +69,7 @@ class WorkflowManager:
             if workflow.get("enabled", False):
                 workflow_class = self.available_workflows.get(workflow_name)
                 if workflow_class and hasattr(workflow_class, "run") and workflow_class.run != BaseWorkflow.run:
-                    self.workflows.append(workflow_class(config=self.config_path))
+                    self.workflows.append(workflow_class(config_path=self.config_path, logger=self.logger))
                 else:
                     self.logger.warning(f"Workflow {workflow_name} not found or not implemented.")
 

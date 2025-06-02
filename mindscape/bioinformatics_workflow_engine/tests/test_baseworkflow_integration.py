@@ -11,7 +11,7 @@ pipelines_dir = REPO_ROOT / "mindscape" / "bioinformatics_workflow_engine" / "pi
 pipelines_dir.mkdir(parents=True, exist_ok=True)
 workflow_file = pipelines_dir / "my_test_workflow.py"
 workflow_code = """
-from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
+from .base_workflow import BaseWorkflow
 
 class MyTestWorkflow(BaseWorkflow):
     def run(self):
@@ -27,10 +27,8 @@ class FailingWorkflow(BaseWorkflow):
         self.mark_in_progress()
         raise RuntimeError("Simulated workflow failure for testing mark_failed()")
 """
-if workflow_file.exists():
-    print(f"[DEBUG] Workflow file {workflow_file} already exists. Skipping overwrite.")
-else:
-    workflow_file.write_text(workflow_code)
+workflow_file.write_text(workflow_code)
+print(f"[DEBUG] Wrote workflow file {workflow_file}.")
 
 def test_baseworkflow_end_to_end():
     # Create a temporary test directory
