@@ -189,21 +189,23 @@ if args.blank_runner:
     if result.returncode != 0:
         print(f"❌ Error: Runner exited with return code {result.returncode}")
         sys.exit(result.returncode)
-    sys.exit(0)
+    else:
+        sys.exit(0)  # ✅ Prevent fallthrough into default runner
 else:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
 
-# Run the workflow script using subprocess to process the created project
-try:
-    subprocess.run(
-        [
-            sys.executable,
-            os.path.abspath(str(runner_script_path)),
-            "--project_path",
-            str(path_config_file)
-        ],
-        check=True
-    )
-    print("Workflows executed successfully!")
-except subprocess.CalledProcessError as e:
-    print(f"Error while running workflows: {e}")
+    print("DEBUG: Using default runner =", runner_script_path)
+
+    try:
+        subprocess.run(
+            [
+                sys.executable,
+                os.path.abspath(str(runner_script_path)),
+                "--project_path",
+                str(path_config_file)
+            ],
+            check=True
+        )
+        print("Workflows executed successfully!")
+    except subprocess.CalledProcessError as e:
+        print(f"Error while running workflows: {e}")
