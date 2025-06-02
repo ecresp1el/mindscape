@@ -44,7 +44,9 @@ def add_workflow_to_config(config_path: Path, workflow_name: str, enabled: bool 
         config["workflows"] = []
 
     existing_names = {wf.get("name") for wf in config["workflows"]}
-    pipeline_file = Path(__file__).parent.parent / "bioinformatics_workflow_engine" / "pipelines" / f"{workflow_name.lower()}.py"
+    import re
+    snake_case_file = re.sub(r'(?<!^)(?=[A-Z])', '_', workflow_name).lower()
+    pipeline_file = Path(__file__).parent.parent / "bioinformatics_workflow_engine" / "pipelines" / f"{snake_case_file}.py"
     if not pipeline_file.exists():
         print(f"⚠️ Warning: No Python file found for workflow '{workflow_name}' at {pipeline_file}")
     if workflow_name in existing_names:
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     # This only modifies the config.yaml and does not register the workflow class itself.
     parser = argparse.ArgumentParser(description="Add a workflow to an existing MindScape project config.")
     parser.add_argument("--project_path", type=str, required=True, help="Path to the MindScape project directory")
-    parser.add_argument("--workflow_name", type=str, required=True, help="Name of the workflow class (must match .py filename)")
+    parser.add_argument("--workflow_name", type=str, required=True, help="Name of the workflow class (e.g., MyCustomWorkflow -> my_custom_workflow.py)")
     parser.add_argument("--disabled", action="store_true", help="Add the workflow as disabled")
     args = parser.parse_args()
 
