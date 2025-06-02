@@ -1,5 +1,5 @@
 """
-🧹 Remove Workflow from MindScape config.yaml
+Remove Workflow from MindScape config.yaml
 
 This developer tool removes a workflow entry from an existing MindScape project configuration.
 It only affects the `config.yaml` file.
