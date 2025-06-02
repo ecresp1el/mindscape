@@ -67,8 +67,7 @@ class BaseWorkflow:
         slurm_cfg = self.config.get("slurm", {})
         self.slurm_cpus = int(slurm_cfg.get("cpus", 8)) #ensure cpus is an integer
         self.slurm_mem = str(slurm_cfg.get("mem", "32G")) # ensure memory is a string
-        print(f"DEBUG: Parsed SLURM resources: {self.slurm_cpus} CPUs, {self.slurm_mem} memory (type: {type(self.slurm_mem)})")
-        
+        self.logger.debug(f"Parsed SLURM resources: {self.slurm_cpus} CPUs, {self.slurm_mem}")
         raw_time = slurm_cfg.get("time", "08:00:00")
         print(f"DEBUG: Raw SLURM time: {raw_time} (type: {type(raw_time)})")
         if isinstance(raw_time, int):
