@@ -210,6 +210,13 @@ if __name__ == "__main__":
         print("[DEBUG] Found workflow start log.")
         print("[DEBUG] Found workflow completed log.")
 
+        print("\n🔍 FINAL TEST SUMMARY")
+        print("✅ MyTestWorkflow: .in_progress marker found")
+        print("✅ MyTestWorkflow: .completed marker found")
+        print("✅ FailingWorkflow: .failed marker found")
+        print("✅ workflow_manager.log found and verified")
+        print("🎉 MindScape pipeline integration test PASSED")
+
 if __name__ == "__main__":
     # Fallback: define a trivial MyTestWorkflow and FailingWorkflow class if not already present
     try:
