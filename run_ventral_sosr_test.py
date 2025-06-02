@@ -15,25 +15,40 @@ generated_pipeline_file = repo_root / "mindscape" / "bioinformatics_workflow_eng
 today = dt.today().strftime("%Y-%m-%d")
 project_path = base_turbo_path / f"ventral_sosr_test-MannyCrespo-{today}"
 
+
+# Track deleted paths
+deleted_paths = []
+
 # Check for existing test folder or generated files
-if project_path.exists() or generated_runner_file.exists() or generated_pipeline_file.exists():
-    user_input = input(
-        f"⚠️  Detected existing test outputs in:\n"
-        f"  - {project_path if project_path.exists() else ''}\n"
-        f"  - {generated_runner_file if generated_runner_file.exists() else ''}\n"
-        f"  - {generated_pipeline_file if generated_pipeline_file.exists() else ''}\n"
-        f"❓ Delete these and continue? (y/N): "
-    ).strip().lower()
+existing_items = []
+if project_path.exists():
+    existing_items.append(f"  - {project_path}")
+if generated_runner_file.exists():
+    existing_items.append(f"  - {generated_runner_file}")
+if generated_pipeline_file.exists():
+    existing_items.append(f"  - {generated_pipeline_file}")
+
+if existing_items:
+    warning_msg = "⚠️  Detected existing test outputs in:\n" + "\n".join(existing_items)
+    warning_msg += "\n❓ Delete these and continue? (y/N): "
+    user_input = input(warning_msg).strip().lower()
     if user_input == "y":
         if project_path.exists():
             shutil.rmtree(project_path)
             print(f"🗑️ Deleted test project directory: {project_path}")
+            deleted_paths.append(str(project_path))
         if generated_runner_file.exists():
             generated_runner_file.unlink()
             print(f"🗑️ Deleted runner script: {generated_runner_file}")
+            deleted_paths.append(str(generated_runner_file))
         if generated_pipeline_file.exists():
             generated_pipeline_file.unlink()
             print(f"🗑️ Deleted scaffolded pipeline file: {generated_pipeline_file}")
+            deleted_paths.append(str(generated_pipeline_file))
+        if deleted_paths:
+            print("🧾 Confirmed deleted paths:")
+            for path in deleted_paths:
+                print(f"  - {path}")
     else:
         print("❌ Aborting test to preserve existing files.")
         sys.exit(1)
@@ -142,4 +157,5 @@ def run_ventral_sosr_test():
         return
 
 if __name__ == "__main__":
+    print(f"🧹 Cleaning up previous test state...")
     run_ventral_sosr_test()
