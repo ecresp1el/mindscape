@@ -6,6 +6,32 @@ import os
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
+# Dynamically create the workflow file before running tests
+pipelines_dir = REPO_ROOT / "mindscape" / "bioinformatics_workflow_engine" / "pipelines"
+pipelines_dir.mkdir(parents=True, exist_ok=True)
+workflow_file = pipelines_dir / "my_test_workflow.py"
+workflow_code = """
+from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
+
+class MyTestWorkflow(BaseWorkflow):
+    def run(self):
+        self.log_start()
+        self.mark_in_progress()
+        self.log_end()
+        return True
+
+# Simulated failure workflow for testing mark_failed()
+class FailingWorkflow(BaseWorkflow):
+    def run(self):
+        self.log_start()
+        self.mark_in_progress()
+        raise RuntimeError("Simulated workflow failure for testing mark_failed()")
+"""
+if workflow_file.exists():
+    print(f"[DEBUG] Workflow file {workflow_file} already exists. Skipping overwrite.")
+else:
+    workflow_file.write_text(workflow_code)
+
 def test_baseworkflow_end_to_end():
     # Create a temporary test directory
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -50,20 +76,88 @@ def test_baseworkflow_end_to_end():
 
         # Validate output
         logs_dir = project_dir / "logs"
+        # Debug: marker file existence
+        print(f"[DEBUG] Checking for marker files in {logs_dir}")
         assert (logs_dir / f"{runner_name}.in_progress").exists(), ".in_progress file missing"
+        print("[DEBUG] .in_progress file exists.")
         assert (logs_dir / f"{runner_name}.completed").exists(), ".completed file missing"
+        print("[DEBUG] .completed file exists.")
         assert (logs_dir / "workflow_manager.log").exists(), "workflow_manager.log missing"
+        print("[DEBUG] workflow_manager.log file exists.")
 
         log_text = (logs_dir / "workflow_manager.log").read_text()
+        print(f"[DEBUG] workflow_manager.log contents:\n{log_text}")
         assert f"Starting workflow: {runner_name}" in log_text
+        print("[DEBUG] Found workflow start log.")
         assert f"Completed workflow: {runner_name}" in log_text
+        print("[DEBUG] Found workflow completed log.")
 
         print("✅ BaseWorkflow integration test passed.")
 
-if __name__ == "__main__":
-    # Fallback: define a trivial MyTestWorkflow class if not already present
+        # Simulate running the failing workflow to test mark_failed()
+        # Overwrite workflow config to use FailingWorkflow
+        import json
+        config_path = project_dir / "workflow_config.json"
+        if config_path.exists():
+            config = json.loads(config_path.read_text())
+            config["workflows"] = [{"runner": "FailingWorkflow"}]
+            config_path.write_text(json.dumps(config, indent=2))
+            print("[DEBUG] Overwrote workflow_config.json to use FailingWorkflow.")
+        else:
+            print("[DEBUG] workflow_config.json not found, cannot test FailingWorkflow.")
+            return
+
+        # Generate a runner for FailingWorkflow if needed
+        failing_runner_path = REPO_ROOT / "mindscape" / "bioinformatics_workflow_engine" / "run_workflows_FailingWorkflow.py"
+        if not failing_runner_path.exists():
+            failing_runner_code = f'''
+from mindscape.bioinformatics_workflow_engine.pipelines.my_test_workflow import FailingWorkflow
+import argparse
+import sys
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--project_path", type=str, required=True)
+    args = parser.parse_args()
+    wf = FailingWorkflow(args.project_path)
     try:
-        from mindscape.bioinformatics_workflow_engine.baseworkflow import BaseWorkflow
+        wf.run()
+    except Exception as e:
+        wf.mark_failed()
+        print(f"[DEBUG] Exception in FailingWorkflow: {{e}}", file=sys.stderr)
+        raise
+
+if __name__ == "__main__":
+    main()
+'''
+            failing_runner_path.write_text(failing_runner_code)
+            print(f"[DEBUG] Generated runner script for FailingWorkflow at {failing_runner_path}")
+
+        # Remove previous marker files if any
+        for marker in ["FailingWorkflow.in_progress", "FailingWorkflow.completed", "FailingWorkflow.failed"]:
+            marker_file = logs_dir / marker
+            if marker_file.exists():
+                marker_file.unlink()
+                print(f"[DEBUG] Removed old marker file: {marker_file}")
+
+        # Run the failing workflow runner
+        print(f"Running FailingWorkflow runner script: {failing_runner_path}")
+        try:
+            subprocess.run([
+                "python", str(failing_runner_path),
+                "--project_path", str(project_dir)
+            ], check=True)
+        except subprocess.CalledProcessError:
+            print("[DEBUG] FailingWorkflow runner exited with error as expected.")
+
+        # Check that .failed marker is created
+        assert (logs_dir / "FailingWorkflow.failed").exists(), ".failed file missing after simulated failure"
+        print("[DEBUG] .failed file exists after simulated failure.")
+
+if __name__ == "__main__":
+    # Fallback: define a trivial MyTestWorkflow and FailingWorkflow class if not already present
+    try:
+        from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
     except ImportError:
         BaseWorkflow = object
 
@@ -71,6 +165,11 @@ if __name__ == "__main__":
         def run(self):
             print("Running fallback MyTestWorkflow.")
             return True
+
+    class FailingWorkflow(BaseWorkflow):
+        def run(self):
+            print("Running fallback FailingWorkflow. Raising error.")
+            raise RuntimeError("Simulated workflow failure for testing mark_failed()")
 
     print("🧪 Starting BaseWorkflow integration test...")
     try:
