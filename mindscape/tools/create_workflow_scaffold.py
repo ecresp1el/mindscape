@@ -107,8 +107,10 @@ def main():
     print(f"✅ Created workflow scaffold: {target_path}")
     print(f"ℹ️  Note: '{filename}' must match the snake_case of class name '{class_name}' for proper dynamic loading.")
     print("📌 Next steps:")
-    print(" - Implement your workflow logic inside the class")
+    print(" - Implement your workflow logic inside the class using the add_workflow_to_config.py script")
     print(" - Add the workflow to your config.yaml under 'workflows'")
+    # explain it must be added manuallly to the run_workflows.py at the top of the file 
+    print(" - Register the workflow class in run_workflows.py (if not already registered)")
     print(" - Commit the new file to GitHub")
     print(" - This developer tool lives in: tools/create_workflow_scaffold.py")
     print(" - Run this script from the root of the MindScape repo")

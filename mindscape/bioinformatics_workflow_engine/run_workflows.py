@@ -10,6 +10,9 @@ from pipelines.qc_workflow import QCWorkflow
 from utils.logger import setup_logger
 from utils.validation import warn_if_missing_from_config
 
+## add new workflows here
+from pipelines.my_new_workflow import MyNewWorkflow  # Import your new workflow class
+
 
 class WorkflowManager:
     def __init__(self, config_path, project_path):
