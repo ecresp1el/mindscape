@@ -1,8 +1,14 @@
+#!/usr/bin/env python
+# NOTE: This script is located in tools/create_workflow_scaffold.py and is intended for developer use.
 import os
 import re
 from pathlib import Path
 import argparse
 import yaml
+
+from mindscape.bioinformatics_workflow_engine.utils.logger import setup_logger
+from mindscape.bioinformatics_workflow_engine.utils.validation import warn_if_missing_from_config
+from mindscape.bioinformatics_workflow_engine.utils.dynamic_imports import dynamic_import_workflows
 
 # TEMPLATE_HEADER is now a format string that includes the runner_name dynamically.
 # This allows the generated file to have a header that reflects its own filename,
@@ -49,10 +55,10 @@ from pathlib import Path
 import argparse
 import yaml
 
-from pipelines.base_workflow import BaseWorkflow
-from utils.logger import setup_logger
-from utils.validation import warn_if_missing_from_config
-from utils.dynamic_imports import dynamic_import_workflows
+from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
+from mindscape.bioinformatics_workflow_engine.utils.logger import setup_logger
+from mindscape.bioinformatics_workflow_engine.utils.validation import warn_if_missing_from_config
+from mindscape.bioinformatics_workflow_engine.utils.dynamic_imports import dynamic_import_workflows
 """
 
 WORKFLOW_MANAGER_CLASS = '''
@@ -120,6 +126,7 @@ if __name__ == "__main__":
 '''
 
 def main():
+    logger = setup_logger("generate_runner", "generate_runner.log")
     parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
     parser.add_argument(
         "--output",
@@ -147,9 +154,9 @@ def main():
         f.write(WORKFLOW_MANAGER_CLASS + "\n")
         f.write(MAIN_BLOCK)
 
-    print(f"✅ Template '{runner_name}' created at {output_path}. You can now add your workflows to it.")
-    print("🔍 DEBUG: Output path exists =", output_path.exists())
-    print("📂 DEBUG: Output parent directory =", output_path.parent)
+    logger.info(f"✅ Template '{runner_name}' created at {output_path}. You can now add your workflows to it.")
+    logger.debug(f"Output path exists = {output_path.exists()}")
+    logger.debug(f"Output parent directory = {output_path.parent}")
 
 
 if __name__ == "__main__":
@@ -160,6 +167,7 @@ def generate_runner_template(output_path):
     External function to generate a blank workflow runner script at the given path.
     Used by testscript_cli.py when --blank_runner is provided.
     """
+    logger = setup_logger("generate_runner", "generate_runner.log")
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -172,4 +180,4 @@ def generate_runner_template(output_path):
         f.write(IMPORTS_BLOCK + "\n")
         f.write(WORKFLOW_MANAGER_CLASS + "\n")
         f.write(MAIN_BLOCK)
-    print(f"✅ Template '{runner_name}' created at {output_path}. You can now add your workflows to it.")
+    logger.info(f"✅ Template '{runner_name}' created at {output_path}. You can now add your workflows to it.")
