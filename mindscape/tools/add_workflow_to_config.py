@@ -49,8 +49,10 @@ def add_workflow_to_config(config_path: Path, workflow_name: str, enabled: bool 
     pipeline_file = Path(__file__).parent.parent / "bioinformatics_workflow_engine" / "pipelines" / f"{snake_case_file}.py"
     if not pipeline_file.exists():
         print(f"⚠️ Warning: No Python file found for workflow '{workflow_name}' at {pipeline_file}")
+        print("ℹ️ You can generate this file using `create_workflow_scaffold.py` or create it manually.")
     if workflow_name in existing_names:
-        print(f"⚠️ Workflow '{workflow_name}' already exists in config. Skipping.")
+        print(f"⚠️ Workflow '{workflow_name}' already exists in config.")
+        print("ℹ️ Note: This script does NOT create the workflow .py file if it already exists in config.")
         return
 
     config["workflows"].append({"name": workflow_name, "enabled": enabled})
