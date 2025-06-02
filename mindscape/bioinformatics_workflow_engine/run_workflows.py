@@ -12,7 +12,7 @@ from utils.validation import warn_if_missing_from_config
 
 ## add new workflows here
 from pipelines.my_new_workflow import MyNewWorkflow  # Import your new workflow class
-from pipeline.per_sample_analysis_d_i_v90_workflow import PerSampleAnalysisDIV90Workflow
+from pipelines.per_sample_analysis_d_i_v90_workflow import PerSampleAnalysisDIV90Workflow
 
 
 class WorkflowManager:

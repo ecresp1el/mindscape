@@ -1,23 +1,4 @@
-import os
-from pathlib import Path
-import argparse
-
-parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
-parser.add_argument(
-    "--output",
-    type=str,
-    default=None,
-    help="Output file name for the generated workflow runner (default: run_workflows_template.py)"
-)
-args = parser.parse_args()
-
-import re
-if args.output is None:
-    project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
-    sanitized = re.sub(r'\W+', '_', project_name.lower())
-    args.output = str(Path(__file__).resolve().parent.parent.parent / f"run_workflows_{sanitized}.py")
-
-TEMPLATE_HEADER = """\"\"\"
+"""
 🚀 Blank WorkflowManager Template Generator
 
 This script generates a blank `run_workflows.py` file that:
@@ -26,9 +7,8 @@ This script generates a blank `run_workflows.py` file that:
 - Is ready for dynamic registration via config
 
 You can then manually add new workflow imports or dynamically scan them.
-\"\"\""""
+"""
 
-IMPORTS_BLOCK = """
 import os
 import re
 from pathlib import Path
@@ -38,9 +18,8 @@ import yaml
 from pipelines.base_workflow import BaseWorkflow
 from utils.logger import setup_logger
 from utils.validation import warn_if_missing_from_config
-"""
 
-WORKFLOW_MANAGER_CLASS = '''
+
 
 class WorkflowManager:
     def __init__(self, config_path, project_path):
@@ -84,9 +63,8 @@ class WorkflowManager:
                 self.logger.info(f"✅ Workflow {workflow_name} completed successfully.")
             except RuntimeError as e:
                 self.logger.error(f"❌ Failed to run workflow {workflow_name}: {e}")
-'''
 
-MAIN_BLOCK = '''
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Bioinformatics Workflows")
     parser.add_argument("--project_path", type=str, required=True, help="Path to the MindScape project")
@@ -101,13 +79,3 @@ if __name__ == "__main__":
     workflow_manager = WorkflowManager(config_path=config_path, project_path=project_path)
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
-'''
-
-# Output the full template
-with open(args.output, "w") as f:
-    f.write(TEMPLATE_HEADER + "\n")
-    f.write(IMPORTS_BLOCK + "\n")
-    f.write(WORKFLOW_MANAGER_CLASS + "\n")
-    f.write(MAIN_BLOCK)
-
-print(f"✅ Template '{os.path.basename(args.output)}' created at {args.output}. You can now add your workflows to it.")
