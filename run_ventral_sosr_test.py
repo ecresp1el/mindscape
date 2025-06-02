@@ -57,39 +57,39 @@ def run_ventral_sosr_test():
         print("STDERR:\n", e.stderr)
         return
 
-    # Add new VentralAnalysisWorkflow to config
+    # Add new TestingVentralWorkflow to config
     try:
         add_ventral_cmd = [
             sys.executable, add_workflow_script,
             "--project_path", project_path,
-            "--workflow_name", "VentralAnalysisWorkflow"
+            "--workflow_name", "TestingVentralWorkflow"
         ]
-        print("➕ Adding new VentralAnalysisWorkflow to config...")
+        print("➕ Adding new TestingVentralWorkflow to config...")
         result = subprocess.run(add_ventral_cmd, check=True, text=True, capture_output=True)
-        print("✅ VentralAnalysisWorkflow added successfully.")
+        print("✅ TestingVentralWorkflow added successfully.")
         print("STDOUT:\n", result.stdout)
         print("STDERR:\n", result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to add VentralAnalysisWorkflow: {e}")
+        print(f"❌ Failed to add TestingVentralWorkflow: {e}")
         print("STDOUT:\n", e.stdout)
         print("STDERR:\n", e.stderr)
         return
 
-    # Scaffold VentralAnalysisWorkflow
+    # Scaffold TestingVentralWorkflow
     scaffold_script = "mindscape/tools/create_workflow_scaffold.py"
     try:
         scaffold_cmd = [
             sys.executable, scaffold_script,
             "--project_name", project_name,
-            "--workflow_name", "VentralAnalysisWorkflow"
+            "--workflow_name", "TestingVentralWorkflow"
         ]
-        print("🛠️  Scaffolding VentralAnalysisWorkflow...")
+        print("🛠️  Scaffolding TestingVentralWorkflow...")
         result = subprocess.run(scaffold_cmd, check=True, text=True, capture_output=True)
-        print("✅ VentralAnalysisWorkflow scaffold created successfully.")
+        print("✅ TestingVentralWorkflow scaffold created successfully.")
         print("STDOUT:\n", result.stdout)
         print("STDERR:\n", result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to scaffold VentralAnalysisWorkflow: {e}")
+        print(f"❌ Failed to scaffold TestingVentralWorkflow: {e}")
         print("STDOUT:\n", e.stdout)
         print("STDERR:\n", e.stderr)
         return
