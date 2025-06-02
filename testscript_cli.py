@@ -150,6 +150,19 @@ if args.blank_runner:
     )
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_name
     generate_runner_template(output_path=runner_script_path)
+
+    # Call the new runner in a clean subprocess to avoid argument collision
+    print(f"✅ Template '{runner_script_path.name}' created. You can now add your workflows to it.")
+    subprocess.run(
+        [
+            sys.executable,
+            os.path.abspath(str(runner_script_path)),
+            "--project_path",
+            str(path_config_file)
+        ],
+        check=True
+    )
+    sys.exit(0)
 else:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
 
