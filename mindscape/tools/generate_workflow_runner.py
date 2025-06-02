@@ -118,3 +118,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def generate_runner_template(output_path):
+    """
+    External function to generate a blank workflow runner script at the given path.
+    Used by testscript_cli.py when --blank_runner is provided.
+    """
+    with open(output_path, "w") as f:
+        f.write(TEMPLATE_HEADER + "\n")
+        f.write(IMPORTS_BLOCK + "\n")
+        f.write(WORKFLOW_MANAGER_CLASS + "\n")
+        f.write(MAIN_BLOCK)
+    print(f"✅ Template '{os.path.basename(output_path)}' created at {output_path}. You can now add your workflows to it.")
