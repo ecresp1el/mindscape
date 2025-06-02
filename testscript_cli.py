@@ -21,6 +21,11 @@ Options:
         Use a blank configuration (no default workflows included).
         Default: False
 
+    --blank_runner [NAME]
+        Generate a blank run_workflows_<NAME>.py runner template inside bioinformatics_workflow_engine/.
+        If NAME is omitted, defaults to run_workflows_<project_name>_template.py.
+        Useful for custom workflow execution scaffolds.
+
 Description:
     - Creates a new project directory structure in a specified shared directory.
     - Initializes a configuration file for the project.
@@ -55,6 +60,9 @@ Set environment variables instead of passing arguments:
     export MINDSCAPE_EMAIL=alice@umich.edu
     export MINDSCAPE_DRY_RUN=1
     python testscript_cli.py --project_name MyProject --experimenter_name Alice
+
+Generate a blank project and custom runner:
+    python testscript_cli.py --project_name MyBlankProject --experimenter_name Alice --blank --blank_runner MyRunner
 """
 
 import os, subprocess, sys
@@ -75,7 +83,7 @@ parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int
 parser.add_argument("--project_name", type=str, default="TestProject", help="Name of the project")
 parser.add_argument("--experimenter_name", type=str, default="TestUser", help="Name of the experimenter")
 parser.add_argument("--blank", action="store_true", help="Create project with a blank workflow list")
-parser.add_argument("--blank_runner", action="store_true", help="Generate a minimal run_workflows_template.py to use for blank workflows")
+parser.add_argument("--blank_runner", nargs="?", const=True, help="Generate a run_workflows_template.py file. Optionally provide a custom name, e.g. --blank_runner MyRunner")
 args = parser.parse_args()
 
 print("Creating a new Mindscape project...")
@@ -135,8 +143,12 @@ if args.mindscape_dry_run:
 # Determine which workflow runner script to use
 if args.blank_runner:
     from mindscape.tools.generate_workflow_runner import generate_runner_template
-    runner_script_name = f"run_workflows_{project_name.lower()}_template.py"
-    runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_script_name
+    runner_name = (
+        f"run_workflows_{project_name.lower()}_template.py"
+        if isinstance(args.blank_runner, bool)
+        else f"run_workflows_{args.blank_runner}.py"
+    )
+    runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_name
     generate_runner_template(output_path=runner_script_path)
 else:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
