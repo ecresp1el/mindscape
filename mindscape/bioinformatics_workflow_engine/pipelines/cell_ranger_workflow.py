@@ -18,7 +18,7 @@ class CellRangerWorkflow(BaseWorkflow):
     patches required parameters (e.g., create-bam, reference, probe-set), and runs Cell Ranger using the modified file.
     """
     def __init__(self, config_path, logger=None):
-        super().__init__(config_path, logger=logger)
+        super().__init__(config_path=config_path, logger=logger)
         self.workflow_name = "CellRangerWorkflow"
         self.setup_paths()
 
