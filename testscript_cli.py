@@ -151,12 +151,24 @@ if args.blank_runner:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_name
     generate_runner_template(output_path=runner_script_path)
 
-    # Call the new runner in a clean subprocess to avoid argument collision
+    # Convert to absolute path for clarity and prevent misrouting
+    runner_script_absolute = Path.cwd() / runner_script_path
+
     print(f"✅ Template '{runner_script_path.name}' created. You can now add your workflows to it.")
+    print("📂 Executing runner at:", runner_script_absolute)
+
+    # Show preview of the runner file
+    try:
+        with open(runner_script_absolute, "r") as f:
+            preview_lines = "".join(f.readlines()[:5])
+            print("🧾 Preview runner script:\n", preview_lines)
+    except Exception as e:
+        print(f"⚠️ Failed to preview runner: {e}")
+
     subprocess.run(
         [
             sys.executable,
-            os.path.abspath(str(runner_script_path)),
+            str(runner_script_absolute),
             "--project_path",
             str(path_config_file)
         ],
