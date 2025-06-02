@@ -9,6 +9,8 @@ import subprocess
 class BaseWorkflow:
     """
     BaseWorkflow: A Foundation for All Workflows
+    
+    
 
     This class is designed to serve as a "blueprint" for creating workflows in the bioinformatics workflow engine.
     It provides common functionality that all workflows can use, such as loading configuration files, setting up

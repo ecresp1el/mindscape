@@ -28,6 +28,7 @@ import argparse
 import os
 from pathlib import Path
 from ruamel.yaml import YAML
+import inflection
 
 
 def add_workflow_to_config(config_path: Path, workflow_name: str, enabled: bool = True):
@@ -45,7 +46,7 @@ def add_workflow_to_config(config_path: Path, workflow_name: str, enabled: bool 
 
     existing_names = {wf.get("name") for wf in config["workflows"]}
     import re
-    snake_case_file = re.sub(r'(?<!^)(?=[A-Z])', '_', workflow_name).lower()
+    snake_case_file = inflection.underscore(workflow_name)
     pipeline_file = Path(__file__).parent.parent / "bioinformatics_workflow_engine" / "pipelines" / f"{snake_case_file}.py"
     if not pipeline_file.exists():
         print(f"⚠️ Warning: No Python file found for workflow '{workflow_name}' at {pipeline_file}")
