@@ -123,7 +123,7 @@ def run_ventral_sosr_test():
         print("STDERR:\n", e.stderr)
         return
 
-    # Scaffold TestingVentralWorkflow
+    # Scaffold TestingVentralWorkflow (this generates a .py file dynamically and must match snake_case naming)
     scaffold_script = "mindscape/tools/create_workflow_scaffold.py"
     try:
         scaffold_cmd = [
@@ -141,9 +141,14 @@ def run_ventral_sosr_test():
         print("STDERR:\n", e.stderr)
         return
 
-    # Run the generated runner script after workflows are added
+    # Run the generated runner script (now includes --project_path as required by updated workflow base class)
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / f"run_workflows_{runner_name}.py"
-    run_runner_cmd = [sys.executable, str(runner_script_path)]
+    run_runner_cmd = [
+        sys.executable,
+        str(runner_script_path),
+        "--project_path",
+        str(project_path)
+    ]
     try:
         print(f"🏃 Running the generated runner script: {runner_script_path} ...")
         result = subprocess.run(run_runner_cmd, check=True, text=True, capture_output=True)
