@@ -2,24 +2,8 @@ import os
 from pathlib import Path
 import argparse
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output file name for the generated workflow runner (default: run_workflows_template.py)"
-    )
-    args, _ = parser.parse_known_args()
-
-    import re
-    if args.output is None:
-        project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
-        sanitized = re.sub(r'\W+', '_', project_name.lower())
-        args.output = str(Path(__file__).resolve().parent.parent / "bioinformatics_workflow_engine" / f"run_workflows_{sanitized}.py")
-
 TEMPLATE_HEADER = """\"\"\"
-🚀 Blank WorkflowManager Template Generator
+Blank WorkflowManager Template Generator
 
 This script generates a blank `run_workflows.py` file that:
 - Includes only BaseWorkflow
@@ -103,6 +87,22 @@ if __name__ == "__main__":
     workflow_manager.register_workflows()
     workflow_manager.run_workflows()
 '''
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output file name for the generated workflow runner (default: run_workflows_template.py)"
+    )
+    args, _ = parser.parse_known_args()
+
+    import re
+    if args.output is None:
+        project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
+        sanitized = re.sub(r'\W+', '_', project_name.lower())
+        args.output = str(Path(__file__).resolve().parent.parent / "bioinformatics_workflow_engine" / f"run_workflows_{sanitized}.py")
 
     # Output the full template
     with open(args.output, "w") as f:
