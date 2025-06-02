@@ -14,7 +14,7 @@ def main():
         wf.run()
     except Exception as e:
         # Use BaseWorkflow logic to get the marker path
-        marker_path = wf.get_completion_marker_path()
+        marker_path = wf.get_completion_marker_path().with_name("FailingWorkflow.failed")
         marker_path.parent.mkdir(parents=True, exist_ok=True)
         marker_path.touch()
         print(f"[DEBUG] Exception in FailingWorkflow: {e}", file=sys.stderr)
