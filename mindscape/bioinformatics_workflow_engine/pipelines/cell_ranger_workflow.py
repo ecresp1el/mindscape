@@ -23,7 +23,7 @@ class CellRangerWorkflow(BaseWorkflow):
         self.setup_paths()
 
         if not self.config.get("force_rerun", False) and self.is_already_completed():
-            print(f"✅ Skipping {self.workflow_name}; already completed.")
+            self.logger.info(f"✅ Skipping {self.workflow_name}; already completed.")
             self._skip_execution = True
         else:
             self._skip_execution = False
@@ -54,18 +54,18 @@ class CellRangerWorkflow(BaseWorkflow):
         # Validate reference genome
         if not self.ref_genome.exists():
             raise FileNotFoundError(f"❌ ERROR: Reference folder not found at {self.ref_genome}")
-        print(f"🧬 Using reference genome: {self.ref_genome}")
+        self.logger.debug(f"🧬 Using reference genome: {self.ref_genome}")
 
         # Validate multi_config.csv source
-        print(f"DEBUG: Checking multi-config source path: {self.multi_config_source}")
+        self.logger.debug(f"DEBUG: Checking multi-config source path: {self.multi_config_source}")
         if not Path(self.multi_config_source).exists():
             raise FileNotFoundError(f"❌ ERROR: Multi-config file not found at {self.multi_config_source}")
-        print(f"📄 Multi-config source found: {self.multi_config_source}")
+        self.logger.debug(f"📄 Multi-config source found: {self.multi_config_source}")
 
         # Validate probe file
         if not Path(self.probe_file).exists():
             raise FileNotFoundError(f"❌ ERROR: Probe file not found at {self.probe_file}")
-        print(f"🧬 Probe file found: {self.probe_file}")
+        self.logger.debug(f"🧬 Probe file found: {self.probe_file}")
 
     def prepare_multi_config(self):
         """
@@ -78,11 +78,11 @@ class CellRangerWorkflow(BaseWorkflow):
         config_dest.parent.mkdir(parents=True, exist_ok=True)
 
         # Ensure the results directory exists
-        print(f"Ensuring results directory exists: {self.results_dir}")
+        self.logger.info(f"Ensuring results directory exists: {self.results_dir}")
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy the multi_config.csv file
-        print(f"Copying multi_config.csv from {self.multi_config_source} to {config_dest}")
+        self.logger.info(f"Copying multi_config.csv from {self.multi_config_source} to {config_dest}")
         try:
             shutil.copy(self.multi_config_source, config_dest)
         except Exception as e:
@@ -92,13 +92,12 @@ class CellRangerWorkflow(BaseWorkflow):
         if not config_dest.exists():
             raise FileNotFoundError(f"multi_config.csv was not copied to {config_dest}")
 
-        # Debug: Print the copied file before patching
-        print("Copied multi_config.csv before patching:")
-        with open(config_dest, "r") as file:
-            print(file.read())
+        # Debug: Optionally print the copied file before patching
+        # with open(config_dest, "r") as file:
+        #     self.logger.debug(file.read())
 
         # Patch the multi_config.csv file
-        print("Patching multi_config.csv...")
+        self.logger.debug("Patching multi_config.csv...")
         with open(config_dest, "r") as file:
             lines = file.readlines()
 
@@ -136,10 +135,14 @@ class CellRangerWorkflow(BaseWorkflow):
         with open(config_dest, "w") as file:
             file.writelines(patched_lines)
 
-        # Debug: Print the patched file
-        print("Patched multi_config.csv:")
-        with open(config_dest, "r") as file:
-            print(file.read())
+        # Log that patching was completed
+        self.logger.info(f"🛠️ Patched multi_config.csv at {config_dest} with create-bam, reference, and probe-set fields under [gene-expression] using method: prepare_multi_config()")
+
+        # Optionally log the patched file contents if verbose_patch_preview is True
+        if self.config.get("verbose_patch_preview", False):
+            with open(config_dest, "r") as file:
+                patched_content = file.read()
+                self.logger.debug(f"Patched multi_config.csv contents:\n{patched_content}")
         
     def build_cellranger_command(self):
         """Build the full shell command for SLURM submission."""
@@ -177,7 +180,7 @@ class CellRangerWorkflow(BaseWorkflow):
         if self._skip_execution:
             return
         self.log_start()
-        print(f"🔬 Starting {self.workflow_name}...")
+        self.logger.info(f"🔬 Starting {self.workflow_name}...")
         self.validate_paths()
         self.prepare_multi_config()
         command = self.build_cellranger_command()
@@ -190,11 +193,11 @@ class CellRangerWorkflow(BaseWorkflow):
         )
         
         if dry_run:
-            print(f"[Dry Run] SLURM script generated but not submitted for {self.workflow_name}")
+            self.logger.info(f"[Dry Run] SLURM script generated but not submitted for {self.workflow_name}")
         elif job_id:
-            print(f"✅ SLURM job submitted for {self.workflow_name} (Job ID: {job_id})")
+            self.logger.info(f"✅ SLURM job submitted for {self.workflow_name} (Job ID: {job_id})")
         else:
-            print(f"✅ Job for {self.workflow_name} was run locally without SLURM.")     
+            self.logger.info(f"✅ Job for {self.workflow_name} was run locally without SLURM.")     
 
         self.log_end()
-        print(f"✅ {self.workflow_name} completed successfully!")
+        self.logger.info(f"✅ {self.workflow_name} completed successfully!")

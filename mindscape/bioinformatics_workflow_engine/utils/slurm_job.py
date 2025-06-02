@@ -1,4 +1,3 @@
-# utils/slurm_job.py
 from pathlib import Path
 import uuid
 import re
