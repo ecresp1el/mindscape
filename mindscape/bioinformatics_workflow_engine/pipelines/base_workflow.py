@@ -23,11 +23,41 @@ class BaseWorkflow:
       that have already finished.
     - If you need to force re-run, delete the `.completed` file manually or implement a `force_rerun` flag check.
 
+    What Subclasses Inherit:
+    ------------------------
+    Subclasses of BaseWorkflow inherit the following behavior and attributes:
+
+    - Initialization:
+        - Automatically loads the YAML configuration file specified by `config_path`.
+        - Sets up a scoped logger named after the subclass (e.g., "workflow.MyWorkflow").
+        - Parses SLURM resource settings (`cpus`, `mem`, `time`) from the configuration with sensible defaults.
+        - Sets `self.workflow_name` to the subclass's class name.
+    
+    - Attributes available to subclasses:
+        - `self.config`: The loaded configuration dictionary.
+        - `self.project_path`: The root project path as specified in the config (after calling `setup_paths()`).
+        - `self.logger`: A logger instance scoped to the workflow subclass.
+        - SLURM-related attributes: `self.slurm_cpus`, `self.slurm_mem`, `self.slurm_time`.
+    
+    - Methods provided:
+        - Logging helpers: `log_start()`, `log_end()`, and `mark_in_progress()` for consistent workflow status logging.
+        - Status tracking: `is_already_completed()`, `mark_completed()`, `mark_failed(reason)`, and `get_status()`.
+        - Path management: `setup_paths()` to create necessary directories.
+        - Job submission: `submit_job(command, job_name, dry_run=True)` to submit commands either locally or via SLURM.
+        - Configuration loading: `load_config()` for reading YAML config files.
+    
+    - Abstract method:
+        - `run()`: Must be implemented by subclasses to define the specific workflow steps.
+    
+    Subclasses should call `setup_paths()` early in their workflow to ensure directories exist, use the logging methods
+    to track progress, and implement their own `run()` method to execute workflow-specific logic.
+    
     Example:
         class MyWorkflow(BaseWorkflow):
             def run(self):
                 self.log_start()
-                # Perform workflow-specific tasks here
+                self.setup_paths()
+                # Workflow-specific tasks here
                 self.log_end()
     """
 
@@ -44,32 +74,39 @@ class BaseWorkflow:
         Args:
             config_path (str): The path to the YAML configuration file for the workflow.
         """
-        # This ensures every subclass has a scoped logger (e.g., workflow.MyNewWorkflow).
+        # Assign a logger scoped specifically to the subclass of the workflow.
+        # This allows each workflow to have its own logging context, making logs easier to filter and understand.
+        # If a logger is provided externally, use it; otherwise, create one using the class name.
         self.logger = logger or logging.getLogger(f"workflow.{self.__class__.__name__}")
-        self.config_path = Path(config_path).resolve()  # Convert the config path to an absolute path
-        self.config = self.load_config()  # Load the configuration file
-        self.workflow_name = self.__class__.__name__  # Get the name of the workflow (e.g., "CellRangerWorkflow")
-        # This line dynamically retrieves the name of the class to which the current object belongs.
-        # It uses the `__class__` attribute of the object to access its class and then retrieves the
-        # `__name__` attribute of the class, which contains the name of the class as a string.
-        # For example, if the current object is an instance of the `CellRangerWorkflow` class,
-        # this line will set `self.workflow_name` to the string "CellRangerWorkflow".
-        #
-        # Why is this useful?
-        # - It allows the workflow to "know" its own name, which can be used for logging, debugging,
-        #   or dynamically identifying the type of workflow at runtime.
-        # - This approach ensures that the workflow name is always consistent with the class name,
-        #   even if the class is renamed or subclassed in the future.
-        # - It avoids hardcoding the workflow name, making the code more flexible and maintainable.
-        
-        # SLRUM resources configuration, pulls cpu, memory, and time from the config file
-        # defaults are set if not specified in the config file 
+
+        # Convert the provided config_path to an absolute Path object.
+        # This ensures consistent access to the configuration file regardless of the current working directory.
+        self.config_path = Path(config_path).resolve()
+
+        # Load the YAML configuration from the config_path into a dictionary.
+        # This config will be used throughout the workflow to access settings and parameters.
+        self.config = self.load_config()
+
+        # Store the name of the workflow as the class name of the subclass.
+        # This supports consistent naming across logs, file markers, and job submissions,
+        # and avoids hardcoding the workflow name in multiple places.
+        self.workflow_name = self.__class__.__name__
+
+        # Extract SLURM-related resource parameters from the configuration.
+        # Provide sensible defaults if these parameters are not specified:
+        # - cpus: number of CPU cores to request (default: 8)
+        # - mem: amount of memory to allocate (default: "32G")
+        # - time: maximum runtime for the job (default: "08:00:00")
         slurm_cfg = self.config.get("slurm", {})
-        self.slurm_cpus = int(slurm_cfg.get("cpus", 8)) #ensure cpus is an integer
-        self.slurm_mem = str(slurm_cfg.get("mem", "32G")) # ensure memory is a string
+        self.slurm_cpus = int(slurm_cfg.get("cpus", 8))  # Ensure CPUs is an integer
+        self.slurm_mem = str(slurm_cfg.get("mem", "32G"))  # Ensure memory is a string
         self.logger.debug(f"Parsed SLURM resources: {self.slurm_cpus} CPUs, {self.slurm_mem}")
+
         raw_time = slurm_cfg.get("time", "08:00:00")
-        print(f"DEBUG: Raw SLURM time: {raw_time} (type: {type(raw_time)})")
+        self.logger.debug(f"Raw SLURM time: {raw_time} (type: {type(raw_time)})")
+
+        # Normalize the time format to HH:MM:SS if an integer or digit string is provided.
+        # This allows users to specify time as an integer number of hours for convenience.
         if isinstance(raw_time, int):
             self.slurm_time = f"{str(raw_time).zfill(2)}:00:00"
         elif isinstance(raw_time, str) and raw_time.isdigit():
@@ -77,7 +114,7 @@ class BaseWorkflow:
         else:
             self.slurm_time = raw_time
 
-        print(f"DEBUG: Parsed SLURM time: {self.slurm_time} (type: {type(self.slurm_time)})")
+        self.logger.debug(f"Parsed SLURM time: {self.slurm_time} (type: {type(self.slurm_time)})")
 
     def load_config(self):
         """
@@ -181,6 +218,27 @@ class BaseWorkflow:
         completed.write_text("COMPLETED\n")
         self.logger.info(f"🏁 Marked workflow as completed: {self.workflow_name}")
 
+    def mark_failed(self, reason: str = "Unspecified"):
+        """
+        Marks this workflow as failed by writing a .failed file with the reason.
+        """
+        failed_marker = self.get_completion_marker_path().with_suffix(".failed")
+        failed_marker.parent.mkdir(parents=True, exist_ok=True)
+        failed_marker.write_text(f"FAILED: {reason}\n")
+        self.logger.error(f"❌ Marked workflow as failed: {self.workflow_name} — {reason}")
+
+    def get_status(self) -> str:
+        """
+        Returns the current status of the workflow based on marker files.
+        """
+        if self.get_completion_marker_path().exists():
+            return "completed"
+        elif self.get_completion_marker_path().with_suffix(".in_progress").exists():
+            return "in_progress"
+        elif self.get_completion_marker_path().with_suffix(".failed").exists():
+            return "failed"
+        return "not_started"
+
     def log_end(self):
         """
         Log the end of the workflow and always mark it as completed.
@@ -220,7 +278,6 @@ class BaseWorkflow:
             
             email = self.config.get("email", "elcrespo@umich.edu") # Default email if not specified
             self.logger.info(f"[Dry Run] Generating SLURM job: {job_name} with email: {email}")
-            print(f"[Dry Run] Generating SLURM job: {job_name} with the user email {email}")
             # Create a SLURM job instance
             job = SLURMJob(
                 job_name=job_name,
