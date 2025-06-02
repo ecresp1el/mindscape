@@ -1,14 +1,17 @@
 """
 Integration test for the MindScape BaseWorkflow system.
 
-This test validates the following:
-1. That a new project can be created using the CLI, with a custom workflow (MyTestWorkflow).
-2. That the workflow can be added to the project config and run end-to-end, producing the expected marker files (.in_progress, .completed) and log output.
-3. That a failing workflow (FailingWorkflow) can be injected into the config, run, and produces a .failed marker file as expected.
+This test covers end-to-end workflow integration including:
+1. Project creation via CLI with a custom workflow (MyTestWorkflow).
+2. Workflow registration and execution, verifying marker file creation and log output.
+3. Simulation of a failing workflow (FailingWorkflow) and validation of failure marker handling.
 
-Expected outcomes:
-- After running MyTestWorkflow: .in_progress and .completed marker files exist, and logs show start/completion.
-- After running FailingWorkflow: .failed marker file exists after an intentional error is raised.
+Coverage and expectations:
+- Project and workflow setup: Ensures CLI and config scripts function as expected for new workflows.
+- Marker file checks: Verifies creation of .in_progress, .completed, and .failed marker files in the logs directory after workflow execution.
+- FailingWorkflow simulation: Patches config to append a FailingWorkflow, generates a runner, and ensures .failed marker file is created on error.
+- Log content validation: Confirms that workflow start and completion messages appear in workflow_manager.log.
+- Configuration patching for workflow appending: Dynamically updates config.yaml to include new or failing workflows for test scenarios.
 """
 
 import subprocess
