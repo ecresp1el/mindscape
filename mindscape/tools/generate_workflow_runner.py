@@ -1,6 +1,8 @@
 import os
+import re
 from pathlib import Path
 import argparse
+import yaml
 
 TEMPLATE_HEADER = """\"\"\"
 Blank WorkflowManager Template Generator
@@ -98,22 +100,23 @@ def main():
     )
     args, _ = parser.parse_known_args()
 
-    import re
     if args.output is None:
         project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
         sanitized = re.sub(r'\W+', '_', project_name.lower())
         args.output = str(Path(__file__).resolve().parent.parent / "bioinformatics_workflow_engine" / f"run_workflows_{sanitized}.py")
 
-    # Output the full template
-    with open(args.output, "w") as f:
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w") as f:
         f.write(TEMPLATE_HEADER + "\n")
         f.write(IMPORTS_BLOCK + "\n")
         f.write(WORKFLOW_MANAGER_CLASS + "\n")
         f.write(MAIN_BLOCK)
 
-    print(f"✅ Template '{os.path.basename(args.output)}' created at {args.output}. You can now add your workflows to it.")
-    print("🔍 DEBUG: Output path exists =", Path(args.output).exists())
-    print("📂 DEBUG: Output parent directory =", Path(args.output).parent)
+    print(f"✅ Template '{output_path.name}' created at {output_path}. You can now add your workflows to it.")
+    print("🔍 DEBUG: Output path exists =", output_path.exists())
+    print("📂 DEBUG: Output parent directory =", output_path.parent)
 
 
 if __name__ == "__main__":
@@ -124,9 +127,11 @@ def generate_runner_template(output_path):
     External function to generate a blank workflow runner script at the given path.
     Used by testscript_cli.py when --blank_runner is provided.
     """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         f.write(TEMPLATE_HEADER + "\n")
         f.write(IMPORTS_BLOCK + "\n")
         f.write(WORKFLOW_MANAGER_CLASS + "\n")
         f.write(MAIN_BLOCK)
-    print(f"✅ Template '{os.path.basename(output_path)}' created at {output_path}. You can now add your workflows to it.")
+    print(f"✅ Template '{output_path.name}' created at {output_path}. You can now add your workflows to it.")
