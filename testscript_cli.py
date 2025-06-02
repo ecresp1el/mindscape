@@ -75,6 +75,7 @@ parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int
 parser.add_argument("--project_name", type=str, default="TestProject", help="Name of the project")
 parser.add_argument("--experimenter_name", type=str, default="TestUser", help="Name of the experimenter")
 parser.add_argument("--blank", action="store_true", help="Create project with a blank workflow list")
+parser.add_argument("--blank_runner", action="store_true", help="Generate a minimal run_workflows_template.py to use for blank workflows")
 args = parser.parse_args()
 
 print("Creating a new Mindscape project...")
@@ -131,12 +132,19 @@ if args.mindscape_dry_run:
             except Exception as write_err:
                 print(f"Error writing to configuration file '{config_path}': {write_err}")
 
+# Determine which workflow runner script to use
+if args.blank_runner:
+    runner_script_path = Path("run_workflows_template.py")
+    subprocess.run(["python", "mindscape/tools/generate_workflow_runner.py", "--output", str(runner_script_path)])
+else:
+    runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
+
 # Run the workflow script using subprocess to process the created project
 try:
     subprocess.run(
         [
             "python",
-            "mindscape/bioinformatics_workflow_engine/run_workflows.py",
+            str(runner_script_path),
             "--project_path",
             str(path_config_file)  # Pass the dynamically determined project path
         ],
