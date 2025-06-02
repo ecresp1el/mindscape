@@ -80,8 +80,7 @@ def run_ventral_sosr_test():
     try:
         scaffold_cmd = [
             sys.executable, scaffold_script,
-            "--project_name", project_name,
-            "--workflow_name", "TestingVentralWorkflow"
+            "--name", "TestingVentralWorkflow"
         ]
         print("🛠️  Scaffolding TestingVentralWorkflow...")
         result = subprocess.run(scaffold_cmd, check=True, text=True, capture_output=True)
