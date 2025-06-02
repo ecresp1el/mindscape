@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import os
 import logging
 from pathlib import Path
 import yaml
-
 from mindscape.bioinformatics_workflow_engine.utils.slurm_job import SLURMJob
 import subprocess
 
