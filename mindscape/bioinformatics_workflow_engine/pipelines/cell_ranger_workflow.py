@@ -17,8 +17,8 @@ class CellRangerWorkflow(BaseWorkflow):
     [gene-expression], [libraries], and [samples] sections. The workflow copies this file,
     patches required parameters (e.g., create-bam, reference, probe-set), and runs Cell Ranger using the modified file.
     """
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config_path, logger=None):
+        super().__init__(config_path, logger=logger)
         self.workflow_name = "CellRangerWorkflow"
         self.setup_paths()
 
@@ -30,15 +30,9 @@ class CellRangerWorkflow(BaseWorkflow):
 
         self.use_slurm = True  # Use SLURM for job management
 
-        # Load the configuration if a path is provided
-        if isinstance(config, str) or isinstance(config, Path):
-            with open(config, "r") as file:
-                config = yaml.safe_load(file)
-
         self.workflow_name = "CellRangerWorkflow"
 
         # Base paths and subpaths
-        self.project_path = Path(config["project_path"])
         self.results_dir = self.project_path / "results" / f"cellranger_multi_{self.workflow_name}"
         self.logs_dir = self.project_path / "logs"
 
