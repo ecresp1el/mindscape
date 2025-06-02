@@ -12,6 +12,7 @@ setup(
         "matplotlib>=3.3,<3.9",  # Plotting library (optional but useful)
         "tqdm>=4.0.0",  # Progress bar library (useful for tracking progress in loops)
         "click>=8.0.0",  # For CLI functionality
+        "inflection"
     ],
     entry_points={
         "console_scripts": [

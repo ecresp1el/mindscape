@@ -1,0 +1,2 @@
+[console_scripts]
+mindscape = mindscape.cli:main

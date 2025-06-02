@@ -1,0 +1,12 @@
+README.md
+setup.py
+mindscape/__init__.py
+mindscape/version.py
+mindscape.egg-info/PKG-INFO
+mindscape.egg-info/SOURCES.txt
+mindscape.egg-info/dependency_links.txt
+mindscape.egg-info/entry_points.txt
+mindscape.egg-info/requires.txt
+mindscape.egg-info/top_level.txt
+mindscape/create_project/__init__.py
+mindscape/create_project/new.py
