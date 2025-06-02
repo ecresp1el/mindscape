@@ -115,6 +115,11 @@ class BaseWorkflow:
         # and avoids hardcoding the workflow name in multiple places.
         self.workflow_name = self.__class__.__name__
 
+        # Ensure project_path is present in config and resolved as a Path
+        if "project_path" not in self.config:
+            raise KeyError("❌ 'project_path' is missing from the configuration file.")
+        self.project_path = Path(self.config["project_path"]).resolve()
+
         # Extract SLURM-related resource parameters from the configuration.
         # Provide sensible defaults if these parameters are not specified:
         # - cpus: number of CPU cores to request (default: 8)
