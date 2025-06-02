@@ -21,7 +21,6 @@ data_dir: data
 results_dir: results
 logs_dir: logs
 
-
 use_slurm: false
 dry_run: false
 force_rerun: false
