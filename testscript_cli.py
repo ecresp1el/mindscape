@@ -135,7 +135,8 @@ if args.mindscape_dry_run:
 # Determine which workflow runner script to use
 if args.blank_runner:
     from mindscape.tools.generate_workflow_runner import generate_runner_template
-    runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows_template.py")
+    runner_script_name = f"run_workflows_{project_name.lower()}_template.py"
+    runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_script_name
     generate_runner_template(output_path=runner_script_path)
 else:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
@@ -144,10 +145,10 @@ else:
 try:
     subprocess.run(
         [
-            "python",
-            str(runner_script_path),
+            sys.executable,
+            os.path.abspath(str(runner_script_path)),
             "--project_path",
-            str(path_config_file)  # Pass the dynamically determined project path
+            str(path_config_file)
         ],
         check=True
     )
