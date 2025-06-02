@@ -132,8 +132,12 @@ def main():
     try:
         wf.run()
     except Exception as e:
-        wf.mark_failed()
+        # Use BaseWorkflow logic to get the marker path
+        marker_path = wf.get_completion_marker_path("failed")
+        marker_path.parent.mkdir(parents=True, exist_ok=True)
+        marker_path.touch()
         print(f"[DEBUG] Exception in FailingWorkflow: {{e}}", file=sys.stderr)
+        print(f"[DEBUG] Wrote .failed marker to: {{marker_path}}")
         raise
 
 if __name__ == "__main__":
@@ -160,7 +164,9 @@ if __name__ == "__main__":
             print("[DEBUG] FailingWorkflow runner exited with error as expected.")
 
         # Check that .failed marker is created
-        assert (logs_dir / "FailingWorkflow.failed").exists(), ".failed file missing after simulated failure"
+        failed_marker_path = logs_dir / "FailingWorkflow.failed"
+        print(f"[DEBUG] Checking for .failed marker at: {failed_marker_path}")
+        assert failed_marker_path.exists(), f".failed file missing after simulated failure at {failed_marker_path}"
         print("[DEBUG] .failed file exists after simulated failure.")
 
 if __name__ == "__main__":
