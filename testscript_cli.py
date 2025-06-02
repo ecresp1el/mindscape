@@ -1,3 +1,7 @@
+import logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger("ventral_sosr_test")
+
 """This script demonstrates how to create a new MindScape project and run bioinformatics workflows.
 
 Usage:
@@ -113,10 +117,10 @@ import mindscape as ms # Importing the main MindScape module
 from mindscape.utils.auxilliaryfunctions import create_blank_config_template, create_config_template
 from mindscape.tools.generate_workflow_runner import generate_runner_template
 
-print("Imported MindScape!")
+logger.info("🚀 Launching automated project creation and workflow runner...")
 
 def main():
-    print("DEBUG: sys.argv =", sys.argv)
+    logger.debug("DEBUG: sys.argv = %s", sys.argv)
     parser = argparse.ArgumentParser(description="Create a MindScape project and run workflows.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--email", type=str, default=os.getenv("MINDSCAPE_EMAIL"), help="Email address for notifications")
     parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int(os.getenv("MINDSCAPE_DRY_RUN", "0"))), help="Perform a dry run without executing workflows")
@@ -127,7 +131,7 @@ def main():
     parser.add_argument("--test_turbo_subdir", type=str, default=None, help="Subdirectory under /nfs/turbo/umms-parent/ to use for testing (e.g. 'test_folder')")
     args = parser.parse_args()
 
-    print("Creating a new Mindscape project...")
+    logger.info("Creating a new Mindscape project...")
 
     # Define project and experimenter names from CLI arguments
     project_name = args.project_name
@@ -155,63 +159,63 @@ def main():
         custom_config_function=config_function
     )
 
-    print(f"Project created successfully at: {path_config_file}")
+    logger.info(f"Project created successfully at: {path_config_file}")
     # Note: The above function creates a new project directory structure
     # and initializes a configuration file in the specified working directory.
     # The project is created in the specified NFS directory, which is shared
     # across multiple nodes in the cluster.
 
-    print("Project creation completed successfully!")
+    logger.info("Project creation completed successfully!")
 
     # If mindscape_dry_run is set, update the config file's dry_run field before running the workflow
     if args.mindscape_dry_run:
         config_path = Path(path_config_file) / "config/config.yaml"
         if not os.path.isfile(config_path):
-            print(f"Error: Configuration file '{config_path}' does not exist. Cannot perform dry run update.")
+            logger.info(f"Error: Configuration file '{config_path}' does not exist. Cannot perform dry run update.")
         else:
             try:
                 with open(config_path, "r") as f:
                     config_data = yaml.safe_load(f)
             except Exception as read_err:
-                print(f"Error reading configuration file '{config_path}': {read_err}")
+                logger.info(f"Error reading configuration file '{config_path}': {read_err}")
             else:
                 config_data["dry_run"] = True
                 try:
                     with open(config_path, "w") as f:
                         yaml.dump(config_data, f)
-                    print("Dry run enabled: updated configuration file successfully.")
+                    logger.info("Dry run enabled: updated configuration file successfully.")
                 except Exception as write_err:
-                    print(f"Error writing to configuration file '{config_path}': {write_err}")
+                    logger.info(f"Error writing to configuration file '{config_path}': {write_err}")
 
     # Determine which workflow runner script to use
     if args.blank_runner:
 
-        print("DEBUG: args.blank_runner =", args.blank_runner)
+        logger.debug("DEBUG: args.blank_runner = %s", args.blank_runner)
 
         runner_name = (
             f"run_workflows_{project_name.lower()}_template.py"
             if isinstance(args.blank_runner, bool)
             else f"run_workflows_{args.blank_runner}.py"
         )
-        print("DEBUG: Generated runner_name =", runner_name)
+        logger.debug("DEBUG: Generated runner_name = %s", runner_name)
 
         runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_name
-        print("DEBUG: runner_script_path =", runner_script_path)
+        logger.debug("DEBUG: runner_script_path = %s", runner_script_path)
 
         generate_runner_template(output_path=runner_script_path)
 
         runner_script_absolute = Path.cwd() / runner_script_path
-        print(f"✅ Template '{runner_script_path.name}' created. You can now add your workflows to it.")
-        print("📂 Executing runner at:", runner_script_absolute)
+        logger.info(f"✅ Template '{runner_script_path.name}' created. You can now add your workflows to it.")
+        logger.info("📂 Executing runner at: %s", runner_script_absolute)
 
         try:
             with open(runner_script_absolute, "r") as f:
                 preview_lines = "".join(f.readlines()[:5])
-                print("🧾 Preview runner script:\n", preview_lines)
+                logger.info("🧾 Preview runner script:\n%s", preview_lines)
         except Exception as e:
-            print(f"⚠️ Failed to preview runner: {e}")
+            logger.info(f"⚠️ Failed to preview runner: {e}")
 
-        print("DEBUG: Launching subprocess for", runner_script_absolute)
+        logger.debug("DEBUG: Launching subprocess for %s", runner_script_absolute)
         result = subprocess.run(
             [
                 sys.executable,
@@ -223,19 +227,19 @@ def main():
             stderr=subprocess.PIPE,
             text=True
         )
-        print("DEBUG: Runner STDOUT:")
-        print(result.stdout)
-        print("DEBUG: Runner STDERR:")
-        print(result.stderr)
+        logger.debug("DEBUG: Runner STDOUT:")
+        logger.debug(result.stdout)
+        logger.debug("DEBUG: Runner STDERR:")
+        logger.debug(result.stderr)
         if result.returncode != 0:
-            print(f"❌ Error: Runner exited with return code {result.returncode}")
+            logger.info(f"❌ Error: Runner exited with return code {result.returncode}")
             sys.exit(result.returncode)
         else:
             sys.exit(0)  # ✅ Prevent fallthrough into default runner
     else:
         runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
 
-        print("DEBUG: Using default runner =", runner_script_path)
+        logger.debug("DEBUG: Using default runner = %s", runner_script_path)
 
         try:
             subprocess.run(
@@ -247,9 +251,9 @@ def main():
                 ],
                 check=True
             )
-            print("Workflows executed successfully!")
+            logger.info("Workflows executed successfully!")
         except subprocess.CalledProcessError as e:
-            print(f"Error while running workflows: {e}")
+            logger.info(f"Error while running workflows: {e}")
 
 if __name__ == "__main__":
     main()

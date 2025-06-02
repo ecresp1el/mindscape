@@ -3,6 +3,9 @@ import sys
 import shutil
 from pathlib import Path
 from datetime import datetime as dt
+import logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger("ventral_sosr_test")
 
 # New: Define test directory name to isolate all outputs
 test_turbo_subdir = "test_runs"  # Customize as needed
@@ -35,22 +38,22 @@ if existing_items:
     if user_input == "y":
         if project_path.exists():
             shutil.rmtree(project_path)
-            print(f"🗑️ Deleted test project directory: {project_path}")
+            logger.info(f"🗑️ Deleted test project directory: {project_path}")
             deleted_paths.append(str(project_path))
         if generated_runner_file.exists():
             generated_runner_file.unlink()
-            print(f"🗑️ Deleted runner script: {generated_runner_file}")
+            logger.info(f"🗑️ Deleted runner script: {generated_runner_file}")
             deleted_paths.append(str(generated_runner_file))
         if generated_pipeline_file.exists():
             generated_pipeline_file.unlink()
-            print(f"🗑️ Deleted scaffolded pipeline file: {generated_pipeline_file}")
+            logger.info(f"🗑️ Deleted scaffolded pipeline file: {generated_pipeline_file}")
             deleted_paths.append(str(generated_pipeline_file))
         if deleted_paths:
-            print("🧾 Confirmed deleted paths:")
+            logger.info("🧾 Confirmed deleted paths:")
             for path in deleted_paths:
-                print(f"  - {path}")
+                logger.info(f"  - {path}")
     else:
-        print("❌ Aborting test to preserve existing files.")
+        logger.info("❌ Aborting test to preserve existing files.")
         sys.exit(1)
 
 # Script to automate project creation and runner execution using testscript_cli.py
@@ -72,18 +75,18 @@ def run_ventral_sosr_test():
         "--test_turbo_subdir", test_turbo_subdir
     ]
 
-    print("🚀 Launching automated project creation and workflow runner...")
-    print("🔧 Command:", " ".join(command))
+    logger.info("🚀 Launching automated project creation and workflow runner...")
+    logger.debug("🔧 Command: " + " ".join(command))
 
     try:
         result = subprocess.run(command, check=True, text=True, capture_output=True)
-        print("✅ Project creation script executed successfully.")
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
+        logger.info("✅ Project creation script executed successfully.")
+        logger.debug("STDOUT:\n" + result.stdout)
+        logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to execute testscript_cli.py: {e}")
-        print("STDOUT:\n", e.stdout)
-        print("STDERR:\n", e.stderr)
+        logger.info(f"❌ Failed to execute testscript_cli.py: {e}")
+        logger.debug("STDOUT:\n" + (e.stdout or ""))
+        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Add existing CellRangerWorkflow to config
@@ -94,15 +97,15 @@ def run_ventral_sosr_test():
             "--project_path", str(project_path),
             "--workflow_name", "CellRangerWorkflow"
         ]
-        print("➕ Adding existing CellRangerWorkflow to config...")
+        logger.info("➕ Adding existing CellRangerWorkflow to config...")
         result = subprocess.run(add_cellranger_cmd, check=True, text=True, capture_output=True)
-        print("✅ CellRangerWorkflow added successfully.")
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
+        logger.info("✅ CellRangerWorkflow added successfully.")
+        logger.debug("STDOUT:\n" + result.stdout)
+        logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to add CellRangerWorkflow: {e}")
-        print("STDOUT:\n", e.stdout)
-        print("STDERR:\n", e.stderr)
+        logger.info(f"❌ Failed to add CellRangerWorkflow: {e}")
+        logger.debug("STDOUT:\n" + (e.stdout or ""))
+        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Add new TestingVentralWorkflow to config
@@ -112,15 +115,15 @@ def run_ventral_sosr_test():
             "--project_path", str(project_path),
             "--workflow_name", "TestingVentralWorkflow"
         ]
-        print("➕ Adding new TestingVentralWorkflow to config...")
+        logger.info("➕ Adding new TestingVentralWorkflow to config...")
         result = subprocess.run(add_ventral_cmd, check=True, text=True, capture_output=True)
-        print("✅ TestingVentralWorkflow added successfully.")
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
+        logger.info("✅ TestingVentralWorkflow added successfully.")
+        logger.debug("STDOUT:\n" + result.stdout)
+        logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to add TestingVentralWorkflow: {e}")
-        print("STDOUT:\n", e.stdout)
-        print("STDERR:\n", e.stderr)
+        logger.info(f"❌ Failed to add TestingVentralWorkflow: {e}")
+        logger.debug("STDOUT:\n" + (e.stdout or ""))
+        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Scaffold TestingVentralWorkflow (this generates a .py file dynamically and must match snake_case naming)
@@ -130,15 +133,15 @@ def run_ventral_sosr_test():
             sys.executable, scaffold_script,
             "--name", "TestingVentralWorkflow"
         ]
-        print("🛠️  Scaffolding TestingVentralWorkflow...")
+        logger.info("🛠️  Scaffolding TestingVentralWorkflow...")
         result = subprocess.run(scaffold_cmd, check=True, text=True, capture_output=True)
-        print("✅ TestingVentralWorkflow scaffold created successfully.")
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
+        logger.info("✅ TestingVentralWorkflow scaffold created successfully.")
+        logger.debug("STDOUT:\n" + result.stdout)
+        logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to scaffold TestingVentralWorkflow: {e}")
-        print("STDOUT:\n", e.stdout)
-        print("STDERR:\n", e.stderr)
+        logger.info(f"❌ Failed to scaffold TestingVentralWorkflow: {e}")
+        logger.debug("STDOUT:\n" + (e.stdout or ""))
+        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Run the generated runner script (now includes --project_path as required by updated workflow base class)
@@ -150,17 +153,17 @@ def run_ventral_sosr_test():
         str(project_path)
     ]
     try:
-        print(f"🏃 Running the generated runner script: {runner_script_path} ...")
+        logger.info(f"🏃 Running the generated runner script: {runner_script_path} ...")
         result = subprocess.run(run_runner_cmd, check=True, text=True, capture_output=True)
-        print("✅ Runner script executed successfully.")
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
+        logger.info("✅ Runner script executed successfully.")
+        logger.debug("STDOUT:\n" + result.stdout)
+        logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to execute runner script {runner_script_path}: {e}")
-        print("STDOUT:\n", e.stdout)
-        print("STDERR:\n", e.stderr)
+        logger.info(f"❌ Failed to execute runner script {runner_script_path}: {e}")
+        logger.debug("STDOUT:\n" + (e.stdout or ""))
+        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
 if __name__ == "__main__":
-    print(f"🧹 Cleaning up previous test state...")
+    logger.info(f"🧹 Cleaning up previous test state...")
     run_ventral_sosr_test()
