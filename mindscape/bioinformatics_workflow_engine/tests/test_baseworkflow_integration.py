@@ -1,3 +1,16 @@
+"""
+Integration test for the MindScape BaseWorkflow system.
+
+This test validates the following:
+1. That a new project can be created using the CLI, with a custom workflow (MyTestWorkflow).
+2. That the workflow can be added to the project config and run end-to-end, producing the expected marker files (.in_progress, .completed) and log output.
+3. That a failing workflow (FailingWorkflow) can be injected into the config, run, and produces a .failed marker file as expected.
+
+Expected outcomes:
+- After running MyTestWorkflow: .in_progress and .completed marker files exist, and logs show start/completion.
+- After running FailingWorkflow: .failed marker file exists after an intentional error is raised.
+"""
+
 import subprocess
 import tempfile
 from pathlib import Path
@@ -93,16 +106,24 @@ def test_baseworkflow_end_to_end():
         print("✅ BaseWorkflow integration test passed.")
 
         # Simulate running the failing workflow to test mark_failed()
-        # Overwrite workflow config to use FailingWorkflow
-        import json
-        config_path = project_dir / "workflow_config.json"
-        if config_path.exists():
-            config = json.loads(config_path.read_text())
+        # Patch config.yaml to use FailingWorkflow
+        config_yaml_path = project_dir / "config" / "config.yaml"
+        if config_yaml_path.exists():
+            try:
+                from ruamel.yaml import YAML
+            except ImportError:
+                print("[DEBUG] ruamel.yaml not installed, cannot patch config.yaml for FailingWorkflow test.")
+                return
+            yaml = YAML()
+            with config_yaml_path.open("r") as f:
+                config = yaml.load(f)
+            # Patch the workflow entry to use FailingWorkflow
             config["workflows"] = [{"runner": "FailingWorkflow"}]
-            config_path.write_text(json.dumps(config, indent=2))
-            print("[DEBUG] Overwrote workflow_config.json to use FailingWorkflow.")
+            with config_yaml_path.open("w") as f:
+                yaml.dump(config, f)
+            print("[DEBUG] Patched config.yaml to use FailingWorkflow.")
         else:
-            print("[DEBUG] workflow_config.json not found, cannot test FailingWorkflow.")
+            print("[DEBUG] config.yaml not found, cannot test FailingWorkflow.")
             return
 
         # Generate a runner for FailingWorkflow if needed
@@ -112,12 +133,14 @@ def test_baseworkflow_end_to_end():
 from mindscape.bioinformatics_workflow_engine.pipelines.my_test_workflow import FailingWorkflow
 import argparse
 import sys
+from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project_path", type=str, required=True)
     args = parser.parse_args()
-    wf = FailingWorkflow(args.project_path)
+    config_path = Path(args.project_path) / "config" / "config.yaml"
+    wf = FailingWorkflow(config_path)
     try:
         wf.run()
     except Exception as e:
