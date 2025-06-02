@@ -77,6 +77,7 @@ from mindscape.utils.auxilliaryfunctions import create_blank_config_template, cr
 
 print("Imported MindScape!")
 
+print("DEBUG: sys.argv =", sys.argv)
 parser = argparse.ArgumentParser(description="Create a MindScape project and run workflows.")
 parser.add_argument("--email", type=str, default=os.getenv("MINDSCAPE_EMAIL"), help="Email address for notifications")
 parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int(os.getenv("MINDSCAPE_DRY_RUN", "0"))), help="Perform a dry run without executing workflows")
@@ -143,21 +144,25 @@ if args.mindscape_dry_run:
 # Determine which workflow runner script to use
 if args.blank_runner:
     from mindscape.tools.generate_workflow_runner import generate_runner_template
+
+    print("DEBUG: args.blank_runner =", args.blank_runner)
+
     runner_name = (
         f"run_workflows_{project_name.lower()}_template.py"
         if isinstance(args.blank_runner, bool)
         else f"run_workflows_{args.blank_runner}.py"
     )
+    print("DEBUG: Generated runner_name =", runner_name)
+
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine") / runner_name
+    print("DEBUG: runner_script_path =", runner_script_path)
+
     generate_runner_template(output_path=runner_script_path)
 
-    # Convert to absolute path for clarity and prevent misrouting
     runner_script_absolute = Path.cwd() / runner_script_path
-
     print(f"✅ Template '{runner_script_path.name}' created. You can now add your workflows to it.")
     print("📂 Executing runner at:", runner_script_absolute)
 
-    # Show preview of the runner file
     try:
         with open(runner_script_absolute, "r") as f:
             preview_lines = "".join(f.readlines()[:5])
@@ -165,6 +170,7 @@ if args.blank_runner:
     except Exception as e:
         print(f"⚠️ Failed to preview runner: {e}")
 
+    print("DEBUG: Launching subprocess for", runner_script_absolute)
     subprocess.run(
         [
             sys.executable,
