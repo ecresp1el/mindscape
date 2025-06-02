@@ -189,10 +189,12 @@ class CellRangerWorkflow(BaseWorkflow):
             dry_run=dry_run #driven by the config.yaml file or CLI user input via MINDSCAPE_DRY_RUN environment variable
         )
         
-        if job_id:
+        if dry_run:
+            print(f"[Dry Run] SLURM script generated but not submitted for {self.workflow_name}")
+        elif job_id:
             print(f"✅ SLURM job submitted for {self.workflow_name} (Job ID: {job_id})")
         else:
-            print(f"✅ Job for {self.workflow_name} was run locally or as a dry run.")
-        
+            print(f"✅ Job for {self.workflow_name} was run locally without SLURM.")     
+
         self.log_end()
         print(f"✅ {self.workflow_name} completed successfully!")

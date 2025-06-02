@@ -12,7 +12,6 @@ class TestingVentralWorkflow(BaseWorkflow):
 
     def __init__(self, config_path, logger=None):
         super().__init__(config_path=config_path, logger=logger)
-        self.workflow_name = "TestingVentralWorkflow"
         self.setup_paths()
 
     def run(self):
