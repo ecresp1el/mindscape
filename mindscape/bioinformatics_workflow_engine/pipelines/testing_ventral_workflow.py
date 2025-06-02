@@ -10,8 +10,8 @@ class TestingVentralWorkflow(BaseWorkflow):
     Implements specific logic for the TestingVentralWorkflow pipeline.
     """
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config_path, logger=None):
+        super().__init__(config_path=config_path, logger=logger)
         self.workflow_name = "TestingVentralWorkflow"
         self.setup_paths()
 
