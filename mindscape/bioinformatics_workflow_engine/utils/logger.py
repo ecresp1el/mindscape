@@ -117,3 +117,27 @@ def get_log_file_path(base_dir: str) -> str:
     """
     log_file_name = 'workflow_engine.log'
     return os.path.join(base_dir, log_file_name)
+
+def get_workflow_logger(workflow_name: str, log_dir: Path, level=logging.INFO) -> logging.Logger:
+    """
+    Returns a logger scoped to a specific workflow class (e.g. workflow.MyNewWorkflow).
+    Logs to the shared workflow_manager.log file but with a unique logger name.
+    """
+    logger = logging.getLogger(f"workflow.{workflow_name}")
+    if logger.hasHandlers():
+        return logger
+
+    logger.setLevel(level)
+
+    log_file = log_dir / "workflow_manager.log"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(level)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    logger.addHandler(fh)
+
+    return logger

@@ -31,7 +31,7 @@ class BaseWorkflow:
                 self.log_end()
     """
 
-    def __init__(self, config_path):
+    def __init__(self, config_path, logger=None):
         """
         Initialize the BaseWorkflow.
 
@@ -44,6 +44,8 @@ class BaseWorkflow:
         Args:
             config_path (str): The path to the YAML configuration file for the workflow.
         """
+        # This ensures every subclass has a scoped logger (e.g., workflow.MyNewWorkflow).
+        self.logger = logger or logging.getLogger(f"workflow.{self.__class__.__name__}")
         self.config_path = Path(config_path).resolve()  # Convert the config path to an absolute path
         self.config = self.load_config()  # Load the configuration file
         self.workflow_name = self.__class__.__name__  # Get the name of the workflow (e.g., "CellRangerWorkflow")
@@ -142,7 +144,7 @@ class BaseWorkflow:
             If the workflow is named "QCWorkflow", this method will print:
             "Starting workflow: QCWorkflow"
         """
-        print(f"Starting workflow: {self.workflow_name}")
+        self.logger.info(f"🟢 Starting workflow: {self.workflow_name}")
 
     def mark_in_progress(self):
         """
@@ -152,6 +154,8 @@ class BaseWorkflow:
         marker = self.get_completion_marker_path().with_suffix(".in_progress")
         marker.parent.mkdir(parents=True, exist_ok=True)
         marker.write_text("IN PROGRESS\n")
+        self.logger.info(f"📍 Marked workflow as in progress: {self.workflow_name}")
+        
         
     def get_completion_marker_path(self) -> Path:
         """
@@ -176,12 +180,13 @@ class BaseWorkflow:
         completed = self.get_completion_marker_path()
         completed.parent.mkdir(parents=True, exist_ok=True)
         completed.write_text("COMPLETED\n")
+        self.logger.info(f"🏁 Marked workflow as completed: {self.workflow_name}")
 
     def log_end(self):
         """
         Log the end of the workflow and always mark it as completed.
         """
-        print(f"Completed workflow: {self.workflow_name}")
+        self.logger.info(f"✅ Completed workflow: {self.workflow_name}")
         self.mark_completed()
 
     def run(self):
@@ -215,7 +220,7 @@ class BaseWorkflow:
         if getattr(self, "use_slurm", False):
             
             email = self.config.get("email", "elcrespo@umich.edu") # Default email if not specified
-            
+            self.logger.info(f"[Dry Run] Generating SLURM job: {job_name} with email: {email}")
             print(f"[Dry Run] Generating SLURM job: {job_name} with the user email {email}")
             # Create a SLURM job instance
             job = SLURMJob(
@@ -230,7 +235,8 @@ class BaseWorkflow:
             )
             return job.generate_script() if dry_run else job.submit()
         else:
-            print(f"[Dry Run] Would run locally: {command}")
+            self.logger.info(f"[Dry Run] Would run locally: {command}")
             if not dry_run:
+                self.logger.info(f"Running command locally: {command}")
                 subprocess.run(command, shell=True, check=True)
             return None
