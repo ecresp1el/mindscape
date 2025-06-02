@@ -140,6 +140,7 @@ def main():
     # Extract the runner script name for use in the header
     runner_name = output_path.name
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         f.write(TEMPLATE_HEADER.format(runner_name=runner_name) + "\n")
         f.write(IMPORTS_BLOCK + "\n")
@@ -165,6 +166,7 @@ def generate_runner_template(output_path):
     # Extract the runner script name for use in the header
     runner_name = output_path.name
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         f.write(TEMPLATE_HEADER.format(runner_name=runner_name) + "\n")
         f.write(IMPORTS_BLOCK + "\n")

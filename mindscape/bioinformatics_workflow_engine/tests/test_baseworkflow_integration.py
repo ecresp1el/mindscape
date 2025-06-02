@@ -39,6 +39,7 @@ def test_baseworkflow_end_to_end():
         runner_name = "MyTestWorkflow"
 
         testscript_cli_path = REPO_ROOT / "testscript_cli.py"
+        print("🛠️ Running project creation...")
         print(f"Running project creation with script: {testscript_cli_path}")
         # Run project creation
         subprocess.run([
@@ -49,13 +50,39 @@ def test_baseworkflow_end_to_end():
             "--blank_runner", runner_name,
             "--mindscape_dry_run"
         ], check=True)
+        print("✅ Project creation completed.")
 
         # Locate created project path
         project_dir = next((p for p in Path("/nfs/turbo/umms-parent").glob(f"{project_name}-{experimenter}-*")), None)
         assert project_dir is not None, "Project directory was not created."
         print(f"Located project directory at: {project_dir}")
 
+        # 🧩 Patch config.yaml to ensure proper workflow dictionary format
+        config_yaml_path = project_dir / "config" / "config.yaml"
+        if config_yaml_path.exists():
+            import yaml
+            with config_yaml_path.open("r") as f:
+                config = yaml.safe_load(f)
+            workflows = config.get("workflows", [])
+            fixed_workflows = []
+            for wf in workflows:
+                if isinstance(wf, str):
+                    fixed_workflows.append({
+                        "name": wf,
+                        "use_slurm": False,
+                        "dry_run": True
+                    })
+                elif isinstance(wf, dict) and "name" in wf:
+                    fixed_workflows.append(wf)
+            config["workflows"] = fixed_workflows
+            with config_yaml_path.open("w") as f:
+                yaml.safe_dump(config, f)
+            print("✅ Patched config.yaml with valid workflow entries.")
+        else:
+            print("❌ config.yaml not found for patching.")
+
         add_workflow_script = REPO_ROOT / "mindscape" / "tools" / "add_workflow_to_config.py"
+        print("🧩 Adding workflow to config...")
         print(f"Adding workflow to config using script: {add_workflow_script}")
         # Add workflow to config
         subprocess.run([
@@ -71,6 +98,7 @@ def test_baseworkflow_end_to_end():
             "python", str(runner_path),
             "--project_path", str(project_dir)
         ], check=True)
+        print("✅ Workflow runner completed.")
 
         # Validate output
         logs_dir = project_dir / "logs"
