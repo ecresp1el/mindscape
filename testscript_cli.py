@@ -124,6 +124,7 @@ def main():
     parser.add_argument("--experimenter_name", type=str, default="TestUser", help="Name of the experimenter")
     parser.add_argument("--blank", action="store_true", help="Create project with a blank workflow list")
     parser.add_argument("--blank_runner", nargs="?", const=True, help="Generate a run_workflows_template.py file. Optionally provide a custom name, e.g. --blank_runner MyRunner")
+    parser.add_argument("--test_turbo_subdir", type=str, default=None, help="Subdirectory under /nfs/turbo/umms-parent/ to use for testing (e.g. 'test_folder')")
     args = parser.parse_args()
 
     print("Creating a new Mindscape project...")
@@ -134,6 +135,8 @@ def main():
 
     # Define the directory where the project will be created (shared NFS directory)
     turbo_shared_directory = "/nfs/turbo/umms-parent/"
+    if args.test_turbo_subdir:
+        turbo_shared_directory = os.path.join(turbo_shared_directory, args.test_turbo_subdir)
 
     ## this will create a new project directory structure like:
     # /nfs/turbo/umms-parent/TestProject-TestUser-2023-10-01/
