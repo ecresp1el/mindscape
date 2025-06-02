@@ -171,15 +171,24 @@ if args.blank_runner:
         print(f"⚠️ Failed to preview runner: {e}")
 
     print("DEBUG: Launching subprocess for", runner_script_absolute)
-    subprocess.run(
+    result = subprocess.run(
         [
             sys.executable,
             str(runner_script_absolute),
             "--project_path",
             str(path_config_file)
         ],
-        check=True
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
     )
+    print("DEBUG: Runner STDOUT:")
+    print(result.stdout)
+    print("DEBUG: Runner STDERR:")
+    print(result.stderr)
+    if result.returncode != 0:
+        print(f"❌ Error: Runner exited with return code {result.returncode}")
+        sys.exit(result.returncode)
     sys.exit(0)
 else:
     runner_script_path = Path("mindscape/bioinformatics_workflow_engine/run_workflows.py")
