@@ -4,6 +4,8 @@ from pathlib import Path
 import shutil
 import os
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
 def test_baseworkflow_end_to_end():
     # Create a temporary test directory
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -12,9 +14,11 @@ def test_baseworkflow_end_to_end():
         experimenter = "TestUser"
         runner_name = "MyTestWorkflow"
 
+        testscript_cli_path = REPO_ROOT / "testscript_cli.py"
+        print(f"Running project creation with script: {testscript_cli_path}")
         # Run project creation
         subprocess.run([
-            "python", "testscript_cli.py",
+            "python", str(testscript_cli_path),
             "--project_name", project_name,
             "--experimenter_name", experimenter,
             "--blank",
@@ -25,16 +29,20 @@ def test_baseworkflow_end_to_end():
         # Locate created project path
         project_dir = next((p for p in Path("/nfs/turbo/umms-parent").glob(f"{project_name}-{experimenter}-*")), None)
         assert project_dir is not None, "Project directory was not created."
+        print(f"Located project directory at: {project_dir}")
 
+        add_workflow_script = REPO_ROOT / "mindscape" / "tools" / "add_workflow_to_config.py"
+        print(f"Adding workflow to config using script: {add_workflow_script}")
         # Add workflow to config
         subprocess.run([
-            "python", "mindscape/tools/add_workflow_to_config.py",
+            "python", str(add_workflow_script),
             "--project_path", str(project_dir),
             "--workflow_name", runner_name
         ], check=True)
 
+        runner_path = REPO_ROOT / "mindscape" / "bioinformatics_workflow_engine" / f"run_workflows_{runner_name}.py"
+        print(f"Running generated runner script: {runner_path}")
         # Run the generated runner
-        runner_path = Path("mindscape/bioinformatics_workflow_engine") / f"run_workflows_{runner_name}.py"
         subprocess.run([
             "python", str(runner_path),
             "--project_path", str(project_dir)
