@@ -8,6 +8,8 @@ import yaml
 
 def create_config_template(project_path: str, project_name: str, experimenter: str, date: str, email: str ="elcrespo@umich.edu"):
     """
+    This is the default config template for MindScape projects.
+    It includes all base settings and pre-adds the CellRanger, QC, and Ventral workflows.
     Creates a complete and usable config.yaml with default values (SLURM disabled).
     """
     yaml_str = f"""\

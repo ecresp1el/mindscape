@@ -27,6 +27,43 @@ Options:
         Useful for custom workflow execution scaffolds.
 
 Description:
+    ┌─➤ CLI Call: testscript_cli.py [with CLI args]
+    │   ├── --project_name           # required
+    │   ├── --experimenter_name      # required
+    │   ├── --email                  # optional or via $MINDSCAPE_EMAIL
+    │   ├── --mindscape_dry_run      # optional or via $MINDSCAPE_DRY_RUN
+    │   ├── --blank                  # optional → use blank config
+    │   └── --blank_runner           # optional → generate and run custom runner
+    │
+    ├── SELECT CONFIG FUNCTION:
+    │   ├── If `--blank` → use create_blank_config_template
+    │   └── else         → use create_config_template
+    │
+    ├── CALL: create_new_project(...)
+    │   ├── Creates folder + config/config.yaml
+    │   └── Returns: full project path
+    │
+    ├── IF --mindscape_dry_run or env var set:
+    │   └── Rewrites config["dry_run"] = true and saves
+    │
+    └── WORKFLOW EXECUTION BRANCHES:
+        |
+        ├── IF `--blank_runner` is given:
+        │   ├── Generate custom runner file:
+        │   │   └── run_workflows_<custom_name>.py
+        │   └── subprocess.run([
+        │         "python",
+        │         "mindscape/bioinformatics_workflow_engine/run_workflows_<custom_name>.py",
+        │         "--project_path", <created_project_path>
+        │       ])
+        │
+        └── ELSE (default case):
+            └── subprocess.run([
+                "python",
+                "mindscape/bioinformatics_workflow_engine/run_workflows.py",
+                "--project_path", <created_project_path>
+                ])
+
     - Creates a new project directory structure in a specified shared directory.
     - Initializes a configuration file for the project.
     - Runs the MindScape bioinformatics workflows on the created project.
