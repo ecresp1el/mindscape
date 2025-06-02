@@ -14,13 +14,10 @@ def create_config_template(project_path: str, project_name: str, experimenter: s
 project_name: {project_name}
 experimenter: {experimenter}
 date: {date}
-
 project_path: {project_path}
-
 data_dir: data
 results_dir: results
 logs_dir: logs
-
 use_slurm: false
 dry_run: false
 force_rerun: false
@@ -49,6 +46,40 @@ workflows:
     cfg_file = ruamelFile.load(yaml_str)
     return cfg_file, ruamelFile
 
+def create_blank_config_template(project_path: str, project_name: str, experimenter: str, date: str, email: str = "elcrespo@umich.edu"):
+    """
+    Creates a config.yaml with all base settings but **no workflows pre-added**.
+    Ideal for clean testing and developer-controlled workflow registration.
+    """
+    yaml_str = f"""\
+project_name: {project_name}
+experimenter: {experimenter}
+date: {date}
+project_path: {project_path}
+data_dir: data
+results_dir: results
+logs_dir: logs
+use_slurm: false
+dry_run: false
+force_rerun: false
+email: {email}
+
+slurm:
+  cpus: "8"
+  mem: "64G"
+  time: "12:00:00"
+
+parameters:
+  analysis_type: default
+  threshold: 0.5
+  max_iterations: 1000
+
+workflows: []
+"""
+    ruamelFile = YAML()
+    ruamelFile.preserve_quotes = True
+    cfg_file = ruamelFile.load(yaml_str)
+    return cfg_file, ruamelFile
 
 def read_config(configname: str | Path) -> dict:
     """
