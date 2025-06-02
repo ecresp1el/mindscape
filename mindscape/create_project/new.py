@@ -10,6 +10,7 @@ def create_new_project(
     experimenter: str,
     working_directory: str | None = None, # Default to current directory if None
     email: str = "elcrespo@umich.edu", # Default email for SLURM job notifications, but can be overridden by user
+    custom_config_function=None  # Optional custom function to create a different config template
 ) -> str:
     """
     Creates a new MindScape project directory with the necessary structure.
@@ -66,7 +67,15 @@ def create_new_project(
 
         # Generate the configuration file
         config_path = project_path / "config/config.yaml"
-        cfg, ruamelFile = create_config_template(
+        
+        #decide which config template function to use 
+        config_func = custom_config_function or create_config_template
+        
+        #print the config function being used
+        print(f"DEBUG: Using config function: {config_func.__name__}")
+        
+        # Create the configuration template
+        cfg, ruamelFile = config_func(
             project_path=str(project_path),
             project_name=project_name,
             experimenter=experimenter,

@@ -1,7 +1,25 @@
 """This script demonstrates how to create a new MindScape project and run bioinformatics workflows.
 
 Usage:
-    python testscript_cli.py [--project_name PROJECT_NAME] [--experimenter_name EXPERIMENTER_NAME]
+    python testscript_cli.py [OPTIONS]
+
+Options:
+    --project_name PROJECT_NAME
+        Name of the project. Default: "TestProject"
+
+    --experimenter_name EXPERIMENTER_NAME
+        Name of the experimenter. Default: "TestUser"
+
+    --email EMAIL_ADDRESS
+        Email for SLURM notifications. Default: Value from $MINDSCAPE_EMAIL or None
+
+    --mindscape_dry_run
+        Perform a dry run (simulate workflow without execution).
+        Default: False (can also set $MINDSCAPE_DRY_RUN=1)
+
+    --blank
+        Use a blank configuration (no default workflows included).
+        Default: False
 
 Description:
     - Creates a new project directory structure in a specified shared directory.
@@ -15,19 +33,6 @@ Customization:
         --experimenter_name EXPERIMENTER_NAME
     - Set 'turbo_shared_directory' to the path where you want the project directory to be created.
     - Ensure that the MindScape module is installed and accessible in your Python environment.
-
-Alternate CLI usage:
-    You can also run the workflows with additional options using the command line interface:
-    
-    --email EMAIL_ADDRESS
-        Specify an email address to receive notifications about the workflow status.
-        This can be passed as a command line argument or set as an environment variable:
-            export MINDSCAPE_EMAIL=your_email@example.com
-
-    --mindscape_dry_run
-        Perform a dry run of the workflows without executing them.
-        This flag can be passed directly via the CLI or set as an environment variable:
-            export MINDSCAPE_DRY_RUN=1
 
 ## 🧪 Example CLI Usage
 
@@ -60,6 +65,7 @@ import json
 import yaml
 
 import mindscape as ms # Importing the main MindScape module
+from mindscape.utils.auxilliaryfunctions import create_blank_config_template, create_config_template
 
 print("Imported MindScape!")
 
@@ -68,6 +74,7 @@ parser.add_argument("--email", type=str, default=os.getenv("MINDSCAPE_EMAIL"), h
 parser.add_argument("--mindscape_dry_run", action="store_true", default=bool(int(os.getenv("MINDSCAPE_DRY_RUN", "0"))), help="Perform a dry run without executing workflows")
 parser.add_argument("--project_name", type=str, default="TestProject", help="Name of the project")
 parser.add_argument("--experimenter_name", type=str, default="TestUser", help="Name of the experimenter")
+parser.add_argument("--blank", action="store_true", help="Create project with a blank workflow list")
 args = parser.parse_args()
 
 print("Creating a new Mindscape project...")
@@ -83,12 +90,17 @@ turbo_shared_directory = "/nfs/turbo/umms-parent/"
 # /nfs/turbo/umms-parent/TestProject-TestUser-2023-10-01/
 # and initialize a configuration file in the specified working directory.
 
+
+# Select the appropriate config template function based on --blank flag
+config_function = create_blank_config_template if args.blank else create_config_template
+
 # Create a new MindScape project and get the path to the configuration file
 path_config_file = ms.create_new_project(
     project=project_name,
     experimenter=experimenter_name,
     working_directory=turbo_shared_directory,
-    email=args.email
+    email=args.email,
+    custom_config_function=config_function
 )
 
 print(f"Project created successfully at: {path_config_file}")
