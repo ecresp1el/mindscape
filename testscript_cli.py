@@ -74,6 +74,7 @@ import yaml
 
 import mindscape as ms # Importing the main MindScape module
 from mindscape.utils.auxilliaryfunctions import create_blank_config_template, create_config_template
+from mindscape.tools.generate_workflow_runner import generate_runner_template
 
 print("Imported MindScape!")
 
@@ -144,7 +145,6 @@ def main():
 
     # Determine which workflow runner script to use
     if args.blank_runner:
-        from mindscape.tools.generate_workflow_runner import generate_runner_template
 
         print("DEBUG: args.blank_runner =", args.blank_runner)
 
