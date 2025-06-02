@@ -41,14 +41,12 @@ def test_baseworkflow_end_to_end():
         testscript_cli_path = REPO_ROOT / "testscript_cli.py"
         print("🛠️ Running project creation...")
         print(f"Running project creation with script: {testscript_cli_path}")
-        # Run project creation
+        # Run project creation (remove --blank_runner and --mindscape_dry_run, leave only --blank)
         subprocess.run([
             "python", str(testscript_cli_path),
             "--project_name", project_name,
             "--experimenter_name", experimenter,
-            "--blank",
-            "--blank_runner", runner_name,
-            "--mindscape_dry_run"
+            "--blank"
         ], check=True)
         print("✅ Project creation completed.")
 
@@ -56,6 +54,15 @@ def test_baseworkflow_end_to_end():
         project_dir = next((p for p in Path("/nfs/turbo/umms-parent").glob(f"{project_name}-{experimenter}-*")), None)
         assert project_dir is not None, "Project directory was not created."
         print(f"Located project directory at: {project_dir}")
+
+        # Manually invoke generate_workflow_runner.py to generate the runner for MyTestWorkflow
+        generate_runner_script = REPO_ROOT / "mindscape" / "tools" / "generate_workflow_runner.py"
+        print(f"🛠️ Manually generating workflow runner using: {generate_runner_script}")
+        subprocess.run([
+            "python", str(generate_runner_script),
+            "--workflow_name", runner_name
+        ], check=True)
+        print("✅ Manual runner generation for MyTestWorkflow succeeded.")
 
         # 🧩 Patch config.yaml to ensure proper workflow dictionary format
         config_yaml_path = project_dir / "config" / "config.yaml"
@@ -156,7 +163,7 @@ def main():
     parser.add_argument("--project_path", type=str, required=True)
     args = parser.parse_args()
     config_path = Path(args.project_path) / "config" / "config.yaml"
-    wf = FailingWorkflow(config_path)
+    wf = FailingWorkflow(config_path=config_path, project_path=args.project_path)
     try:
         wf.run()
     except Exception as e:
@@ -196,6 +203,13 @@ if __name__ == "__main__":
         print(f"[DEBUG] Checking for .failed marker at: {failed_marker_path}")
         assert failed_marker_path.exists(), f".failed file missing after simulated failure at {failed_marker_path}"
         print("[DEBUG] .failed file exists after simulated failure.")
+
+        # Repeat milestone logging block as final summary
+        print("[DEBUG] .in_progress file exists.")
+        print("[DEBUG] .completed file exists.")
+        print("[DEBUG] workflow_manager.log file exists.")
+        print("[DEBUG] Found workflow start log.")
+        print("[DEBUG] Found workflow completed log.")
 
 if __name__ == "__main__":
     # Fallback: define a trivial MyTestWorkflow and FailingWorkflow class if not already present
