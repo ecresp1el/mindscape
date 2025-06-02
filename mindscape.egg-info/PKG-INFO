@@ -12,6 +12,7 @@ Requires-Dist: scipy>=1.9
 Requires-Dist: matplotlib<3.9,>=3.3
 Requires-Dist: tqdm>=4.0.0
 Requires-Dist: click>=8.0.0
+Requires-Dist: inflection
 Dynamic: classifier
 Dynamic: requires-dist
 Dynamic: requires-python
