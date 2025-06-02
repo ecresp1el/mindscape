@@ -2,20 +2,21 @@ import os
 from pathlib import Path
 import argparse
 
-parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
-parser.add_argument(
-    "--output",
-    type=str,
-    default=None,
-    help="Output file name for the generated workflow runner (default: run_workflows_template.py)"
-)
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description="Generate a blank run_workflows.py template")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output file name for the generated workflow runner (default: run_workflows_template.py)"
+    )
+    args, _ = parser.parse_known_args()
 
-import re
-if args.output is None:
-    project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
-    sanitized = re.sub(r'\W+', '_', project_name.lower())
-    args.output = str(Path(__file__).resolve().parent.parent.parent / f"run_workflows_{sanitized}.py")
+    import re
+    if args.output is None:
+        project_name = os.environ.get("MINDSCAPE_PROJECT_NAME", "custom_workflow_runner")
+        sanitized = re.sub(r'\W+', '_', project_name.lower())
+        args.output = str(Path(__file__).resolve().parent.parent / "bioinformatics_workflow_engine" / f"run_workflows_{sanitized}.py")
 
 TEMPLATE_HEADER = """\"\"\"
 🚀 Blank WorkflowManager Template Generator
@@ -103,11 +104,17 @@ if __name__ == "__main__":
     workflow_manager.run_workflows()
 '''
 
-# Output the full template
-with open(args.output, "w") as f:
-    f.write(TEMPLATE_HEADER + "\n")
-    f.write(IMPORTS_BLOCK + "\n")
-    f.write(WORKFLOW_MANAGER_CLASS + "\n")
-    f.write(MAIN_BLOCK)
+    # Output the full template
+    with open(args.output, "w") as f:
+        f.write(TEMPLATE_HEADER + "\n")
+        f.write(IMPORTS_BLOCK + "\n")
+        f.write(WORKFLOW_MANAGER_CLASS + "\n")
+        f.write(MAIN_BLOCK)
 
-print(f"✅ Template '{os.path.basename(args.output)}' created at {args.output}. You can now add your workflows to it.")
+    print(f"✅ Template '{os.path.basename(args.output)}' created at {args.output}. You can now add your workflows to it.")
+    print("🔍 DEBUG: Output path exists =", Path(args.output).exists())
+    print("📂 DEBUG: Output parent directory =", Path(args.output).parent)
+
+
+if __name__ == "__main__":
+    main()
