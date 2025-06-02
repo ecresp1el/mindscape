@@ -144,6 +144,15 @@ class BaseWorkflow:
         """
         print(f"Starting workflow: {self.workflow_name}")
 
+    def mark_in_progress(self):
+        """
+        Marks this workflow as in progress. Creates a .in_progress file.
+        This file is NOT removed automatically when completed — it serves as a record that the workflow began.
+        """
+        marker = self.get_completion_marker_path().with_suffix(".in_progress")
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text("IN PROGRESS\n")
+        
     def get_completion_marker_path(self) -> Path:
         """
         Return the path to the marker file used to indicate this workflow is completed.
@@ -162,12 +171,11 @@ class BaseWorkflow:
 
     def mark_completed(self):
         """
-        Mark this workflow as completed by writing a .completed file.
+        Marks this workflow as completed. Leaves the .in_progress file intact for auditability.
         """
-        # Write a marker file to indicate successful completion of the workflow
-        marker = self.get_completion_marker_path()
-        marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text("COMPLETED\n")
+        completed = self.get_completion_marker_path()
+        completed.parent.mkdir(parents=True, exist_ok=True)
+        completed.write_text("COMPLETED\n")
 
     def log_end(self):
         """
