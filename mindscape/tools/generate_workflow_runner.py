@@ -25,6 +25,7 @@ import yaml
 from pipelines.base_workflow import BaseWorkflow
 from utils.logger import setup_logger
 from utils.validation import warn_if_missing_from_config
+from utils.dynamic_imports import dynamic_import_workflows
 """
 
 WORKFLOW_MANAGER_CLASS = '''
@@ -35,6 +36,7 @@ class WorkflowManager:
         self.project_path = project_path
         self.config = self.load_config()
         pipeline_dir = Path(__file__).parent / "pipelines"
+        self.available_workflows = dynamic_import_workflows(pipeline_dir)
         configured_names = {wf["name"] for wf in self.config.get("workflows", [])}
         warn_if_missing_from_config(pipeline_dir, configured_names)
         self.logger = setup_logger("workflow_manager", "workflow_manager.log")
@@ -49,7 +51,7 @@ class WorkflowManager:
         for workflow in workflow_order:
             workflow_name = workflow.get("name")
             if workflow.get("enabled", False):
-                workflow_class = globals().get(workflow_name)
+                workflow_class = self.available_workflows.get(workflow_name)
                 if workflow_class and hasattr(workflow_class, "run") and workflow_class.run != BaseWorkflow.run:
                     self.workflows.append(workflow_class(config=self.config_path))
                 else:
