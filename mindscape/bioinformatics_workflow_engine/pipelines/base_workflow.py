@@ -12,16 +12,20 @@ class BaseWorkflow:
     
     BaseWorkflow is a superclass that provides essential functionality for all workflows in the bioinformatics workflow engine.
 
-    This class is designed to serve as a "blueprint" for creating workflows in the bioinformatics workflow engine.
-    It provides common functionality that all workflows can use, such as loading configuration files, setting up
-    project paths, and logging the start and end of a workflow.
+    Role in Workflow Lifecycle:
+        - The `run()` method serves as the main entry point for executing the workflow's logic.
+        - It is expected to orchestrate the workflow's steps, including setup, execution, and teardown.
+        - Typically, it should call `log_start()` at the beginning to record the start of the workflow,
+          `mark_in_progress()` to indicate that the workflow has begun processing, and `log_end()` at the end
+          to mark successful completion and log the end message.
 
-    Workflow Completion Tracking:
-    - Workflows that complete successfully mark themselves using a `.completed` file located in:
-        <project_path>/logs/<workflow_name>.completed
-    - When `run_workflows.py` is executed, it uses `is_already_completed()` to skip rerunning steps
-      that have already finished.
-    - If you need to force re-run, delete the `.completed` file manually or implement a `force_rerun` flag check.
+    Integration with Logging and Status Tracking:
+        - By calling `log_start()`, the workflow logs its initiation, which aids in monitoring and debugging.
+        - `mark_in_progress()` creates a marker file indicating the workflow is underway, which helps prevent
+          duplicate runs and tracks progress.
+        - `log_end()` finalizes the workflow by logging completion and marking the workflow as completed,
+          ensuring status files are updated accordingly.
+        - Subclasses should also handle exceptions and use `mark_failed(reason)` if the workflow encounters errors.
 
     What Subclasses Inherit:
     ------------------------
@@ -59,6 +63,25 @@ class BaseWorkflow:
                 self.setup_paths()
                 # Workflow-specific tasks here
                 self.log_end()
+
+    Workflow Lifecycle:
+    -------------------
+    BaseWorkflow.__init__()
+        ├── load_config()
+        ├── set self.workflow_name
+        ├── parse SLURM resources
+        ↓
+    Subclasses call:
+        └── run()
+             ├── log_start()
+             ├── mark_in_progress()
+             ├── workflow logic...
+             ├── log_end()
+             └── mark_completed()
+    Status Checks:
+        ├── is_already_completed()
+        ├── get_status()
+        └── mark_failed(reason)
     """
 
     def __init__(self, config_path, logger=None):
