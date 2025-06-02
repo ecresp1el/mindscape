@@ -70,7 +70,9 @@ set -e
 
     def submit(self):
         if self.dry_run:
-            return self.generate_script()
+            self.generate_script()
+            print(f"[Dry Run] SLURM script generated for {self.job_name} (not submitted)")
+            return
 
         self.generate_script()
         import subprocess
