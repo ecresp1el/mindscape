@@ -64,13 +64,22 @@ def add_workflow_to_config(config_path: Path, workflow_name: str, enabled: bool 
     print(f"✅ Added workflow '{workflow_name}' to config (enabled={enabled})")
 
 
-if __name__ == "__main__":
-    # This only modifies the config.yaml and does not register the workflow class itself.
+# 🧩 Main entry point that can be reused from other Python scripts.
+# Accepts CLI-style argument list (e.g., from sys.argv[1:] or manually specified).
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Add a workflow to an existing MindScape project config.")
     parser.add_argument("--project_path", type=str, required=True, help="Path to the MindScape project directory")
     parser.add_argument("--workflow_name", type=str, required=True, help="Name of the workflow class (e.g., MyCustomWorkflow -> my_custom_workflow.py)")
     parser.add_argument("--disabled", action="store_true", help="Add the workflow as disabled")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     project_config_path = Path(args.project_path) / "config" / "config.yaml"
     add_workflow_to_config(project_config_path, args.workflow_name, enabled=not args.disabled)
+    # this allows the script to be run directly as a CLI tool
+
+
+# 🛠️ Allow this script to be run directly as a CLI tool.
+# When run as a standalone script, this will parse command-line arguments.
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1:]) # This allows running with `python add_workflow_to_config.py ...`
