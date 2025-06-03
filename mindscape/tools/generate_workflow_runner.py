@@ -51,14 +51,20 @@ This supports modular pipeline development and simplifies developer onboarding.
 IMPORTS_BLOCK = """
 import os
 import re
+import sys
 from pathlib import Path
 import argparse
 import yaml
+
+# Ensure repo root is on PYTHONPATH for dynamic imports to work
+# this will allow importing from mindscape.bioinformatics_workflow_engine when running this script
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
 from mindscape.bioinformatics_workflow_engine.utils.logger import setup_logger
 from mindscape.bioinformatics_workflow_engine.utils.validation import warn_if_missing_from_config
 from mindscape.bioinformatics_workflow_engine.utils.dynamic_imports import dynamic_import_workflows
+"""
 """
 
 WORKFLOW_MANAGER_CLASS = '''
