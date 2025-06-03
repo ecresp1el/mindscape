@@ -10,7 +10,7 @@ def dynamic_import_workflows(pipelines_dir: Path):
         if py_file.name.startswith("__") or py_file.name == "base_workflow.py":
             continue
 
-        module_path = f"pipelines.{py_file.stem}"
+        module_path = f"mindscape.bioinformatics_workflow_engine.pipelines.{py_file.stem}"
         try:
             module = importlib.import_module(module_path)
             for name, obj in inspect.getmembers(module, inspect.isclass):
