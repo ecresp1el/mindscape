@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("ventral_sosr_test")
 
-from mindscape.tools import add_workflow_to_config 
+from mindscape.tools import add_workflow_to_config, create_workflow_scaffold
 
 
 
