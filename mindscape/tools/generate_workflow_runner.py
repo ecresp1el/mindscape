@@ -56,8 +56,6 @@ from pathlib import Path
 import argparse
 import yaml
 
-#ensure repo root is on the PYTHONPATH for dynamic imports to work
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
 from mindscape.bioinformatics_workflow_engine.utils.logger import setup_logger

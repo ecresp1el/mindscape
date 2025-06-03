@@ -153,38 +153,6 @@ def run_ventral_sosr_test():
         logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
-    # Preview loaded workflow classes and verify inheritance
-    try:
-        from mindscape.bioinformatics_workflow_engine.utils.dynamic_imports import dynamic_import_workflows
-        from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
-        import yaml
-
-        config_path = project_path / "config" / "config.yaml"
-        with open(config_path, "r") as f:
-            config_data = yaml.safe_load(f)
-
-        workflow_names = config_data.get("workflows", [])
-        pipelines_dir = repo_root / "mindscape" / "bioinformatics_workflow_engine" / "pipelines"
-        
-        available_workflows = dynamic_import_workflows(
-            pipelines_dir,
-            module_prefix="mindscape.bioinformatics_workflow_engine.pipelines"
-        )
-        logger.info("🔍 Previewing loaded workflow classes from config.yaml:")
-        for wf in workflow_names:
-            name = wf["name"] if isinstance(wf, dict) else wf
-            wf_cls = available_workflows.get(name)
-            if wf_cls is None:
-                logger.warning(f"  ⚠️  Workflow '{name}' not found.")
-            else:
-                logger.info(f"  ✅ Loaded workflow class: {wf_cls.__name__} from {wf_cls.__module__}")
-                if issubclass(wf_cls, BaseWorkflow):
-                    logger.info(f"     🧬 Confirmed {wf_cls.__name__} inherits from BaseWorkflow")
-                else:
-                    logger.warning(f"     ❌ {wf_cls.__name__} does NOT inherit from BaseWorkflow")
-    except Exception as e:
-        logger.warning(f"⚠️ Could not verify workflow class inheritance: {e}")
-
     # Final cleanup prompt
     cleanup_prompt = input("\n🧪 This was a test run. Delete all generated files? (y/N): ").strip().lower()
     if cleanup_prompt == "y":
