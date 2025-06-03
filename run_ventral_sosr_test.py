@@ -98,20 +98,14 @@ def run_ventral_sosr_test():
 
     # Add existing CellRangerWorkflow to config
     try:
-        add_cellranger_cmd = [
-            sys.executable, "add_workflow_to_config.py",
+        logger.info("➕ Adding existing CellRangerWorkflow to config...")
+        add_workflow_to_config.main([
             "--project_path", str(project_path),
             "--workflow_name", "CellRangerWorkflow"
-        ]
-        logger.info("➕ Adding existing CellRangerWorkflow to config...")
-        result = subprocess.run(add_cellranger_cmd, check=True, text=True, capture_output=True)
+        ])
         logger.info("✅ CellRangerWorkflow added successfully.")
-        logger.debug("STDOUT:\n" + result.stdout)
-        logger.debug("STDERR:\n" + result.stderr)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logger.info(f"❌ Failed to add CellRangerWorkflow: {e}")
-        logger.debug("STDOUT:\n" + (e.stdout or ""))
-        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Add new TestingVentralWorkflow to config
