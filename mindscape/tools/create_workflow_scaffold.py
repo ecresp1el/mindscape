@@ -71,11 +71,11 @@ def to_snake_case(name):
     name = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
     return name
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Generate a new MindScape workflow scaffold")
     parser.add_argument("--name", required=True, help="Name of the workflow class (e.g., MyNewWorkflow)")
     parser.add_argument("--force", action="store_true", help="Force overwrite if the workflow file already exists")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     force = args.force
 
     workflow_name = args.name
@@ -115,4 +115,5 @@ def main():
     print(" - Run this script from the root of the MindScape repo")
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(sys.argv[1:])
