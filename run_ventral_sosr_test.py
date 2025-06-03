@@ -9,16 +9,13 @@ logger = logging.getLogger("ventral_sosr_test")
 
 from mindscape.tools import add_workflow_to_config, create_workflow_scaffold
 
-
-
-
 # New: Define test directory name to isolate all outputs of this script
 test_turbo_subdir = "test_runs"  # Customize as needed
 base_turbo_path = Path("/nfs/turbo/umms-parent") / test_turbo_subdir
 
 ### section: Setup paths and check for existing files ###
 repo_root = Path(__file__).resolve().parent # Assuming this script is in the root of the repository
-generated_runner_file = repo_root / f"run_workflows_VentralSOSRSTest.py" # Generated runner script path
+generated_runner_file = repo_root / "mindscape" / "bioinformatics_workflow_engine" / f"run_workflows_VentralSOSRSTest.py"
 generated_pipeline_file = repo_root / "mindscape" / "bioinformatics_workflow_engine" / "pipelines" / "testing_ventral_workflow.py"
 
 # Full project output path
@@ -153,6 +150,34 @@ def run_ventral_sosr_test():
         logger.debug("STDOUT:\n" + (e.stdout or ""))
         logger.debug("STDERR:\n" + (e.stderr or ""))
         return
+
+    # Final cleanup prompt
+    cleanup_prompt = input("\n🧪 This was a test run. Delete all generated files? (y/N): ").strip().lower()
+    if cleanup_prompt == "y":
+        paths_to_delete = []
+        if project_path.exists():
+            shutil.rmtree(project_path)
+            paths_to_delete.append(project_path)
+        if generated_runner_file.exists():
+            generated_runner_file.unlink()
+            paths_to_delete.append(generated_runner_file)
+        if generated_pipeline_file.exists():
+            generated_pipeline_file.unlink()
+            paths_to_delete.append(generated_pipeline_file)
+
+        if paths_to_delete:
+            logger.info("🧼 Deleted the following test artifacts:")
+            for path in paths_to_delete:
+                if path == project_path:
+                    logger.info(f"  - Project output directory: {path}")
+                elif path == generated_runner_file:
+                    logger.info(f"  - Generated runner script: {path}")
+                elif path == generated_pipeline_file:
+                    logger.info(f"  - Scaffolded workflow file: {path}")
+                else:
+                    logger.info(f"  - {path}")
+    else:
+        logger.info("🗂️ Retained test output files.")
 
 if __name__ == "__main__":
     logger.info(f"🧹 Cleaning up previous test state...")
