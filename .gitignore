@@ -3,4 +3,4 @@ __pycache__/
 
 #ignore egg files
 *.egg
-# ignore build directorie
+# ignore build directorie.vscode/
