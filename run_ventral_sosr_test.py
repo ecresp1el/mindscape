@@ -99,10 +99,12 @@ def run_ventral_sosr_test():
     # Add existing CellRangerWorkflow to config
     try:
         logger.info("➕ Adding existing CellRangerWorkflow to config...")
+        
         add_workflow_to_config.main([
             "--project_path", str(project_path),
             "--workflow_name", "CellRangerWorkflow"
         ])
+        
         logger.info("✅ CellRangerWorkflow added successfully.")
     except Exception as e:
         logger.info(f"❌ Failed to add CellRangerWorkflow: {e}")
@@ -110,22 +112,17 @@ def run_ventral_sosr_test():
 
     # Add new TestingVentralWorkflow to config
     try:
-        add_ventral_cmd = [
-            sys.executable, "add_workflow_to_config.py",
+        logger.info("➕ Adding TestingVentralWorkflow to config...")
+        
+        add_workflow_to_config.main([
             "--project_path", str(project_path),
             "--workflow_name", "TestingVentralWorkflow"
-        ]
-        logger.info("➕ Adding new TestingVentralWorkflow to config...")
-        result = subprocess.run(add_ventral_cmd, check=True, text=True, capture_output=True)
+        ])
         logger.info("✅ TestingVentralWorkflow added successfully.")
-        logger.debug("STDOUT:\n" + result.stdout)
-        logger.debug("STDERR:\n" + result.stderr)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logger.info(f"❌ Failed to add TestingVentralWorkflow: {e}")
-        logger.debug("STDOUT:\n" + (e.stdout or ""))
-        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
-
+    
     # Scaffold TestingVentralWorkflow (this generates a .py file dynamically and must match snake_case naming)
     scaffold_script = "mindscape/tools/create_workflow_scaffold.py"
     try:
