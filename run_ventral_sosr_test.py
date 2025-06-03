@@ -124,21 +124,14 @@ def run_ventral_sosr_test():
         return
     
     # Scaffold TestingVentralWorkflow (this generates a .py file dynamically and must match snake_case naming)
-    scaffold_script = "mindscape/tools/create_workflow_scaffold.py"
     try:
-        scaffold_cmd = [
-            sys.executable, scaffold_script,
-            "--name", "TestingVentralWorkflow"
-        ]
         logger.info("🛠️  Scaffolding TestingVentralWorkflow...")
-        result = subprocess.run(scaffold_cmd, check=True, text=True, capture_output=True)
+        create_workflow_scaffold.main([
+            "--name", "TestingVentralWorkflow"
+        ])
         logger.info("✅ TestingVentralWorkflow scaffold created successfully.")
-        logger.debug("STDOUT:\n" + result.stdout)
-        logger.debug("STDERR:\n" + result.stderr)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logger.info(f"❌ Failed to scaffold TestingVentralWorkflow: {e}")
-        logger.debug("STDOUT:\n" + (e.stdout or ""))
-        logger.debug("STDERR:\n" + (e.stderr or ""))
         return
 
     # Run the generated runner script (now includes --project_path as required by updated workflow base class)
