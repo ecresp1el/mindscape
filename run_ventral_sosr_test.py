@@ -7,6 +7,11 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("ventral_sosr_test")
 
+from mindscape.tools import add_workflow_to_config 
+
+
+
+
 # New: Define test directory name to isolate all outputs of this script
 test_turbo_subdir = "test_runs"  # Customize as needed
 base_turbo_path = Path("/nfs/turbo/umms-parent") / test_turbo_subdir
@@ -61,14 +66,14 @@ if existing_items:
 # Script to automate project creation and runner execution using testscript_cli.py
 
 def run_ventral_sosr_test():
-    cli_script = "testscript_cli.py"
+    #cli_script = "testscript_cli.py"
     project_name = "ventral_sosr_test"
     experimenter_name = "MannyCrespo"
     email = "elcrespo@umich.edu"
     runner_name = "VentralSOSRSTest"
 
     command = [
-        sys.executable, cli_script,
+        sys.executable, "testscript_cli.py",
         "--project_name", project_name,
         "--experimenter_name", experimenter_name,
         "--email", email,
@@ -92,10 +97,9 @@ def run_ventral_sosr_test():
         return
 
     # Add existing CellRangerWorkflow to config
-    add_workflow_script = "mindscape/tools/add_workflow_to_config.py"
     try:
         add_cellranger_cmd = [
-            sys.executable, add_workflow_script,
+            sys.executable, "add_workflow_script.py",
             "--project_path", str(project_path),
             "--workflow_name", "CellRangerWorkflow"
         ]
@@ -113,7 +117,7 @@ def run_ventral_sosr_test():
     # Add new TestingVentralWorkflow to config
     try:
         add_ventral_cmd = [
-            sys.executable, add_workflow_script,
+            sys.executable, "add_workflow_script.py",
             "--project_path", str(project_path),
             "--workflow_name", "TestingVentralWorkflow"
         ]
