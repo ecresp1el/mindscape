@@ -37,7 +37,7 @@ class WorkflowManager:
         workflow_order = self.config.get("workflows", [])
         for workflow in workflow_order:
             workflow_name = workflow.get("name")
-            if workåflow.get("enabled", False):
+            if workflow.get("enabled", False):
                 workflow_class = globals().get(workflow_name)
                 if workflow_class:
                     # Check if the workflow has overridden the BaseWorkflow.run() method

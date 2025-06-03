@@ -2,7 +2,8 @@ import importlib
 import inspect
 from pathlib import Path
 from .logger import setup_logger  # Optional
-from pipelines.base_workflow import BaseWorkflow
+# go up 3 levels to reach repo root -- need to change this approach
+import sys
 
 def dynamic_import_workflows(pipelines_dir: Path):
     workflows = {}

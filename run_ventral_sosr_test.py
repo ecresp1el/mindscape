@@ -7,11 +7,13 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("ventral_sosr_test")
 
-# New: Define test directory name to isolate all outputs
+# New: Define test directory name to isolate all outputs of this script
 test_turbo_subdir = "test_runs"  # Customize as needed
 base_turbo_path = Path("/nfs/turbo/umms-parent") / test_turbo_subdir
-repo_root = Path(__file__).resolve().parent
-generated_runner_file = repo_root / f"run_workflows_VentralSOSRSTest.py"
+
+### section: Setup paths and check for existing files ###
+repo_root = Path(__file__).resolve().parent # Assuming this script is in the root of the repository
+generated_runner_file = repo_root / f"run_workflows_VentralSOSRSTest.py" # Generated runner script path
 generated_pipeline_file = repo_root / "mindscape" / "bioinformatics_workflow_engine" / "pipelines" / "testing_ventral_workflow.py"
 
 # Full project output path

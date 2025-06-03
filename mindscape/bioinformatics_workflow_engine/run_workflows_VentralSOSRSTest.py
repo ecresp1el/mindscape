@@ -39,10 +39,10 @@ from pathlib import Path
 import argparse
 import yaml
 
-from pipelines.base_workflow import BaseWorkflow
-from utils.logger import setup_logger
-from utils.validation import warn_if_missing_from_config
-from utils.dynamic_imports import dynamic_import_workflows
+from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
+from mindscape.bioinformatics_workflow_engine.utils.logger import setup_logger
+from mindscape.bioinformatics_workflow_engine.utils.validation import warn_if_missing_from_config
+from mindscape.bioinformatics_workflow_engine.utils.dynamic_imports import dynamic_import_workflows
 
 
 
