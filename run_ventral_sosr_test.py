@@ -91,8 +91,8 @@ def run_ventral_sosr_test():
         logger.debug("STDERR:\n" + result.stderr)
     except subprocess.CalledProcessError as e:
         logger.info(f"❌ Failed to execute testscript_cli.py: {e}")
-        logger.debug("STDOUT:\n" + (e.stdout or ""))
-        logger.debug("STDERR:\n" + (e.stderr or ""))
+        logger.info("STDOUT:\n" + (e.stdout or "[no stdout]"))
+        logger.info("STDERR:\n" + (e.stderr or "[no stderr]"))
         return
 
     # Add existing CellRangerWorkflow to config
@@ -165,8 +165,11 @@ def run_ventral_sosr_test():
 
         workflow_names = config_data.get("workflows", [])
         pipelines_dir = repo_root / "mindscape" / "bioinformatics_workflow_engine" / "pipelines"
-        available_workflows = dynamic_import_workflows(pipelines_dir)
-
+        
+        available_workflows = dynamic_import_workflows(
+            pipelines_dir,
+            module_prefix="mindscape.bioinformatics_workflow_engine.pipelines"
+        )
         logger.info("🔍 Previewing loaded workflow classes from config.yaml:")
         for wf in workflow_names:
             name = wf["name"] if isinstance(wf, dict) else wf
