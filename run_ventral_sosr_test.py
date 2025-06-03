@@ -99,7 +99,7 @@ def run_ventral_sosr_test():
     # Add existing CellRangerWorkflow to config
     try:
         add_cellranger_cmd = [
-            sys.executable, "add_workflow_script.py",
+            sys.executable, "add_workflow_to_config.py",
             "--project_path", str(project_path),
             "--workflow_name", "CellRangerWorkflow"
         ]
@@ -117,7 +117,7 @@ def run_ventral_sosr_test():
     # Add new TestingVentralWorkflow to config
     try:
         add_ventral_cmd = [
-            sys.executable, "add_workflow_script.py",
+            sys.executable, "add_workflow_to_config.py",
             "--project_path", str(project_path),
             "--workflow_name", "TestingVentralWorkflow"
         ]
