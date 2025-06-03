@@ -2,7 +2,7 @@ import importlib
 import inspect
 from pathlib import Path
 import sys
-from pipelines.base_workflow import BaseWorkflow
+from mindscape.bioinformatics_workflow_engine.pipelines.base_workflow import BaseWorkflow
 
 def dynamic_import_workflows(pipelines_dir: Path):
     workflows = {}
