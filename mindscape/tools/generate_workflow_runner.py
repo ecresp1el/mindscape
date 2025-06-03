@@ -51,6 +51,7 @@ This supports modular pipeline development and simplifies developer onboarding.
 IMPORTS_BLOCK = """
 import os
 import re
+import sys
 from pathlib import Path
 import argparse
 import yaml
