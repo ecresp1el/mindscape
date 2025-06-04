@@ -1,23 +1,7 @@
 # mindscape/dagtoy/prefect_flow.py
-
-from prefect import flow, task
+from prefect import flow
 from mindscape.dagtoy.create_project.new import create_new_project
-from mindscape.dagtoy.workflows import (
-    DataImportWorkflow,
-    AlignmentAndMoleculeCountingWorkflow,
-    CellFilteringWorkflow,
-    DoubletScoringWorkflow,
-    CellSizeEstimationWorkflow,
-    GeneVarianceAnalysisWorkflow,
-    DimensionalityReductionWorkflow,
-    ManifoldRepresentationWorkflow,
-    ClusteringAndDEWorkflow,
-    TrajectoryInferenceWorkflow,
-    VelocityEstimationWorkflow,
-    CellTypeAnnotationWorkflow,
-    IntegrationWorkflow,
-    MultiOmicsIntegrationWorkflow,
-)
+from mindscape.dagtoy.workflows import *
 
 
 
@@ -46,6 +30,4 @@ def run_mindscape_flow():
     IntegrationWorkflow(project_path).run()
     MultiOmicsIntegrationWorkflow(project_path).run()
 
-if __name__ == "__main__":
-    run_mindscape_flow()
 
