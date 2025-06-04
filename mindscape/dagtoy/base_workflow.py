@@ -4,17 +4,25 @@ from pathlib import Path
 import logging
 from datetime import datetime
 import hashlib
+import yaml
+
 
 class BaseWorkflow:
-    def __init__(self, config_path="dagtoy/test_config.yaml", logger=None):
+    def __init__(self, config_path=None, logger=None):
         self.name = self.__class__.__name__
-        self.config_path = Path(config_path)
-        self.project_path = Path("dagtoy/test_files")
+
+        if config_path is None:
+            raise ValueError("❌ config_path must be provided to BaseWorkflow.")
+
+        self.config_path = Path(config_path).resolve()
         self.logger = logger or logging.getLogger(f"workflow.{self.name}")
         self.logger.setLevel(logging.INFO)
-        self.logfile = self.project_path / f"{self.name}.log"
-        self.logfile.parent.mkdir(exist_ok=True, parents=True)
+
         self.config_hash = self.compute_config_hash()
+        self.project_path = self.load_project_path_from_config()
+
+        self.logfile = self.project_path / "logs" / f"{self.name}.log"
+        self.logfile.parent.mkdir(exist_ok=True, parents=True)
 
     def compute_config_hash(self):
         if not self.config_path.exists():
@@ -67,3 +75,12 @@ class BaseWorkflow:
     def run(self):
         raise NotImplementedError("Subclasses must implement the run() method.")
 
+
+    def load_project_path_from_config(self):
+        if not self.config_path.exists():
+            raise FileNotFoundError(f"❌ config_path does not exist: {self.config_path}")
+        with open(self.config_path, "r") as f:
+            config = yaml.safe_load(f)
+        if "project_path" not in config:
+            raise KeyError("❌ 'project_path' key is missing from config file.")
+        return Path(config["project_path"]).resolve()
