@@ -76,10 +76,14 @@ class BaseWorkflow:
             self.logger.error(f"Meta hash: {self.meta_hash}")
 
     def get_status(self):
-        # Optionally update this method to check log tail for statuses
         if not self.logfile.exists():
+            print(f"Log file does not exist for workflow: {self.name}")
             return "not_started"
+        
         tail = self.logfile.read_text().splitlines()[-10:]
+        print(f"Log file tail for workflow {self.name}:\n{'\n'.join(tail)}")  # Debugging
+        print(f"Computed config hash: {self.config_hash}")  # Debugging
+        
         joined = "\n".join(tail)
         if "Status: COMPLETED" in joined and self.config_hash in joined:
             return "completed"
