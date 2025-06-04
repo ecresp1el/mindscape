@@ -17,7 +17,7 @@ def create_config_template():
             {"name": "DoubletScoringWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
             {"name": "CellSizeEstimationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
             {"name": "GeneVarianceAnalysisWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
-            {"name": "DimensionalityReductionWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["GeneVarianceAnalysisWorkflow"]},
+            {"name": "DimensionalityReductionWorkflow", "enabled": False, "subworkflows": [], "depends_on": ["GeneVarianceAnalysisWorkflow"]},
             {"name": "ManifoldRepresentationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["DimensionalityReductionWorkflow"]},
             {"name": "ClusteringAndDEWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["ManifoldRepresentationWorkflow"]},
             {"name": "TrajectoryInferenceWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["ClusteringAndDEWorkflow"]},
