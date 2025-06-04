@@ -1,0 +1,79 @@
+date: '2025-06-04'
+email: elcrespo@umich.edu
+experimenter: Manny
+project_name: TestDAGRun
+project_path: /Users/ecrespo/Documents/github_project_folder/mindscape/dagtoy/TestDAGRun-Manny-2025-06-04
+slurm:
+  cpus: 8
+  mem: 32G
+  time: 08:00:00
+workflows:
+- depends_on: []
+  enabled: true
+  name: DataImportWorkflow
+  subworkflows: []
+- depends_on:
+  - DataImportWorkflow
+  enabled: true
+  name: AlignmentAndMoleculeCountingWorkflow
+  subworkflows: []
+- depends_on:
+  - AlignmentAndMoleculeCountingWorkflow
+  enabled: true
+  name: CellFilteringWorkflow
+  subworkflows: []
+- depends_on:
+  - CellFilteringWorkflow
+  enabled: true
+  name: DoubletScoringWorkflow
+  subworkflows: []
+- depends_on:
+  - CellFilteringWorkflow
+  enabled: true
+  name: CellSizeEstimationWorkflow
+  subworkflows: []
+- depends_on:
+  - CellFilteringWorkflow
+  enabled: true
+  name: GeneVarianceAnalysisWorkflow
+  subworkflows: []
+- depends_on:
+  - GeneVarianceAnalysisWorkflow
+  enabled: true
+  name: DimensionalityReductionWorkflow
+  subworkflows: []
+- depends_on:
+  - DimensionalityReductionWorkflow
+  enabled: true
+  name: ManifoldRepresentationWorkflow
+  subworkflows: []
+- depends_on:
+  - ManifoldRepresentationWorkflow
+  enabled: true
+  name: ClusteringAndDEWorkflow
+  subworkflows: []
+- depends_on:
+  - ClusteringAndDEWorkflow
+  enabled: true
+  name: TrajectoryInferenceWorkflow
+  subworkflows: []
+- depends_on:
+  - TrajectoryInferenceWorkflow
+  enabled: true
+  name: VelocityEstimationWorkflow
+  subworkflows: []
+- depends_on:
+  - ClusteringAndDEWorkflow
+  enabled: true
+  name: CellTypeAnnotationWorkflow
+  subworkflows: []
+- depends_on:
+  - CellTypeAnnotationWorkflow
+  enabled: true
+  name: IntegrationWorkflow
+  subworkflows: []
+- depends_on:
+  - IntegrationWorkflow
+  enabled: true
+  name: MultiOmicsIntegrationWorkflow
+  subworkflows: []

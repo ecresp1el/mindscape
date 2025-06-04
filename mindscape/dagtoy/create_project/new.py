@@ -10,7 +10,22 @@ def create_config_template():
         "project_name": "TestProject",
         "experimenter": "Manny",
         "date": datetime.today().strftime("%Y-%m-%d"),
-        "workflows": [],
+        "workflows": [
+            {"name": "DataImportWorkflow", "enabled": True, "subworkflows": [], "depends_on": []},
+            {"name": "AlignmentAndMoleculeCountingWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["DataImportWorkflow"]},
+            {"name": "CellFilteringWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["AlignmentAndMoleculeCountingWorkflow"]},
+            {"name": "DoubletScoringWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
+            {"name": "CellSizeEstimationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
+            {"name": "GeneVarianceAnalysisWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellFilteringWorkflow"]},
+            {"name": "DimensionalityReductionWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["GeneVarianceAnalysisWorkflow"]},
+            {"name": "ManifoldRepresentationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["DimensionalityReductionWorkflow"]},
+            {"name": "ClusteringAndDEWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["ManifoldRepresentationWorkflow"]},
+            {"name": "TrajectoryInferenceWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["ClusteringAndDEWorkflow"]},
+            {"name": "VelocityEstimationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["TrajectoryInferenceWorkflow"]},
+            {"name": "CellTypeAnnotationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["ClusteringAndDEWorkflow"]},
+            {"name": "IntegrationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["CellTypeAnnotationWorkflow"]},
+            {"name": "MultiOmicsIntegrationWorkflow", "enabled": True, "subworkflows": [], "depends_on": ["IntegrationWorkflow"]}
+        ],
         "slurm": {
             "cpus": 8,
             "mem": "32G",

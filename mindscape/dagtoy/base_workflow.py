@@ -19,21 +19,24 @@ class BaseWorkflow:
         self.logger.setLevel(logging.INFO)
 
         self.config_hash = self.compute_config_hash()
-        self.meta_hash = meta_hash  # New: pipeline-level hash
+        self.meta_hash = meta_hash  # pipeline-level hash
         self.project_path = self.load_project_path_from_config()
 
         self.logfile = self.project_path / "logs" / f"{self.name}.log"
         self.logfile.parent.mkdir(exist_ok=True, parents=True)
 
-        # Add file handler to write logs to logfile
-        file_handler = logging.FileHandler(self.logfile, mode='a')
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-        self.logger.addHandler(file_handler)
+        # Avoid adding duplicate handlers
+        if not any(isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == str(self.logfile) for h in self.logger.handlers):
+            file_handler = logging.FileHandler(self.logfile, mode='a')
+            file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+            self.logger.addHandler(file_handler)
 
-        # Also log to console (fallback/duplicate)
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(logging.Formatter('%(message)s'))
-        self.logger.addHandler(stream_handler)
+        if not any(isinstance(h, logging.StreamHandler) for h in self.logger.handlers):
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(logging.Formatter('%(message)s'))
+            self.logger.addHandler(stream_handler)
+
+        self.logger.debug(f"📄 Logging to file: {self.logfile}")
 
     def compute_config_hash(self):
         if not self.config_path.exists():
@@ -44,10 +47,12 @@ class BaseWorkflow:
     def is_complete(self):
         if not self.logfile.exists():
             return False
-        tail = self.logfile.read_text().splitlines()[-10:]
-        for line in tail:
-            if "Status: COMPLETED" in line and self.config_hash in "\n".join(tail):
-                return True
+        lines = self.logfile.read_text().splitlines()
+        for i in range(len(lines) - 1, -1, -1):
+            if "Status: COMPLETED" in lines[i]:
+                # look forward for config hash match
+                context = "\n".join(lines[i:i+5])
+                return self.config_hash in context
         return False
 
     def mark_completed(self):

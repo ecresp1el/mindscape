@@ -1,0 +1,12 @@
+2025-06-04 12:41:23,071 - 🟢 Starting workflow: DataImportWorkflow
+2025-06-04 12:41:23,071 - Status: IN PROGRESS
+2025-06-04 12:41:23,071 - Timestamp: 2025-06-04T12:41:23.071441
+2025-06-04 12:41:23,071 - Config hash: a0b948f632fbc94b215f48beab0216a99cd9e7bb6954aff8a5097168c03f440b
+2025-06-04 12:41:23,072 - Meta hash: a0b948f632fbc94b215f48beab0216a99cd9e7bb6954aff8a5097168c03f440b
+2025-06-04 12:41:23,072 - Reached inside .run method of DataImportWorkflow
+2025-06-04 12:41:23,072 - ✅ Completed workflow: DataImportWorkflow
+2025-06-04 12:41:23,072 - ✅ Completed by: DataImportWorkflow
+2025-06-04 12:41:23,072 - Status: COMPLETED
+2025-06-04 12:41:23,072 - Timestamp: 2025-06-04T12:41:23.072164
+2025-06-04 12:41:23,072 - Config hash: a0b948f632fbc94b215f48beab0216a99cd9e7bb6954aff8a5097168c03f440b
+2025-06-04 12:41:23,072 - Meta hash: a0b948f632fbc94b215f48beab0216a99cd9e7bb6954aff8a5097168c03f440b
