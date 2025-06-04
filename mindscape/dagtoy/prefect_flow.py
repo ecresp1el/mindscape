@@ -1,16 +1,51 @@
-from prefect import flow
-from mindscape.dagtoy.create_project.new import create_new_project
-from mindscape.dagtoy.runner import run_pipeline
+# mindscape/dagtoy/prefect_flow.py
 
-@flow(name="MindScape Prefect DAG Test")
+from prefect import flow, task
+from mindscape.dagtoy.create_project.new import create_new_project
+from mindscape.dagtoy.workflows import (
+    DataImportWorkflow,
+    AlignmentAndMoleculeCountingWorkflow,
+    CellFilteringWorkflow,
+    DoubletScoringWorkflow,
+    CellSizeEstimationWorkflow,
+    GeneVarianceAnalysisWorkflow,
+    DimensionalityReductionWorkflow,
+    ManifoldRepresentationWorkflow,
+    ClusteringAndDEWorkflow,
+    TrajectoryInferenceWorkflow,
+    VelocityEstimationWorkflow,
+    CellTypeAnnotationWorkflow,
+    IntegrationWorkflow,
+    MultiOmicsIntegrationWorkflow,
+)
+
+
+
+@flow(name="MindScape Prefect DAG", log_prints=True)
 def run_mindscape_flow():
-    project_path, config_path = create_new_project(
+    # Create project structure and get config paths
+    project_path, _ = create_new_project(
         base_dir="mindscape/dagtoy",
         project_name="TestDAGRun",
         experimenter="Manny"
     )
-    run_pipeline(config_path)
+
+    # Instantiate and run each workflow step
+    DataImportWorkflow(project_path).run()
+    AlignmentAndMoleculeCountingWorkflow(project_path).run()
+    CellFilteringWorkflow(project_path).run()
+    DoubletScoringWorkflow(project_path).run()
+    CellSizeEstimationWorkflow(project_path).run()
+    GeneVarianceAnalysisWorkflow(project_path).run()
+    DimensionalityReductionWorkflow(project_path).run()
+    ManifoldRepresentationWorkflow(project_path).run()
+    ClusteringAndDEWorkflow(project_path).run()
+    TrajectoryInferenceWorkflow(project_path).run()
+    VelocityEstimationWorkflow(project_path).run()
+    CellTypeAnnotationWorkflow(project_path).run()
+    IntegrationWorkflow(project_path).run()
+    MultiOmicsIntegrationWorkflow(project_path).run()
 
 if __name__ == "__main__":
-    print("Loading MindScape 1.0.0...")
     run_mindscape_flow()
+
