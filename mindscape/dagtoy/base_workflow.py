@@ -8,7 +8,7 @@ import yaml
 
 
 class BaseWorkflow:
-    def __init__(self, config_path=None, logger=None):
+    def __init__(self, config_path=None, logger=None, meta_hash=None):
         self.name = self.__class__.__name__
 
         if config_path is None:
@@ -19,10 +19,21 @@ class BaseWorkflow:
         self.logger.setLevel(logging.INFO)
 
         self.config_hash = self.compute_config_hash()
+        self.meta_hash = meta_hash  # New: pipeline-level hash
         self.project_path = self.load_project_path_from_config()
 
         self.logfile = self.project_path / "logs" / f"{self.name}.log"
         self.logfile.parent.mkdir(exist_ok=True, parents=True)
+
+        # Add file handler to write logs to logfile
+        file_handler = logging.FileHandler(self.logfile, mode='a')
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+        self.logger.addHandler(file_handler)
+
+        # Also log to console (fallback/duplicate)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(logging.Formatter('%(message)s'))
+        self.logger.addHandler(stream_handler)
 
     def compute_config_hash(self):
         if not self.config_path.exists():
@@ -31,42 +42,58 @@ class BaseWorkflow:
         return hashlib.sha256(content).hexdigest()
 
     def is_complete(self):
-        marker = self.get_marker(".done")
-        if not marker.exists():
+        if not self.logfile.exists():
             return False
-        if self.config_hash not in marker.read_text():
-            self.logger.info(f"⚠️ Config changed since last run of {self.name}")
-            return False
-        return True
+        tail = self.logfile.read_text().splitlines()[-10:]
+        for line in tail:
+            if "Status: COMPLETED" in line and self.config_hash in "\n".join(tail):
+                return True
+        return False
 
     def mark_completed(self):
         now = datetime.now().isoformat()
-        text = f"COMPLETED at {now}\nCONFIG_HASH: {self.config_hash}\n"
-        self.get_marker(".done").write_text(text)
+        self.logger.info(f"✅ Completed by: {self.__class__.__name__}")
+        self.logger.info(f"Status: COMPLETED")
+        self.logger.info(f"Timestamp: {now}")
+        self.logger.info(f"Config hash: {self.config_hash}")
+        if self.meta_hash:
+            self.logger.info(f"Meta hash: {self.meta_hash}")
 
-    def mark_in_progress(self):
-        now = datetime.now().isoformat()
-        self.get_marker(".in_progress").write_text(f"IN PROGRESS at {now}\n")
+    # mark_in_progress is no longer needed; log_start handles status logging.
 
     def mark_failed(self, reason="Unspecified"):
         now = datetime.now().isoformat()
-        self.get_marker(".failed").write_text(f"FAILED at {now}\nREASON: {reason}\n")
+        self.logger.error(f"❌ Failed in: {self.__class__.__name__}")
+        self.logger.error(f"Status: FAILED")
+        self.logger.error(f"Timestamp: {now}")
+        self.logger.error(f"Reason: {reason}")
+        if self.meta_hash:
+            self.logger.error(f"Meta hash: {self.meta_hash}")
 
     def get_status(self):
-        if self.get_marker(".done").exists():
+        # Optionally update this method to check log tail for statuses
+        if not self.logfile.exists():
+            return "not_started"
+        tail = self.logfile.read_text().splitlines()[-10:]
+        joined = "\n".join(tail)
+        if "Status: COMPLETED" in joined and self.config_hash in joined:
             return "completed"
-        if self.get_marker(".in_progress").exists():
-            return "in_progress"
-        if self.get_marker(".failed").exists():
+        if "Status: FAILED" in joined:
             return "failed"
+        if "Status: IN PROGRESS" in joined:
+            return "in_progress"
         return "not_started"
 
-    def get_marker(self, suffix):
-        return self.project_path / f"{self.name}{suffix}"
+    # get_marker is no longer needed; marker files are not used.
 
     def log_start(self):
+        now = datetime.now().isoformat()
         self.logger.info(f"🟢 Starting workflow: {self.name}")
-        self.mark_in_progress()
+        self.logger.info(f"Status: IN PROGRESS")
+        self.logger.info(f"Timestamp: {now}")
+        self.logger.info(f"Config hash: {self.config_hash}")
+        if self.meta_hash:
+            self.logger.info(f"Meta hash: {self.meta_hash}")
 
     def log_end(self):
         self.logger.info(f"✅ Completed workflow: {self.name}")

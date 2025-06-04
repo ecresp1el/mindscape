@@ -1,0 +1,10 @@
+date: '2025-06-04'
+email: elcrespo@umich.edu
+experimenter: Manny
+project_name: TestDAGRun
+project_path: /Users/ecrespo/Documents/github_project_folder/mindscape/mindscape/dagtoy/TestDAGRun-Manny-2025-06-04
+slurm:
+  cpus: 8
+  mem: 32G
+  time: 08:00:00
+workflows: []
