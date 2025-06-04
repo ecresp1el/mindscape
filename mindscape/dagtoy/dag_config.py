@@ -1,5 +1,7 @@
 dag = {
-    "AlignmentAndMoleculeCountingWorkflow": [],
+    
+    "DataImportWorkflow": [],
+    "AlignmentAndMoleculeCountingWorkflow": ["DataImportWorkflow"],
     "CellFilteringWorkflow": ["AlignmentAndMoleculeCountingWorkflow"],
     "DoubletScoringWorkflow": ["CellFilteringWorkflow"],
     "CellSizeEstimationWorkflow": ["CellFilteringWorkflow"],

@@ -30,7 +30,9 @@ EOF
 # dag_config.py
 cat > dag_config.py <<EOF
 dag = {
-    "AlignmentAndMoleculeCountingWorkflow": [],
+    
+    "DataImportWorkflow": [],
+    "AlignmentAndMoleculeCountingWorkflow": ["DataImportWorkflow"],
     "CellFilteringWorkflow": ["AlignmentAndMoleculeCountingWorkflow"],
     "DoubletScoringWorkflow": ["CellFilteringWorkflow"],
     "CellSizeEstimationWorkflow": ["CellFilteringWorkflow"],
@@ -96,6 +98,7 @@ camel_to_snake() {
 
 # Generate all workflow files
 workflow_classes=(
+    DataImportWorkflow
     AlignmentAndMoleculeCountingWorkflow
     CellFilteringWorkflow
     DoubletScoringWorkflow
