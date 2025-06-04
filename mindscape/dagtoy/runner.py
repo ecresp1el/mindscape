@@ -2,6 +2,7 @@
 import importlib
 from dag_config import dag
 import argparse
+import hashlib
 
 def topological_sort(graph):
     visited, order = set(), []
@@ -20,7 +21,14 @@ def snake_case(name):
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
+def compute_meta_hash(config_path):
+    with open(config_path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
 def run_pipeline(config_path):
+    meta_hash = compute_meta_hash(config_path)
+    print(f"🔁 Meta hash for DAG run: {meta_hash}\n")
+
     order = topological_sort(dag)
     for name in order:
         if not name.endswith("Workflow"):
@@ -29,8 +37,8 @@ def run_pipeline(config_path):
         base = name.removesuffix("Workflow")
         snake = snake_case(base)
         module = importlib.import_module(f"mindscape.dagtoy.workflows.{snake}")
-        klass = getattr(module, name)
-        instance = klass(config_path=config_path)
+        klass = getattr(module, name) 
+        instance = klass(config_path=config_path, meta_hash=meta_hash)
 
         if not instance.is_complete():
             instance.run()
