@@ -2,6 +2,8 @@
 
 from pathlib import Path
 import logging
+from datetime import datetime
+import hashlib
 
 class BaseWorkflow:
     def __init__(self, config_path="dagtoy/test_config.yaml", logger=None):
@@ -12,18 +14,35 @@ class BaseWorkflow:
         self.logger.setLevel(logging.INFO)
         self.logfile = self.project_path / f"{self.name}.log"
         self.logfile.parent.mkdir(exist_ok=True, parents=True)
+        self.config_hash = self.compute_config_hash()
+
+    def compute_config_hash(self):
+        if not self.config_path.exists():
+            return "NO_CONFIG"
+        content = self.config_path.read_bytes()
+        return hashlib.sha256(content).hexdigest()
 
     def is_complete(self):
-        return self.get_marker(".done").exists()
+        marker = self.get_marker(".done")
+        if not marker.exists():
+            return False
+        if self.config_hash not in marker.read_text():
+            self.logger.info(f"⚠️ Config changed since last run of {self.name}")
+            return False
+        return True
 
     def mark_completed(self):
-        self.get_marker(".done").write_text("COMPLETED\n")
+        now = datetime.now().isoformat()
+        text = f"COMPLETED at {now}\nCONFIG_HASH: {self.config_hash}\n"
+        self.get_marker(".done").write_text(text)
 
     def mark_in_progress(self):
-        self.get_marker(".in_progress").write_text("IN PROGRESS\n")
+        now = datetime.now().isoformat()
+        self.get_marker(".in_progress").write_text(f"IN PROGRESS at {now}\n")
 
     def mark_failed(self, reason="Unspecified"):
-        self.get_marker(".failed").write_text(f"FAILED: {reason}\n")
+        now = datetime.now().isoformat()
+        self.get_marker(".failed").write_text(f"FAILED at {now}\nREASON: {reason}\n")
 
     def get_status(self):
         if self.get_marker(".done").exists():
