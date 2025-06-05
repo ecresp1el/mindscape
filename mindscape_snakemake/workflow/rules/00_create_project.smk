@@ -4,4 +4,4 @@ rule create_project:
     output:
         marker="results/create_project.done"
     script:
-        "../scripts/create_project.py"
+        "workflow/scripts/create_project.py"

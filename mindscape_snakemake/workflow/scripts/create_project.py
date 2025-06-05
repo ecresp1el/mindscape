@@ -31,7 +31,11 @@ def main(config_path):
     print(f"✅ Created project structure at: {project_path}")
     
     # Create marker file for Snakemake completion
-    marker_file = Path("results/create_project.done")
+    
+    #OLD: writes marker file to the github repo
+    #marker_file = Path("results/create_project.done")
+    # ✅ NEW: write marker to the *actual* project_path
+    marker_file = project_path / "results" / "create_project.done"
     marker_file.parent.mkdir(parents=True, exist_ok=True)
     marker_file.touch()
 
