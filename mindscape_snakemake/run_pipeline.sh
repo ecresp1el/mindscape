@@ -1,23 +1,31 @@
-#!/bin/bash
-
 # run_pipeline.sh
-# Description: Wrapper script to launch Snakemake in the newly created project directory on Turbo
+# Description: Robust wrapper to launch Snakemake from this GitHub repo using a shared Turbo project directory
 
-# Exit on any error
 set -euo pipefail
 
-# Step 1: Run Snakemake to create the project directory
-snakemake -j 1 -p create_project
+# Step 1: Inform user of start
+echo "🚀 Launching MindScape pipeline setup..."
 
-# Step 2: Parse the project_path from the config file
+# Step 2: Run the first Snakemake rule to create the project directory
+echo "📦 Creating project structure..."
+snakemake --snakefile workflow/Snakefile \
+          --configfile config/config.yaml \
+          --cores 1 \
+          --printshellcmds \
+          --rerun-incomplete \
+          create_project
+
+# Step 3: Extract project path from the config file for user reference
 CONFIG_FILE="config/config.yaml"
 PROJECT_PATH=$(python -c "import yaml; print(yaml.safe_load(open('$CONFIG_FILE'))['project_path'])")
 
-# Step 3: Echo the detected project path
-echo "📁 Switching to project directory: $PROJECT_PATH"
+# Step 4: Inform the user
+echo "✅ Project directory created at: $PROJECT_PATH"
 
-# Step 4: Change to that directory
-cd "$PROJECT_PATH"
-
-# Step 5: Re-run Snakemake from inside the new directory
-snakemake -j 1 -p
+# Step 5: Run the rest of the workflow from this GitHub location
+echo "🔁 Running remaining workflow steps..."
+snakemake --snakefile workflow/Snakefile \
+          --configfile config/config.yaml \
+          --cores 1 \
+          --printshellcmds \
+          --rerun-incomplete

@@ -24,6 +24,10 @@ def main(config_path):
     with open(project_path / "config/config.yaml", "w") as out:
         yaml.dump(config, out)
 
+    # ALSO: Write updated config back to the original input path
+    with open(config_path, "w") as out_main:
+        yaml.dump(config, out_main)
+
     print(f"✅ Created project structure at: {project_path}")
     
     # Create marker file for Snakemake completion
