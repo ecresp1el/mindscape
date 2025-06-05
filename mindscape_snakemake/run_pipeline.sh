@@ -22,10 +22,14 @@ PROJECT_PATH=$(python -c "import yaml; print(yaml.safe_load(open('$CONFIG_FILE')
 # Step 4: Inform the user
 echo "✅ Project directory created at: $PROJECT_PATH"
 
-# Step 5: Run the rest of the workflow from this GitHub location
+# Step 5: Run the rest of the workflow from the created project directory
+cd "$PROJECT_PATH"
 echo "🔁 Running remaining workflow steps..."
-snakemake --snakefile workflow/Snakefile \
-          --configfile config/config.yaml \
+snakemake --snakefile /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/workflow/Snakefile \
+          --configfile /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/config/config.yaml \
+          --directory "$PROJECT_PATH" \
           --cores 1 \
           --printshellcmds \
           --rerun-incomplete
+
+

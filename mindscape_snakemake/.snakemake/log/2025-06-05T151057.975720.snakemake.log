@@ -13,15 +13,15 @@ total                 1
 
 Select jobs to execute...
 Execute 1 jobs...
-[Thu Jun  5 14:37:49 2025]
+[Thu Jun  5 15:10:58 2025]
 localrule create_project:
     input: config/config.yaml
     output: results/create_project.done
     jobid: 0
-    reason: Code has changed since last execution
+    reason: Missing output files: results/create_project.done
     resources: tmpdir=/tmp
 Shell command: None
-[Thu Jun  5 14:37:50 2025]
+[Thu Jun  5 15:10:59 2025]
 Finished jobid: 0 (Rule: create_project)
 1 of 1 steps (100%) done
-Complete log(s): /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/log/2025-06-05T143749.413030.snakemake.log
+Complete log(s): /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/log/2025-06-05T151057.975720.snakemake.log
