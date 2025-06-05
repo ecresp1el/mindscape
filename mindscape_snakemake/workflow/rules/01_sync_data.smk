@@ -1,8 +1,8 @@
-rule sync_ventral_div90_data:
+rule sync_data:
     input:
-        config = "config/config.yaml",
-        trigger = "results/create_project.done"
+        marker="results/create_project.done",
+        config="config/config.yaml"
     output:
-        "results/sync_ventral_data.done"
+        marker="results/sync_data.done"
     script:
         "workflow/scripts/sync_ventral_div90_data.py"
