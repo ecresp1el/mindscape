@@ -23,21 +23,20 @@ def main(config_path):
     config["project_path"] = str(project_path)
     with open(project_path / "config/config.yaml", "w") as out:
         yaml.dump(config, out)
-
-    # ALSO: Write updated config back to the original input path
     with open(config_path, "w") as out_main:
         yaml.dump(config, out_main)
 
     print(f"✅ Created project structure at: {project_path}")
-    
-    # Create marker file for Snakemake completion
-    
-    #OLD: writes marker file to the github repo
-    #marker_file = Path("results/create_project.done")
-    # ✅ NEW: write marker to the *actual* project_path
-    marker_file = project_path / "results" / "create_project.done"
-    marker_file.parent.mkdir(parents=True, exist_ok=True)
-    marker_file.touch()
 
-# Snakemake provides a special object `snakemake` for scripts
+    # Primary marker in project dir (for downstream steps)
+    marker_path = project_path / "results/create_project.done"
+    marker_path.parent.mkdir(parents=True, exist_ok=True)
+    marker_path.touch()
+
+    # Shadow marker in GitHub results/ to satisfy Snakemake output tracking
+    github_marker = Path(__file__).resolve().parents[3] / "results/create_project.done"
+    github_marker.parent.mkdir(parents=True, exist_ok=True)
+    github_marker.touch()
+
+# Entrypoint for Snakemake
 main(snakemake.input[0])
