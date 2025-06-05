@@ -1,0 +1,27 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: gl-login3.arc-ts.umich.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+create_project        1
+total                 1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Jun  5 14:32:48 2025]
+localrule create_project:
+    input: config/config.yaml
+    output: results/create_project.done
+    jobid: 0
+    reason: Missing output files: results/create_project.done
+    resources: tmpdir=/tmp
+Shell command: None
+[Thu Jun  5 14:32:49 2025]
+Finished jobid: 0 (Rule: create_project)
+1 of 1 steps (100%) done
+Complete log(s): /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/log/2025-06-05T143248.219199.snakemake.log

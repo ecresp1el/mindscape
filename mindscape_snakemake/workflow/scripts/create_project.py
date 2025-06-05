@@ -25,7 +25,11 @@ def main(config_path):
         yaml.dump(config, out)
 
     print(f"✅ Created project structure at: {project_path}")
+    
+    # Create marker file for Snakemake completion
+    marker_file = Path("results/create_project.done")
+    marker_file.parent.mkdir(parents=True, exist_ok=True)
+    marker_file.touch()
 
-if __name__ == "__main__":
-    import sys
-    main(sys.argv[1])
+# Snakemake provides a special object `snakemake` for scripts
+main(snakemake.input[0])

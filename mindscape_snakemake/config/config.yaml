@@ -1,4 +1,4 @@
 project_name: scRNAseq_ventral_analysis
 experimenter: EmmanuelCrespo
 email: elcrespo@umich.edu
-shared_turbo_director: /nfs/turbo/umms-parent
+shared_turbo_directory: /nfs/turbo/umms-parent
