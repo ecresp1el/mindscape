@@ -1,14 +1,24 @@
 #!/bin/bash
-#SBATCH --job-name={{rule}}_{{wildcards}}
-#SBATCH --account=parent0
-#SBATCH --output=/nfs/turbo/umms-parent/MindscapeProjects/logs/{{rule}}_{{wildcards}}_%j.out
-#SBATCH --error=/nfs/turbo/umms-parent/MindscapeProjects/logs/{{rule}}_{{wildcards}}_%j.err
-#SBATCH --time={{resources.time}}
-#SBATCH --mem={{resources.mem_mb}}
-#SBATCH --cpus-per-task={{resources.cpus}}
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=elcrespo@umich.edu
+# Usage: bash run_cluster.sh [optional_config.yaml] [additional snakemake flags]
 
 set -euo pipefail
-echo "🚀 Running rule: {{rule}} | Wildcards: {{wildcards}} | Host: $HOSTNAME"
-{{exec_job}}
+
+if [[ "${1:-}" == *.yaml ]]; then
+    CONFIG_FILE="$1"
+    shift
+else
+    CONFIG_FILE="config/config.yaml"
+fi
+
+echo "📁 Using config file: $CONFIG_FILE"
+mkdir -p /nfs/turbo/umms-parent/MindscapeProjects/logs
+
+snakemake \
+  --configfile "$CONFIG_FILE" \
+  --jobs 50 \
+  --use-conda \
+  --latency-wait 60 \
+  --rerun-incomplete \
+  --executor cluster-generic \
+  --cluster-generic-submit-cmd "sbatch" \
+  "$@"

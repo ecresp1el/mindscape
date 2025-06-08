@@ -37,7 +37,7 @@ for sample in config["samples"]:
             sample = sample
         resources:
             time = "12:00:00",
-            mem_mb = 64000,
+            mem_mb = 64000, #this is 64GB
             cpus = 16
         script:
             "../scripts/create_seurat_rds.R"
