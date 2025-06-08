@@ -1,0 +1,10 @@
+samples:
+  - 10496-MW-1
+  - 10496-MW-2
+  - 10496-MW-3
+  - 10496-MW-4
+  - 10496-MW-5
+  - 10496-MW-6
+
+cellranger_base_dir: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs
+project_output_dir: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds

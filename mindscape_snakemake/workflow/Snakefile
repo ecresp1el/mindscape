@@ -1,0 +1,2 @@
+configfile: "config/config.yaml"
+include: "rules/make_seurat_rds.smk"
