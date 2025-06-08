@@ -36,7 +36,7 @@ for sample in config["samples"]:
         params:
             sample = sample
         resources:
-            time = "12:00:00",
+            time = "6:00:00",
             mem_mb = 1500000,
             cpus = 16
         script:
