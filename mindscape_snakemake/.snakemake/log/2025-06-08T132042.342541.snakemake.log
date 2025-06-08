@@ -1,0 +1,5 @@
+None
+host: gl-login2.arc-ts.umich.edu
+Building DAG of jobs...
+WorkflowError:
+FileNotFoundError: [Errno 2] No such file or directory: 'slurm_job_template.sh'

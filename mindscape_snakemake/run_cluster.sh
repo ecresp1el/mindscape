@@ -1,12 +1,9 @@
 #!/bin/bash
-# Usage:
-#   bash run_cluster.sh                    → uses config/config.yaml
-#   bash run_cluster.sh config/foo.yaml    → uses foo.yaml
-#   bash run_cluster.sh config.yaml --force → forces rerun
+# Usage: bash run_cluster.sh [optional_config.yaml] [additional snakemake flags]
 
 set -euo pipefail
 
-# First argument is the config file (if it ends in .yaml), otherwise default
+# Determine config file
 if [[ "${1:-}" == *.yaml ]]; then
     CONFIG_FILE="$1"
     shift
@@ -24,5 +21,6 @@ snakemake \
   --latency-wait 60 \
   --rerun-incomplete \
   --executor cluster-generic \
-  --cluster-generic-submit-cmd "sbatch slurm-jobscript.sh" \
+  --cluster-generic-submit-cmd "sbatch" \
+  --jobscript slurm-jobscript.sh \
   "$@"

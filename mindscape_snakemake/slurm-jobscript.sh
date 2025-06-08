@@ -10,6 +10,5 @@
 #SBATCH --mail-user=elcrespo@umich.edu
 
 set -euo pipefail
-echo "🚀 Launching rule {rule} for {wildcards} on $HOSTNAME"
-echo "⏱  Time: {resources.time} | 💾 Mem: {resources.mem_mb} MB | 🧠 CPUs: {resources.cpus}"
-{exec_job}
+echo "🚀 Starting rule: {{rule}} | Wildcards: {{wildcards}} | Host: $HOSTNAME"
+{{exec_job}}

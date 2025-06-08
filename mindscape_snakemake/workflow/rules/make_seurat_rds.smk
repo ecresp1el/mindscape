@@ -35,6 +35,10 @@ for sample in config["samples"]:
             rds = get_rds_output_path(sample)
         params:
             sample = sample
+        resources:
+            time = "12:00:00",
+            mem_mb = 64000,
+            cpus = 16
         script:
             "../scripts/create_seurat_rds.R"
 
