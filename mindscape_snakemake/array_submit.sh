@@ -30,6 +30,10 @@ set -x  # Enable debug printing
 samples=($SAMPLE_STR)
 sample=\${samples[\$SLURM_ARRAY_TASK_ID]}
 
+echo "$(date) | 🧪 CONFIG_FILE = $CONFIG_FILE"
+echo "$(date) | 🧪 Sample string: \${samples[*]}"
+echo "$(date) | 🧪 Selected sample: \$sample"
+
 echo "$(date) | 🔧 SLURM_ARRAY_TASK_ID = \$SLURM_ARRAY_TASK_ID"
 
 echo "$(date) | 🎯 Running sample: \$sample"
@@ -47,6 +51,7 @@ if [[ -z "\$sample" ]]; then
 fi
 
 # Activate environment
+export BASHRCSOURCED=1
 source ~/.bashrc
 echo "$(date) | 🔄 Activating conda environment: mindscape-env"
 conda activate mindscape-env || { echo "$(date) | ❌ Conda activate failed"; exit 1; }
@@ -57,6 +62,9 @@ which snakemake || { echo "$(date) | ❌ Snakemake not found"; exit 1; }
 echo "$(date) | ✅ Conda activated"
 which snakemake
 snakemake --version
+
+echo "$(date) | 🧪 Snakemake command:"
+echo snakemake --configfile "$CONFIG_FILE" --config sample="\$sample" /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds --use-conda --forceall --cores 1 --printshellcmds --reason --verbose
 
 echo "$(date) | 🚀 Running Snakemake for sample: \$sample"
 export PYTHONUNBUFFERED=1
