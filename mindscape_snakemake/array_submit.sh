@@ -64,14 +64,13 @@ which snakemake
 snakemake --version
 
 echo "$(date) | 🧪 Snakemake command:"
-echo snakemake --configfile "$CONFIG_FILE" --config sample="\$sample" -- /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds --use-conda --forceall --cores 1 --printshellcmds --reason --verbose
+echo snakemake --configfile "$CONFIG_FILE" --config sample="\$sample" /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds --use-conda --forceall --cores 1 --printshellcmds --reason --verbose
 
 echo "$(date) | 🚀 Running Snakemake for sample: \$sample"
 export PYTHONUNBUFFERED=1
 snakemake \
   --configfile "$CONFIG_FILE" \
   --config sample="\$sample" \
-  -- \
   /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds \
   --use-conda \
   --forceall \
