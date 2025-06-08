@@ -17,9 +17,8 @@ sbatch <<EOF
 #!/bin/bash
 #SBATCH --job-name=seurat_per_sample
 #SBATCH --account=parent0
-#SBATCH --array=0-$((NUM_SAMPLES-1))
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=512G
+#SBATCH --mem=32G
 #SBATCH --time=12:00:00
 #SBATCH --partition=largemem
 #SBATCH --mail-type=END,FAIL
@@ -36,5 +35,6 @@ snakemake \
   --config sample="\$sample" \
   /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds \
   --use-conda \
+  --forceall \
   --cores 1
 EOF
