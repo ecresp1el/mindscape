@@ -1,7 +1,0 @@
-# this is on github, so we can use relative paths 
-# to the Snakefile within the mindscape_snakemake repository
-
-configfile: "config/config.yaml"
-
-include: "rules/00_create_project.smk"
-include: "rules/01_sync_data.smk"
