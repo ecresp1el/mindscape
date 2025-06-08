@@ -1,0 +1,28 @@
+/var/spool/slurmd.spool/job26702933/slurm_script: line 11: yq: command not found
+Traceback (most recent call last):
+
+  File "/home/elcrespo/miniconda3/envs/mindscape-env/lib/python3.11/site-packages/snakemake/common/__init__.py", line 70, in parse_key_value_arg
+    key, val = arg.split("=", 1)
+    ^^^^^^^^
+
+ValueError: not enough values to unpack (expected 2, got 1)
+
+
+During handling of the above exception, another exception occurred:
+
+
+Traceback (most recent call last):
+
+  File "/home/elcrespo/miniconda3/envs/mindscape-env/lib/python3.11/site-packages/snakemake/cli.py", line 2042, in args_to_api
+    config=parse_config(args.config),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/elcrespo/miniconda3/envs/mindscape-env/lib/python3.11/site-packages/snakemake/cli.py", line 307, in parse_config
+    key, val = parse_key_value_arg(
+               ^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/elcrespo/miniconda3/envs/mindscape-env/lib/python3.11/site-packages/snakemake/common/__init__.py", line 72, in parse_key_value_arg
+    raise ValueError(errmsg + f" (Unparsable value: {repr(arg)})")
+
+ValueError: Invalid config definition: Config entries have to be defined as name=value pairs. (Unparsable value: 'make_seurat_rds_')
+

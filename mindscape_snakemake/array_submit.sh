@@ -22,6 +22,7 @@ sbatch <<EOF
 #SBATCH --mem=512G
 #SBATCH --time=12:00:00
 #SBATCH --partition=largemem
+#SBATCH --mail-type=END,FAIL
 #SBATCH --output=/nfs/turbo/umms-parent/MindscapeProjects/logs/array_%A_%a.out
 #SBATCH --error=/nfs/turbo/umms-parent/MindscapeProjects/logs/array_%A_%a.err
 
