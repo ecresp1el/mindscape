@@ -2,7 +2,10 @@
 set -euo pipefail
 set -x  # Enable debug printing
 
-CONFIG_FILE="${1:-config/config.yaml}"
+CONFIG_FILE="$(realpath "${1:-config/config.yaml}")"
+
+# Debug: print the absolute config path
+echo "$(date) | 🧭 Absolute config path: $CONFIG_FILE"
 
 # Load samples
 SAMPLES=( $(python3 -c "import yaml; print('\n'.join(yaml.safe_load(open('$CONFIG_FILE'))['samples']))") )
@@ -13,6 +16,12 @@ echo "🔁 Submitting array job for $NUM_SAMPLES samples..."
 SAMPLE_STR="${SAMPLES[*]}"
 
 echo "$(date) | 🧾 Submitting with job array range 0-$((NUM_SAMPLES-1))"
+
+# Create a unique working directory for this array submission
+WORKDIR="/tmp/snakemake_array_submit_${RANDOM}_$$"
+mkdir -p "$WORKDIR"
+cd "$WORKDIR"
+
 sbatch <<EOF
 #!/bin/bash
 #SBATCH --job-name=seurat_per_sample
@@ -67,8 +76,12 @@ echo "$(date) | 🧪 Snakemake command:"
 echo snakemake --configfile "$CONFIG_FILE" --config sample="\$sample" --use-conda --forceall --cores 1 --printshellcmds --verbose /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds
 
 echo "$(date) | 🚀 Running Snakemake for sample: \$sample"
+
+    # Working directory already set before submission
+
 export PYTHONUNBUFFERED=1
 snakemake \
+  --snakefile /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/workflow/Snakefile \
   /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/\$sample.rds \
   --configfile "$CONFIG_FILE" \
   --config sample="\$sample" \
@@ -76,6 +89,7 @@ snakemake \
   --forceall \
   --cores 1 \
   --printshellcmds \
+  --rerun-incomplete \
   --verbose || {
     echo "$(date) | ❌ Snakemake execution failed for \$sample"
     exit 1
