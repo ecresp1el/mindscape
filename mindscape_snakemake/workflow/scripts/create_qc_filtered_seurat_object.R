@@ -11,12 +11,13 @@ if (!exists("snakemake")) {
   message("Running in debug mode (no snakemake object detected)")
 
   matrix_dir <- "/nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-1/count/sample_filtered_feature_bc_matrix"
-  output_rds <- "/nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-1_debug.rds"
+  output_rds <- "/nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/qc_filtered/10496-MW-1_debug.rds"
   sample_id <- "debug"
 } else {
   matrix_dir <- snakemake@input[["matrix_dir"]]
-  output_rds <- snakemake@output[["rds"]]
   sample_id <- snakemake@wildcards[["sample_id"]]
+  base_output_rds <- snakemake@output[["rds"]]
+  output_rds <- file.path(dirname(base_output_rds), "qc_filtered", basename(base_output_rds))
 }
 
 message("Reading 10X matrix from: ", matrix_dir)
@@ -26,16 +27,14 @@ seurat_obj <- CreateSeuratObject(counts = data, project = sample_id, assay = "RN
 seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 
 # Save QC RidgePlot before filtering
-plot_dir <- file.path(dirname(output_rds), "RidgePlots_QC_nFeature_nCounts_percent_Mito_sample")
+plot_dir <- file.path(dirname(output_rds), "../RidgePlots_QC_nFeature_nCounts_percent_Mito_sample")
 if (!dir.exists(plot_dir)) {
   dir.create(plot_dir, recursive = TRUE)
 }
-plot_file <- file.path(plot_dir, paste0(sample_id, "_RidgePlot_nFeature_nCounts_percentMito.png"))
+plot_file <- file.path(plot_dir, paste0(sample_id, "_QC_ridgeplot.png"))
 png(filename = plot_file, width = 1600, height = 600)
-print(
-  RidgePlot(seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3) +
-    ggtitle(paste0("QC Metrics: ", sample_id), subtitle = "RidgePlot of nFeature_RNA, nCount_RNA, percent.mt")
-)
+print(RidgePlot(seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3) +
+      ggtitle(paste("QC Metrics for Sample:", sample_id), subtitle = "nFeature_RNA / nCount_RNA / percent.mt"))
 dev.off()
 
 # Apply QC subsetting
@@ -47,11 +46,11 @@ seurat_obj <- subset(
            percent.mt < 5
 )
 
-# Save to output
+# Ensure output directory exists
 out_dir <- dirname(output_rds)
 if (!dir.exists(out_dir)) {
   dir.create(out_dir, recursive = TRUE)
 }
 
 saveRDS(seurat_obj, file = output_rds)
-message("✅ Done: RDS file created for ", sample_id)
+message("✅ QC-filtered Seurat object saved for ", sample_id)
