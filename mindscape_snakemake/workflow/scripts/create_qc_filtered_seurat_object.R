@@ -47,5 +47,11 @@ seurat_obj <- subset(
            percent.mt < 5
 )
 
+# Save to output
+out_dir <- dirname(output_rds)
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir, recursive = TRUE)
+}
+
 saveRDS(seurat_obj, file = output_rds)
 message("✅ Done: RDS file created for ", sample_id)
