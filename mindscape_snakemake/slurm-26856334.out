@@ -1,0 +1,44 @@
+host: gl3195.arc-ts.umich.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1500000, mem_mib=1430512, cpus=16
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Jun 13 12:26:30 2025]
+localrule make_seurat_rds_10496_MW_2:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+    jobid: 0
+    reason: Forced execution
+    resources: mem_mb=1500000, mem_mib=1430512, disk_mb=1000, disk_mib=954, tmpdir=/tmp, time=6:00:00, cpus=16
+
+✅ sample_id obtained from params: 10496-MW-2
+🔎 sample_id = 10496-MW-2
+📁 matrix_dir = /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix
+💾 output_rds = /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+Reading 10X matrix from: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix
+/usr/bin/bash: line 1: 1875464 Killed                  Rscript --vanilla /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/scripts/tmpbnq9by3h.create_seurat_rds.R
+RuleException:
+CalledProcessError in file "/home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/workflow/rules/make_seurat_rds.smk", line 44:
+Command 'set -euo pipefail;  Rscript --vanilla /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/scripts/tmpbnq9by3h.create_seurat_rds.R' returned non-zero exit status 137.
+[Fri Jun 13 12:26:42 2025]
+Error in rule make_seurat_rds_10496_MW_2:
+    message: None
+    jobid: 0
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Fri Jun 13 12:26:42 2025]
+Error in rule make_seurat_rds_10496_MW_2:
+    message: None
+    jobid: 0
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+Storing output in storage.
+WorkflowError:
+At least one job did not complete successfully.
+slurmstepd: error: Detected 1 oom_kill event in StepId=26856334.batch. Some of the step tasks have been OOM Killed.
