@@ -53,6 +53,12 @@ if (ncol(data) == 0) {
 message("Matrix dimensions: ", paste(dim(data), collapse = " x "))
 print(head(colnames(data)))
 
+# make sure the matrix is sparse and if not, convert it
+if (!inherits(data, "dgCMatrix")) {
+  message("⚠️ Matrix is not sparse! Forcing to sparse...")
+  data <- as(as.matrix(data), "dgCMatrix")
+}
+
 #proceed if matrix is valid
 seurat_obj <- tryCatch({
   CreateSeuratObject(counts = data, project = sample_id, assay = "RNA")

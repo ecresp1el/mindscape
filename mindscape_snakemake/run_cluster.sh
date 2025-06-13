@@ -17,6 +17,7 @@ snakemake \
   --configfile "$CONFIG_FILE" \
   --jobs 50 \
   --use-conda \
+  --cluster "sbatch --cpus-per-task={resources.cpus} --mem={resources.mem_mb} --time={resources.time}" \
   --latency-wait 60 \
   --rerun-incomplete \
   --executor cluster-generic \
