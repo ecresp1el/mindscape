@@ -19,8 +19,20 @@ if (!exists("snakemake")) {
 }
 
 message("Reading 10X matrix from: ", matrix_dir)
+
+# ✅ Sanity check: matrix directory exists
+if (!dir.exists(matrix_dir)) {
+  stop("❌ matrix_dir does not exist: ", matrix_dir)
+}
+# load matrix data
 data <- Read10X(data.dir = matrix_dir)
 
+# ✅ Sanity check: matrix is non-empty
+if (ncol(data) == 0) {
+  stop("❌ Read10X returned an empty matrix for: ", matrix_dir)
+}
+
+#proceed if matrix is valid
 seurat_obj <- CreateSeuratObject(counts = data, project = sample_id, assay = "RNA")
 
 # Save Seurat object (no QC performed here)
