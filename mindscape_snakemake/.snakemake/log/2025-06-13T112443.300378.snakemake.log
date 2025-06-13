@@ -1,0 +1,162 @@
+None
+host: gl-login1.arc-ts.umich.edu
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided remote nodes: 50
+Job stats:
+job                                         count
+----------------------------------------  -------
+all                                             1
+create_qc_filtered_seurat_rds_10496_MW_1        1
+create_qc_filtered_seurat_rds_10496_MW_2        1
+create_qc_filtered_seurat_rds_10496_MW_3        1
+create_qc_filtered_seurat_rds_10496_MW_4        1
+create_qc_filtered_seurat_rds_10496_MW_5        1
+create_qc_filtered_seurat_rds_10496_MW_6        1
+make_seurat_rds_10496_MW_1                      1
+make_seurat_rds_10496_MW_2                      1
+make_seurat_rds_10496_MW_3                      1
+make_seurat_rds_10496_MW_4                      1
+make_seurat_rds_10496_MW_5                      1
+make_seurat_rds_10496_MW_6                      1
+total                                          13
+
+Select jobs to execute...
+Execute 6 jobs...
+[Fri Jun 13 11:24:44 2025]
+rule make_seurat_rds_10496_MW_3:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-3/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-3.rds
+    jobid: 4
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-3.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 4 with external jobid 'Submitted batch job 26854924'.
+[Fri Jun 13 11:24:46 2025]
+rule make_seurat_rds_10496_MW_5:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-5/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-5.rds
+    jobid: 6
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-5.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 6 with external jobid 'Submitted batch job 26854925'.
+[Fri Jun 13 11:24:46 2025]
+rule make_seurat_rds_10496_MW_6:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-6/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-6.rds
+    jobid: 7
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-6.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 7 with external jobid 'Submitted batch job 26854926'.
+[Fri Jun 13 11:24:46 2025]
+rule make_seurat_rds_10496_MW_2:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+    jobid: 3
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 3 with external jobid 'Submitted batch job 26854927'.
+[Fri Jun 13 11:24:47 2025]
+rule make_seurat_rds_10496_MW_4:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-4/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-4.rds
+    jobid: 5
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-4.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 5 with external jobid 'Submitted batch job 26854928'.
+[Fri Jun 13 11:24:47 2025]
+rule make_seurat_rds_10496_MW_1:
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-1/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-1.rds
+    jobid: 1
+    reason: Missing output files: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-1.rds
+    resources: tmpdir=<TBD>, time=6:00:00, mem_mb=1500000, mem_mib=1430512, cpus=16
+
+Submitted job 1 with external jobid 'Submitted batch job 26854929'.
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_3:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 4
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-3/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-3.rds
+    external_jobid: Submitted batch job 26854924
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_5:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 6
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-5/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-5.rds
+    external_jobid: Submitted batch job 26854925
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_6:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 7
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-6/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-6.rds
+    external_jobid: Submitted batch job 26854926
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_2:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 3
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+    external_jobid: Submitted batch job 26854927
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_4:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 5
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-4/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-4.rds
+    external_jobid: Submitted batch job 26854928
+[Fri Jun 13 11:25:24 2025]
+Error in rule make_seurat_rds_10496_MW_1:
+    message: For further error details see the cluster/cloud log and the log files of the involved rule(s).
+    jobid: 1
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-1/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-1.rds
+    external_jobid: Submitted batch job 26854929
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_3:
+    message: None
+    jobid: 4
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-3/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-3.rds
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_5:
+    message: None
+    jobid: 6
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-5/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-5.rds
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_6:
+    message: None
+    jobid: 7
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-6/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-6.rds
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_2:
+    message: None
+    jobid: 3
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-2/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-2.rds
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_4:
+    message: None
+    jobid: 5
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-4/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-4.rds
+[Fri Jun 13 11:25:34 2025]
+Error in rule make_seurat_rds_10496_MW_1:
+    message: None
+    jobid: 1
+    input: /nfs/turbo/umms-parent/Manny_test/10496-MW-reanalysis/outs/per_sample_outs/10496-MW-1/count/sample_filtered_feature_bc_matrix, init.done
+    output: /nfs/turbo/umms-parent/MindscapeProjects/10496-MW-per-sample-rds/seurat_rds/10496-MW-1.rds
+Complete log(s): /home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/.snakemake/log/2025-06-13T112443.300378.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

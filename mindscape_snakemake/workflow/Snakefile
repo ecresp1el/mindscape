@@ -1,2 +1,33 @@
 configfile: "config/config.yaml"
 include: "rules/make_seurat_rds.smk"
+include: "rules/create_qc_filtered_seurat_rds.smk"
+
+# Re-define helper functions used in rule all
+import os
+
+def get_rds_output_path(sample):
+    return os.path.join(
+        config["project_output_dir"],
+        "seurat_rds",
+        f"{sample}.rds"
+    )
+
+def get_qc_filtered_rds_path(sample):
+    return os.path.join(
+        config["project_output_dir"],
+        "qc_filtered",
+        f"{sample}_qc_filtered.rds"
+    )
+
+def get_ridgeplot_path(sample):
+    return os.path.join(
+        config["project_output_dir"],
+        "RidgePlots_QC_nFeature_nCounts_percent_Mito_sample",
+        f"{sample}_QC_ridgeplot.png"
+    )
+
+rule all:
+    input:
+        [get_rds_output_path(sample) for sample in config["samples"]],
+        [get_qc_filtered_rds_path(sample) for sample in config["samples"]],
+        [get_ridgeplot_path(sample) for sample in config["samples"]],

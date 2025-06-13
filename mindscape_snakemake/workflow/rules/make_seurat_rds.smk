@@ -44,6 +44,6 @@ for sample in config["samples"]:
             "../scripts/create_seurat_rds.R"
 
 # Final rule to trigger everything
-rule all:
-    input:
-        [get_rds_output_path(sample) for sample in config["samples"]]
+#rule all:
+#    input:
+#        [get_rds_output_path(sample) for sample in config["samples"]]

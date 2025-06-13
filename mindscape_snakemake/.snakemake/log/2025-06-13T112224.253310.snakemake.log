@@ -1,0 +1,24 @@
+None
+host: gl-login1.arc-ts.umich.edu
+Building DAG of jobs...
+MissingInputException in rule all in file "/home/elcrespo/Desktop/githubprojects/MindScape/mindscape_snakemake/workflow/Snakefile", line 28:
+Missing input files for rule all:
+    affected files:
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-5_QC_ridgeplot.png
+        qc_filtered/10496-MW-6_qc_filtered.rds
+        qc_filtered/10496-MW-3_qc_filtered.rds
+        qc_filtered/10496-MW-5_qc_filtered.rds
+        seurat_rds/10496-MW-2.rds
+        seurat_rds/10496-MW-1.rds
+        qc_filtered/10496-MW-1_qc_filtered.rds
+        seurat_rds/10496-MW-4.rds
+        qc_filtered/10496-MW-2_qc_filtered.rds
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-1_QC_ridgeplot.png
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-3_QC_ridgeplot.png
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-6_QC_ridgeplot.png
+        seurat_rds/10496-MW-6.rds
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-2_QC_ridgeplot.png
+        seurat_rds/10496-MW-3.rds
+        RidgePlots_QC_nFeature_nCounts_percent_Mito_sample/10496-MW-4_QC_ridgeplot.png
+        qc_filtered/10496-MW-4_qc_filtered.rds
+        seurat_rds/10496-MW-5.rds
