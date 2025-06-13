@@ -3,7 +3,6 @@
 suppressPackageStartupMessages({
   library(Seurat)
   library(Matrix)
-  library(ggplot2)
 })
 
 # Fallback mode for testing outside Snakemake
@@ -16,34 +15,19 @@ if (!exists("snakemake")) {
 } else {
   matrix_dir <- snakemake@input[["matrix_dir"]]
   output_rds <- snakemake@output[["rds"]]
-  sample_id <- snakemake@wildcards[["sample_id"]]
+  sample_id <- snakemake@params[["sample"]]
 }
 
 message("Reading 10X matrix from: ", matrix_dir)
 data <- Read10X(data.dir = matrix_dir)
 
 seurat_obj <- CreateSeuratObject(counts = data, project = sample_id, assay = "RNA")
-seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 
-# Save QC RidgePlot before filtering
-plot_dir <- file.path(dirname(output_rds), "nFeature_nCount_RNA_mito_QC_plots")
-if (!dir.exists(plot_dir)) {
-  dir.create(plot_dir, recursive = TRUE)
+# Save Seurat object (no QC performed here)
+out_dir <- dirname(output_rds)
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir, recursive = TRUE)
 }
-plot_file <- file.path(plot_dir, paste0(sample_id, "_QC_ridgeplot.png"))
-png(filename = plot_file, width = 1600, height = 600)
-print(RidgePlot(seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3) +
-      ggtitle(paste("QC Metrics -", sample_id)))
-dev.off()
-
-# Apply QC subsetting
-seurat_obj <- subset(
-  seurat_obj,
-  subset = nFeature_RNA > 500 &
-           nFeature_RNA < 5000 &
-           nCount_RNA < 15000 &
-           percent.mt < 5
-)
 
 saveRDS(seurat_obj, file = output_rds)
-message("✅ Done: RDS file created for ", sample_id) #test
+message("✅ Done: raw Seurat object saved for ", sample_id)
