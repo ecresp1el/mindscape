@@ -1,0 +1,5 @@
+{
+    "SBATCH_DEFAULTS": "--account=parent0 --partition=largemem",
+    "CLUSTER_NAME": "greatlakes",
+    "CLUSTER_CONFIG": ""
+}

@@ -13,13 +13,8 @@ fi
 echo "📁 Using config file: $CONFIG_FILE"
 mkdir -p /nfs/turbo/umms-parent/MindscapeProjects/logs
 
+# Run Snakemake using the SLURM profile
 snakemake \
+  --profile profiles/greatlakes \
   --configfile "$CONFIG_FILE" \
-  --jobs 50 \
-  --use-conda \
-  --cluster "sbatch --cpus-per-task={resources.cpus} --mem={resources.mem_mb} --time={resources.time}" \
-  --latency-wait 60 \
-  --rerun-incomplete \
-  --executor cluster-generic \
-  --cluster-generic-submit-cmd "sbatch" \
   "$@"
