@@ -36,13 +36,15 @@ h5_files <- list.files(input_base, pattern = "\\.h5Seurat$", full.names = TRUE, 
 if (length(h5_files) == 0) stop("❌ No .h5Seurat files found in input directory.")
 
 seurat_list <- list()
-
 for (f in h5_files) {
   cat(paste0("📥 Loading file: ", f, "\n"))
-  # Conversion to legacy h5Seurat not needed if files are already .h5Seurat
   obj <- LoadH5Seurat(f)
-  # Normalization assumed already done, but if you want:
-  # obj <- NormalizeData(obj)
+  
+  # convert v4->v5 (if necessary)
+  temp_v5_path <- tempfile(fileext = ".h5Seurat")
+  SaveH5Seurat(obj, filename = temp_v5_path, overwrite = TRUE)
+  obj <- LoadH5Seurat(temp_v5_path)
+  
   seurat_list[[basename(f)]] <- obj
 }
 
