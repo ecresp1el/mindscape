@@ -30,4 +30,4 @@ for sample in config["samples"]:
             mem_mb = 1500000,
             cpus = 16
         script:
-            "../scripts/create_qc_filtered_seurat_rds.R"
+            "workflow/scripts/create_qc_filtered_seurat_rds.R"
