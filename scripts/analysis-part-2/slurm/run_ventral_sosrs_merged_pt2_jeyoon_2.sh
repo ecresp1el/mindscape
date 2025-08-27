@@ -4,7 +4,7 @@
 # SLURM Job Script for MindScape Part 2 - Integration and Full Analysis
 # ==============================================================================
 
-#SBATCH --job-name=ventral_sosrs_integration_cell_cycle_reg_jeyoon
+#SBATCH --job-name=ventral_sosrs_integration_cell_cycle_reg_jeyoon_2
 #SBATCH --account=parent0
 #SBATCH --output=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/integration_%j.out
 #SBATCH --error=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/integration_%j.err
@@ -22,14 +22,14 @@ conda activate mindscape-env
 
 BASE_DIR="/nfs/turbo/umms-parent/Manny_test"
 OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
-SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/mindscape_integrate_samples_cell_cycle_reg_jeyoon.R"
+SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/mindscape_integrate_samples_cell_cycle_reg_jeyoon_2.R"
 
 echo "🔁 Running integration script"
 echo "📄 Script: $SCRIPT_PATH"
 echo "📁 Output dir: $OUTPUT_DIR"
 
 export MINDSCAPE_INPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output__only_normalized"
-export MINDSCAPE_OUTPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output_integrated_analysis_cell_cycle_reg_jeyoon"
+export MINDSCAPE_OUTPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output_integrated_analysis_cell_cycle_reg_jeyoon_2"
 
 # ------------------------------------------------------------------------------
 # Run the R integration script
