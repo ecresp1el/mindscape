@@ -61,6 +61,10 @@ export RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
 
 # Source config to realize defaults (respect env overrides)
 source "$CONFIG_FILE"
+# Export key vars so submit sees them (for logs and env propagation)
+export TEST_DIR TURBO_CONFIG_SOURCE PROBE_PATH REF_GENOME TURBO_REF_BASE REF_SUBPATH OUTPUT_ID CORES SNAKEFILE
+# Also export an absolute wrapper path so the job can find it from spool
+export WRAPPER_PATH="$WRAPPER"
 
 echo "🔧 Using configuration:"
 echo "  TEST_DIR            : ${TEST_DIR}"
@@ -90,4 +94,3 @@ case "$MODE" in
     exit 1
     ;;
 esac
-
