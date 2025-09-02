@@ -86,7 +86,18 @@ case "$MODE" in
   slurm)
     echo "📨 SLURM SUBMIT: submitting job via sbatch"
     # submit script already propagates env via --export=ALL
-    bash "$SUBMIT"
+    SUBMIT_OUT=$(bash "$SUBMIT" 2>&1 || true)
+    echo "$SUBMIT_OUT"
+    JOB_ID=$(echo "$SUBMIT_OUT" | awk '/Submitted batch job/ {print $4}' | tail -n1)
+    JOB_NAME_EFF=${JOB_NAME:-cellranger_multi_div90}
+    LOG_DIR_EFF=${LOG_DIR:-"$TEST_DIR/logs"}
+    if [[ -n "$JOB_ID" ]]; then
+      echo "📟 Job ID: $JOB_ID"
+      echo "🧭 Monitor: squeue -j $JOB_ID"
+      echo "📜 Logs:   tail -f $LOG_DIR_EFF/${JOB_NAME_EFF}_${JOB_ID}.out"
+    else
+      echo "⚠️ Could not parse Job ID from sbatch output above."
+    fi
     ;;
   *)
     echo "❌ Unknown mode: $MODE" >&2
