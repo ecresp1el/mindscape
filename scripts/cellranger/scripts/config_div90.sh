@@ -31,7 +31,28 @@ TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${R
 # Source multi-config CSV for DIV90 (required)
 # Default: prior DIV90 config used in cellranger pipeline notes
 # Note: path contains spaces; keep quotes when overriding.
-TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-"/nfs/turbo/umms-parent/Carmen_Miranda_scRNAseq /90 Day results/10x_analysis_10496-MW/Sample_10496-MW-Pool01/config.csv"}
+TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-"/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"}
+
+# FASTQ path handling (optional)
+# - Some historical config.csv files reference FASTQs under restricted or
+#   cluster-inaccessible prefixes (e.g., /nfs/turbo/agc-data/...).
+# - Set one of the following to normalize the fastqs column in [libraries]:
+#   1) FASTQS_DIR: force the fastqs column for all rows to this directory
+#   2) FASTQS_REPLACE_FROM + FASTQS_REPLACE_TO: prefix replacement within fastqs
+#
+# Examples:
+#   export FASTQS_DIR="/nfs/turbo/umms-parent/Accessible_fastqs/10496-MW/fastqs_10496-MW"
+#   export FASTQS_REPLACE_FROM="/nfs/turbo/agc-data/processing"
+#   export FASTQS_REPLACE_TO="/nfs/turbo/umms-parent/Accessible_fastqs"
+FASTQS_DIR=${FASTQS_DIR:-}
+FASTQS_REPLACE_FROM=${FASTQS_REPLACE_FROM:-}
+FASTQS_REPLACE_TO=${FASTQS_REPLACE_TO:-}
+
+# Accessibility enforcement (DIV90 default)
+# - ENFORCE_ACCESSIBLE=1 ensures curated accessible CSV and FASTQ prefixes are used.
+# - ALLOWED_FASTQS_PREFIX restricts FASTQ directories to a known accessible root.
+ENFORCE_ACCESSIBLE=${ENFORCE_ACCESSIBLE:-1}
+ALLOWED_FASTQS_PREFIX=${ALLOWED_FASTQS_PREFIX:-/nfs/turbo/umms-parent}
 
 # Flex probe set (required)
 # Default: previously used 10X Human Refs (2020-A) path on turbo

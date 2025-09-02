@@ -37,6 +37,26 @@ Defaults (safe to start with)
 - Output ID: `OUTPUT_ID=div90-reanalysis`
   - `scripts/cellranger/scripts/config_div90.sh:55`
 
+FASTQ paths (important)
+- Some historical config files point FASTQs to restricted prefixes (e.g., `/nfs/turbo/agc-data/...`). If those paths
+  are not accessible from your compute nodes, normalize the `fastqs` column in `[libraries]` before running.
+- Options (set one):
+  - `FASTQS_DIR`: force the `fastqs` column for all rows to a single directory.
+  - `FASTQS_REPLACE_FROM` + `FASTQS_REPLACE_TO`: replace a path prefix inside the `fastqs` column.
+- Where it’s applied: `scripts/cellranger/scripts/create_project_cellranger_div90.sh` (after reference/probe patching).
+- Example:
+  - `export FASTQS_DIR=/nfs/turbo/umms-parent/Accessible_fastqs/10496-MW/fastqs_10496-MW`
+  - Or
+  - `export FASTQS_REPLACE_FROM=/nfs/turbo/agc-data/processing`
+  - `export FASTQS_REPLACE_TO=/nfs/turbo/umms-parent/Accessible_fastqs`
+  - `scripts/cellranger/div90/drive_div90.sh slurm`
+
+Enforcement
+- By default `ENFORCE_ACCESSIBLE=1` ensures:
+  - `TURBO_CONFIG_SOURCE` comes from `Accessible_multi-config_csvs`.
+  - All `[libraries].fastqs` paths start with `ALLOWED_FASTQS_PREFIX` (default `/nfs/turbo/umms-parent`).
+- Override (not recommended): set `ENFORCE_ACCESSIBLE=0` to bypass checks, or change `ALLOWED_FASTQS_PREFIX`.
+
 Requirements
 - Tools on PATH or via modules (wrapper tries to load if `module` exists):
   - cellranger, snakemake

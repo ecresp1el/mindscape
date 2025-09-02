@@ -117,6 +117,52 @@ _sed_inplace "s|^reference,.*|reference,$REF_GENOME|" "$CONFIG_DEST"
 echo "🧬 Patching probe-set → $PROBE_PATH"
 _sed_inplace "s|^probe-set,.*|probe-set,$PROBE_PATH|" "$CONFIG_DEST"
 
+# Enforce curated accessible CSV source if requested
+if [[ "${ENFORCE_ACCESSIBLE:-1}" == "1" ]]; then
+  if [[ "$TURBO_CONFIG_SOURCE" != *"/Accessible_multi-config_csvs/"* ]]; then
+    echo "❌ TURBO_CONFIG_SOURCE must come from an Accessible_multi-config_csvs path for DIV90." >&2
+    echo "   Current: $TURBO_CONFIG_SOURCE" >&2
+    echo "   Tip: set TURBO_CONFIG_SOURCE to the curated accessible CSV under /nfs/turbo/umms-parent/Accessible_multi-config_csvs" >&2
+    exit 1
+  fi
+fi
+
+# Optionally normalize FASTQ paths in [libraries]
+if [[ -n "${FASTQS_DIR:-}" ]]; then
+  if [[ "${DRY_RUN:-0}" != "1" && ! -d "$FASTQS_DIR" ]]; then
+    echo "❌ FASTQS_DIR not found: $FASTQS_DIR" >&2; exit 1
+  fi
+  echo "📦 Patching [libraries] fastqs → $FASTQS_DIR"
+  awk -v dir="$FASTQS_DIR" 'BEGIN{FS=OFS=","} /^\[/ {sec=$0; print; next} sec=="[libraries]" { if ($1=="fastq_id") {print; next} $2=dir; print; next } {print}' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
+elif [[ -n "${FASTQS_REPLACE_FROM:-}" && -n "${FASTQS_REPLACE_TO:-}" ]]; then
+  echo "📦 Rewriting [libraries] fastqs prefix: $FASTQS_REPLACE_FROM → $FASTQS_REPLACE_TO"
+  awk -v from="$FASTQS_REPLACE_FROM" -v to="$FASTQS_REPLACE_TO" 'BEGIN{FS=OFS=","} /^\[/ {sec=$0; print; next} sec=="[libraries]" { if ($1=="fastq_id") {print; next} sub(from,to,$2); print; next } {print}' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
+fi
+
+# Validate FASTQ accessibility if enforcement is enabled
+if [[ "${ENFORCE_ACCESSIBLE:-1}" == "1" ]]; then
+  allowed_prefix="${ALLOWED_FASTQS_PREFIX:-/nfs/turbo/umms-parent}"
+  # Only evaluate non-empty data rows inside [libraries]
+  bad_count=$(awk -v pfx="$allowed_prefix" '
+    BEGIN{FS=","; sec=""}
+    /^\[/ {sec=$0; next}
+    sec=="[libraries]" && NF>0 {
+      if ($1=="fastq_id") next;
+      # Skip pure blank lines
+      if ($0 ~ /^\s*$/) next;
+      # Require column 2 (fastqs) to start with allowed prefix
+      if (index($2, pfx) != 1) bad++
+    }
+    END{print bad+0}
+  ' "$CONFIG_DEST")
+  if [[ "$bad_count" -gt 0 ]]; then
+    echo "❌ Detected $bad_count FASTQ path(s) outside allowed prefix: $allowed_prefix" >&2
+    echo "   Use FASTQS_DIR or FASTQS_REPLACE_FROM/FASTQS_REPLACE_TO to normalize the [libraries] fastqs paths." >&2
+    echo "   CSV: $CONFIG_DEST" >&2
+    exit 1
+  fi
+fi
+
 # Load modules if available (optional)
 # - On module-based HPC, try to load cellranger + snakemake for convenience.
 if command -v module >/dev/null 2>&1; then
