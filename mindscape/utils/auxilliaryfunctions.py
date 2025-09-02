@@ -6,35 +6,82 @@ from pathlib import Path
 from ruamel.yaml import YAML
 import yaml
 
-
-def create_config_template():
+def create_config_template(project_path: str, project_name: str, experimenter: str, date: str, email: str ="elcrespo@umich.edu"):
     """
-    Creates a template for the config.yaml file.
+    This is the default config template for MindScape projects.
+    It includes all base settings and pre-adds the CellRanger, QC, and Ventral workflows.
+    Creates a complete and usable config.yaml with default values (SLURM disabled).
     """
-    yaml_str = """\
-# Project definitions (do not edit)
-project_name:
-experimenter:
-date:
-\n
-# Project path (change when moving around)
-project_path:
-\n
-# Data and results directories
+    yaml_str = f"""\
+project_name: {project_name}
+experimenter: {experimenter}
+date: {date}
+project_path: {project_path}
 data_dir: data
 results_dir: results
 logs_dir: logs
-\n
-# Analysis parameters
+use_slurm: false
+dry_run: false
+force_rerun: false
+email: {email}
+
+slurm:
+  cpus: "8"
+  mem: "64G"
+  time: "12:00:00"
+
 parameters:
   analysis_type: default
   threshold: 0.5
   max_iterations: 1000
-    """
+
+workflows:
+  - name: CellRangerWorkflow
+    enabled: true
+  - name: QCWorkflow
+    enabled: true
+  - name: VentralWorkflow
+    enabled: false
+"""
     ruamelFile = YAML()
+    ruamelFile.preserve_quotes = True
     cfg_file = ruamelFile.load(yaml_str)
     return cfg_file, ruamelFile
 
+def create_blank_config_template(project_path: str, project_name: str, experimenter: str, date: str, email: str = "elcrespo@umich.edu"):
+    """
+    Creates a config.yaml with all base settings but **no workflows pre-added**.
+    Ideal for clean testing and developer-controlled workflow registration.
+    """
+    yaml_str = f"""\
+project_name: {project_name}
+experimenter: {experimenter}
+date: {date}
+project_path: {project_path}
+data_dir: data
+results_dir: results
+logs_dir: logs
+use_slurm: false
+dry_run: false
+force_rerun: false
+email: {email}
+
+slurm:
+  cpus: "8"
+  mem: "64G"
+  time: "12:00:00"
+
+parameters:
+  analysis_type: default
+  threshold: 0.5
+  max_iterations: 1000
+
+workflows: []
+"""
+    ruamelFile = YAML()
+    ruamelFile.preserve_quotes = True
+    cfg_file = ruamelFile.load(yaml_str)
+    return cfg_file, ruamelFile
 
 def read_config(configname: str | Path) -> dict:
     """
@@ -71,20 +118,19 @@ def read_config(configname: str | Path) -> dict:
 
 def write_config(configname: str | Path, cfg: dict):
     """
-    Writes a structured config file.
+    Writes a structured config file to disk.
 
     Parameters
     ----------
     configname : str or Path
         Path to the configuration file.
     cfg : dict
-        Configuration data to write.
+        Fully formed configuration data to write.
     """
-    with open(configname, "w") as cf:
-        cfg_file, ruamelFile = create_config_template()
-        for key in cfg.keys():
-            cfg_file[key] = cfg[key]
-        ruamelFile.dump(cfg_file, cf)
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    with open(configname, "w") as f:
+        yaml.dump(cfg, f)
 
 
 def edit_config(configname: str | Path, edits: dict, output_name: str = "") -> dict:
