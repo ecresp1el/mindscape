@@ -20,8 +20,9 @@ RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
 TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${RUNSTAMP}}
 
 # Source multi-config CSV for DIV90 (required)
-# Example: /nfs/.../90 Day results/fastqs_10496-MW/multi-config.csv
-TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-}
+# Default: prior DIV90 config used in cellranger pipeline notes
+# Note: path contains spaces; keep quotes when overriding.
+TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-"/nfs/turbo/umms-parent/Carmen_Miranda_scRNAseq /90 Day results/10x_analysis_10496-MW/Sample_10496-MW-Pool01/config.csv"}
 
 # Flex probe set (required)
 # Default: previously used 10X Human Refs (2020-A) path on turbo

@@ -42,9 +42,16 @@ if [[ -z "${REF_GENOME:-}" ]]; then
   fi
 fi
 
-if [[ ! -d "$REF_GENOME" ]]; then
-  echo "❌ Reference folder not found at $REF_GENOME" >&2
-  exit 1
+# In normal mode, require the reference dir to exist. In DRY_RUN, allow missing.
+if [[ "${DRY_RUN:-0}" != "1" ]]; then
+  if [[ ! -d "$REF_GENOME" ]]; then
+    echo "❌ Reference folder not found at $REF_GENOME" >&2
+    exit 1
+  fi
+else
+  if [[ ! -d "$REF_GENOME" ]]; then
+    echo "ℹ️ [DRY_RUN] Skipping reference existence check: $REF_GENOME" >&2
+  fi
 fi
 
 # Snakefile absolute path (prefer inside cellranger folder)
@@ -117,8 +124,16 @@ snakemake --unlock \
 
 # Run Snakemake target
 start_time=$(date +%s)
-echo "🚀 Running Snakemake (Cell Ranger multi)… target=$OUTPUT_ID cores=$CORES"
-snakemake --rerun-incomplete -j "$CORES" \
+
+# Respect DRY_RUN=1 to pass -n to Snakemake
+SMK_DRY=""
+if [[ "${DRY_RUN:-0}" == "1" ]]; then
+  SMK_DRY="-n"
+  echo "🧪 DRY_RUN enabled: Snakemake will not execute Cell Ranger."
+fi
+
+echo "🚀 Running Snakemake (Cell Ranger multi)… target=$OUTPUT_ID cores=$CORES ${SMK_DRY:+[dry-run]}"
+snakemake --rerun-incomplete -j "$CORES" $SMK_DRY \
   --snakefile "$SNAKEFILE_ABS" \
   --directory "$TEST_DIR" \
   "$OUTPUT_ID"
