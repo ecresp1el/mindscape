@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ─────────────────────────────────────────────────────────────────────────────
+# scripts/cellranger/scripts/create_project_cellranger_div90.sh
+#
+# - Sources parameterized config_div90.sh
+# - Validates required vars (no hardcoded defaults)
+# - Copies and patches multi_config.csv (create-bam, reference, probe-set)
+# - Unlocks Snakemake dir if needed
+# - Launches Snakemake for the specified OUTPUT_ID target
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Resolve this script's directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Load config (env vars can override values inside)
+CONFIG_FILE="$SCRIPT_DIR/config_div90.sh"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  echo "❌ Missing config file: $CONFIG_FILE" >&2
+  exit 1
+fi
+source "$CONFIG_FILE"
+
+# Determine repo root (prefer git; fallback to relative up-path)
+REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || realpath "$SCRIPT_DIR/../../..")"
+
+# Validate required inputs
+_fail_if_empty() { local n="$1" v="$2"; [[ -n "$v" ]] || { echo "❌ Required var $n is empty" >&2; exit 1; }; }
+
+_fail_if_empty TEST_DIR "${TEST_DIR:-}"
+_fail_if_empty TURBO_CONFIG_SOURCE "${TURBO_CONFIG_SOURCE:-}"
+_fail_if_empty PROBE_PATH "${PROBE_PATH:-}"
+
+# Resolve reference path
+if [[ -z "${REF_GENOME:-}" ]]; then
+  if [[ -n "${TURBO_REF_BASE:-}" && -n "${REF_SUBPATH:-}" ]]; then
+    REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
+  else
+    echo "❌ Provide REF_GENOME or TURBO_REF_BASE+REF_SUBPATH" >&2
+    exit 1
+  fi
+fi
+
+if [[ ! -d "$REF_GENOME" ]]; then
+  echo "❌ Reference folder not found at $REF_GENOME" >&2
+  exit 1
+fi
+
+# Snakefile absolute path
+SNAKEFILE_ABS="$REPO_ROOT/$SNAKEFILE"
+if [[ ! -f "$SNAKEFILE_ABS" ]]; then
+  echo "❌ Snakefile not found at $SNAKEFILE_ABS" >&2
+  exit 1
+fi
+
+# Prepare working directory
+mkdir -p "$TEST_DIR"
+CONFIG_DEST="$TEST_DIR/multi_config.csv"
+
+# Copy original config
+echo "📄 Copying multi-config → $CONFIG_DEST"
+cp -f "$TURBO_CONFIG_SOURCE" "$CONFIG_DEST"
+
+# Inject 'create-bam,true' after [gene-expression]
+echo "🛠  Injecting create-bam after [gene-expression]…"
+awk '
+  BEGIN { ins=0 }
+  {
+    print
+    if (!ins && $0=="[gene-expression]") {
+      getline; print "create-bam,true"; print $0
+      ins=1
+    }
+  }
+' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
+
+# Cross-platform in-place sed helper (macOS/Linux)
+_sed_inplace() {
+  local expr="$1" file="$2"
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$expr" "$file"
+  else
+    # macOS/BSD sed
+    sed -i '' "$expr" "$file" 2>/dev/null || { sed -i.bak "$expr" "$file" && rm -f "${file}.bak"; }
+  fi
+}
+
+echo "🧬 Patching reference → $REF_GENOME"
+_sed_inplace "s|^reference,.*|reference,$REF_GENOME|" "$CONFIG_DEST"
+
+echo "🧬 Patching probe-set → $PROBE_PATH"
+_sed_inplace "s|^probe-set,.*|probe-set,$PROBE_PATH|" "$CONFIG_DEST"
+
+# Load modules if available (optional)
+if command -v module >/dev/null 2>&1; then
+  echo "⏳ Loading modules…"
+  set +u
+  module purge || true
+  module load Bioinformatics cellranger || true
+  module load snakemake || true
+  set -u
+fi
+
+# Unlock if needed
+echo "🔓 Ensuring Snakemake working directory is unlocked…"
+snakemake --unlock \
+  --snakefile "$SNAKEFILE_ABS" \
+  --directory "$TEST_DIR" || true
+
+# Run Snakemake target
+start_time=$(date +%s)
+echo "🚀 Running Snakemake (Cell Ranger multi)… target=$OUTPUT_ID cores=$CORES"
+snakemake --rerun-incomplete -j "$CORES" \
+  --snakefile "$SNAKEFILE_ABS" \
+  --directory "$TEST_DIR" \
+  "$OUTPUT_ID"
+
+end_time=$(date +%s)
+elapsed=$(( end_time - start_time ))
+echo "✅ Workflow complete for '$OUTPUT_ID'."
+echo "⏱ Total runtime: $(( elapsed / 60 ))m $(( elapsed % 60 ))s"
+
