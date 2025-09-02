@@ -102,9 +102,20 @@ Troubleshooting
   - `scripts/cellranger/div90/drive_div90.sh:81`
   - `scripts/cellranger/slurm/job_cellranger_div90.sh:13`
 
-Reproduce our run
-- Submitted:
-  - `TIME=48:00:00 CPUS=32 MEM=128G ACCOUNT=parent0 PARTITION=standard JOB_NAME=div90_full scripts/cellranger/div90/drive_div90.sh slurm`
-- Job ID printed on submit; monitor with:
-  - `squeue -j <JOBID>`
-  - `tail -f $TEST_DIR/logs/div90_full_<JOBID>.out`
+Reproduce Example (elcrespo)
+- Submit (same settings we used):
+  - `TIME=48:00:00 CPUS=32 MEM=128G ACCOUNT=parent0 PARTITION=standard JOB_NAME=div90_accessible_full2 scripts/cellranger/div90/drive_div90.sh slurm`
+- The driver prints the Job ID and ready-to-tail path. Example from our run:
+  - Job: `31730391`
+  - Workdir: `/nfs/turbo/umms-parent/elcrespo/mindscape_div90/20250902_144025`
+- Monitor:
+  - `squeue -j 31730391`
+  - `tail -f /nfs/turbo/umms-parent/elcrespo/mindscape_div90/20250902_144025/logs/div90_accessible_full2_31730391.out`
+  - `tail -f /nfs/turbo/umms-parent/elcrespo/mindscape_div90/20250902_144025/logs/div90_accessible_full2_31730391.err`
+- View UI (tunnel from your laptop):
+  - Find the node:port from the log line: `grep -m1 'Serving UI at' $TEST_DIR/logs/div90_accessible_full2_31730391.out`
+  - Tunnel: `ssh -N -L 127.0.0.1:8000:<node>:<port> elcrespo@greatlakes.arc-ts.umich.edu`
+  - Open: `http://localhost:8000/?auth=<token>` (token is in the same log line)
+- Completion check:
+  - `sacct -j 31730391 -o JobID,State,ExitCode,Elapsed`
+  - `test -d /nfs/turbo/umms-parent/elcrespo/mindscape_div90/20250902_144025/div90-reanalysis/outs && echo outs ready`
