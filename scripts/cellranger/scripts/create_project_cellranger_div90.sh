@@ -15,6 +15,13 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Load config (env vars can override values inside)
+# Inputs expected (via config/env):
+#   - TEST_DIR: working directory for the run (created if missing)
+#   - TURBO_CONFIG_SOURCE: source CSV (10x multi config)
+#   - PROBE_PATH: Flex probe-set CSV path
+#   - REF_GENOME or TURBO_REF_BASE + REF_SUBPATH: reference folder
+#   - OUTPUT_ID: Cell Ranger --id / Snakemake target (default in config)
+#   - SNAKEFILE: relative or absolute path to the Snakefile to use
 CONFIG_FILE="$SCRIPT_DIR/config_div90.sh"
 if [[ ! -f "$CONFIG_FILE" ]]; then
   echo "❌ Missing config file: $CONFIG_FILE" >&2
@@ -33,6 +40,7 @@ _fail_if_empty TURBO_CONFIG_SOURCE "${TURBO_CONFIG_SOURCE:-}"
 _fail_if_empty PROBE_PATH "${PROBE_PATH:-}"
 
 # Resolve reference path
+# - Allow REF_GENOME directly, or derive from TURBO_REF_BASE/REF_SUBPATH for clarity.
 if [[ -z "${REF_GENOME:-}" ]]; then
   if [[ -n "${TURBO_REF_BASE:-}" && -n "${REF_SUBPATH:-}" ]]; then
     REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
@@ -55,6 +63,7 @@ else
 fi
 
 # Snakefile absolute path (prefer inside cellranger folder)
+# - SNAKEFILE can be relative to scripts/cellranger/ or absolute.
 SNAKEFILE_REL_OR_ABS="${SNAKEFILE:-cellranger.smk}"
 if [[ "$SNAKEFILE_REL_OR_ABS" = /* ]]; then
   SNAKEFILE_ABS="$SNAKEFILE_REL_OR_ABS"
@@ -66,7 +75,7 @@ if [[ ! -f "$SNAKEFILE_ABS" ]]; then
   exit 1
 fi
 
-# Prepare working directory
+# Prepare working directory and stage CSV into it
 mkdir -p "$TEST_DIR"
 CONFIG_DEST="$TEST_DIR/multi_config.csv"
 
@@ -75,6 +84,7 @@ echo "📄 Copying multi-config → $CONFIG_DEST"
 cp -f "$TURBO_CONFIG_SOURCE" "$CONFIG_DEST"
 
 # Inject 'create-bam,true' after [gene-expression] if not already present
+# - 10x Flex requires BAMs; this ensures the setting is present in the CSV.
 if ! grep -q '^create-bam,' "$CONFIG_DEST"; then
   echo "🛠  Injecting create-bam after [gene-expression]…"
   awk '
@@ -90,6 +100,7 @@ if ! grep -q '^create-bam,' "$CONFIG_DEST"; then
 fi
 
 # Cross-platform in-place sed helper (macOS/Linux)
+# - Uses GNU sed -i if available; falls back to BSD sed behavior on macOS.
 _sed_inplace() {
   local expr="$1" file="$2"
   if sed --version >/dev/null 2>&1; then
@@ -107,6 +118,7 @@ echo "🧬 Patching probe-set → $PROBE_PATH"
 _sed_inplace "s|^probe-set,.*|probe-set,$PROBE_PATH|" "$CONFIG_DEST"
 
 # Load modules if available (optional)
+# - On module-based HPC, try to load cellranger + snakemake for convenience.
 if command -v module >/dev/null 2>&1; then
   echo "⏳ Loading modules…"
   set +u
@@ -117,6 +129,7 @@ if command -v module >/dev/null 2>&1; then
 fi
 
 # Unlock if needed
+# - Clears any stale Snakemake locks in TEST_DIR.
 echo "🔓 Ensuring Snakemake working directory is unlocked…"
 snakemake --unlock \
   --snakefile "$SNAKEFILE_ABS" \
@@ -125,7 +138,7 @@ snakemake --unlock \
 # Run Snakemake target
 start_time=$(date +%s)
 
-# Respect DRY_RUN=1 to pass -n to Snakemake
+# Respect DRY_RUN=1 to pass -n to Snakemake (plan only)
 SMK_DRY=""
 if [[ "${DRY_RUN:-0}" == "1" ]]; then
   SMK_DRY="-n"

@@ -44,6 +44,7 @@ JOB_SCRIPT="$SUBMIT_DIR/job_cellranger_div90.sh"
 JOB_NAME=${JOB_NAME:-cellranger_multi_div90}
 
 # Prefer logs under TEST_DIR if defined, otherwise local ./logs
+# This keeps job logs alongside the run directory for easier tracking.
 if [[ -n "${TEST_DIR:-}" ]]; then
   LOG_DIR=${LOG_DIR:-"$TEST_DIR/logs"}
 else
@@ -51,6 +52,7 @@ else
 fi
 mkdir -p "$LOG_DIR"
 
+# sbatch argument list (no hardcoded #SBATCH in job body)
 ARGS=(
   "--job-name=$JOB_NAME"
   "--output=$LOG_DIR/%x_%j.out"
@@ -67,6 +69,7 @@ ARGS=(
 [[ -n "${MAIL_USER:-}" ]] && ARGS+=("--mail-user=$MAIL_USER")
 
 # Ensure environment variables propagate to the job (portable cluster default)
+# This allows config variables (e.g., TEST_DIR, PROBE_PATH) to be visible to the job body.
 ARGS+=("--export=ALL")
 
 echo "Submitting with: sbatch ${ARGS[*]} $JOB_SCRIPT"

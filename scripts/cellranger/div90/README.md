@@ -11,31 +11,31 @@ How the pieces fit
 Flow (end‑to‑end)
 1) You run `drive_div90.sh` with a mode.
 2) It sources config and exports env used downstream (including `WRAPPER_PATH`). See:
-   - `scripts/cellranger/div90/drive_div90.sh:63`
-   - `scripts/cellranger/div90/drive_div90.sh:65`
-   - `scripts/cellranger/div90/drive_div90.sh:67`
+   - `scripts/cellranger/div90/drive_div90.sh:77`
+   - `scripts/cellranger/div90/drive_div90.sh:79`
+   - `scripts/cellranger/div90/drive_div90.sh:81`
 3) Local/dry: it calls the wrapper directly. Slurm: it calls the submit script, which writes logs under `$TEST_DIR/logs`. See:
    - `scripts/cellranger/slurm/submit_cellranger_div90.sh:46`
 4) The job script resolves the wrapper reliably from Slurm spool using `WRAPPER_PATH`/`SLURM_SUBMIT_DIR`. See:
-   - `scripts/cellranger/slurm/job_cellranger_div90.sh:10`
+   - `scripts/cellranger/slurm/job_cellranger_div90.sh:13`
 5) The wrapper sources config, copies your source CSV to `$TEST_DIR/multi_config.csv`, injects `create-bam,true`, and patches `reference` and `probe-set`. See:
-   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:73`
-   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:77`
-   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:103`
-   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:106`
+   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:83`
+   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:89`
+   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:114`
+   - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:117`
 6) Snakemake runs the single rule in `cellranger.smk`, which executes `cellranger multi` to produce `$TEST_DIR/<OUTPUT_ID>`.
 
 Defaults (safe to start with)
 - Work dir: `TEST_DIR` → `/nfs/turbo/umms-parent/$USER/mindscape_div90/<timestamp>`
-  - `scripts/cellranger/scripts/config_div90.sh:20`
+  - `scripts/cellranger/scripts/config_div90.sh:29`
 - Source CSV: `TURBO_CONFIG_SOURCE` → prior DIV90 path (contains spaces; already quoted)
-  - `scripts/cellranger/scripts/config_div90.sh:25`
+  - `scripts/cellranger/scripts/config_div90.sh:34`
 - Probe set: `PROBE_PATH` → 10X Human Refs 2020‑A
-  - `scripts/cellranger/scripts/config_div90.sh:30`
+  - `scripts/cellranger/scripts/config_div90.sh:39`
 - Reference: `REF_GENOME` → 10X Human Refs 2020‑A
-  - `scripts/cellranger/scripts/config_div90.sh:35`
+  - `scripts/cellranger/scripts/config_div90.sh:44`
 - Output ID: `OUTPUT_ID=div90-reanalysis`
-  - `scripts/cellranger/scripts/config_div90.sh:46`
+  - `scripts/cellranger/scripts/config_div90.sh:55`
 
 Requirements
 - Tools on PATH or via modules (wrapper tries to load if `module` exists):
@@ -54,7 +54,7 @@ Monitor progress
 - Queue state: `squeue -j <JOBID>`
 - Logs (stdout/stderr): `$TEST_DIR/logs/<JOB_NAME>_<JOBID>.out|.err`
   - The driver prints a ready-to-tail command after submission. See:
-  - `scripts/cellranger/div90/drive_div90.sh:95`
+  - `scripts/cellranger/div90/drive_div90.sh:111`
 
 What gets created
 - `$TEST_DIR/multi_config.csv` (copied and patched)
@@ -68,7 +68,7 @@ Advanced / env overrides
 - Dry-run via Slurm (planning only):
   - `DRY_RUN=1 TIME=00:10:00 CPUS=1 MEM=8G JOB_NAME=test_div90_dry scripts/cellranger/div90/drive_div90.sh slurm`
   - Wrapper honors `DRY_RUN` to pass `-n` to Snakemake. See:
-    - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:128`
+    - `scripts/cellranger/scripts/create_project_cellranger_div90.sh:141`
 
 Troubleshooting
 - PENDING (Priority): lower `CPUS/MEM`, use a different `PARTITION`/`QOS`, or wait.
@@ -76,8 +76,8 @@ Troubleshooting
 - Reference folder not found: update `REF_GENOME` or ensure the NFS path is mounted.
 - CSV path contains spaces: keep quotes when overriding `TURBO_CONFIG_SOURCE` (defaults already quoted).
 - Wrapper not found from Slurm spool: the driver exports `WRAPPER_PATH`; job resolves it. See:
-  - `scripts/cellranger/div90/drive_div90.sh:67`
-  - `scripts/cellranger/slurm/job_cellranger_div90.sh:10`
+  - `scripts/cellranger/div90/drive_div90.sh:81`
+  - `scripts/cellranger/slurm/job_cellranger_div90.sh:13`
 
 Reproduce our run
 - Submitted:
@@ -85,4 +85,3 @@ Reproduce our run
 - Job ID printed on submit; monitor with:
   - `squeue -j <JOBID>`
   - `tail -f $TEST_DIR/logs/div90_full_<JOBID>.out`
-

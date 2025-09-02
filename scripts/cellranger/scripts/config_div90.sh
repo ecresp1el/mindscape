@@ -8,14 +8,23 @@
 #   - Required: TEST_DIR, TURBO_CONFIG_SOURCE, PROBE_PATH, and a reference
 #     (either REF_GENOME or TURBO_REF_BASE+REF_SUBPATH).
 #
+# Quick examples:
+#   Local dry-run (plan only):
+#     export TURBO_CONFIG_SOURCE="/nfs/turbo/.../config.csv"
+#     DRY_RUN=1 bash scripts/cellranger/scripts/create_project_cellranger_div90.sh
+#
+#   Slurm submission (actual run):
+#     TIME=48:00:00 CPUS=32 MEM=128G ACCOUNT=parent0 \
+#     scripts/cellranger/div90/drive_div90.sh slurm
+#
 # Notes:
 #   - Avoid hardcoding absolute paths here when possible. Prefer exporting
 #     paths per environment or mounting shared locations.
 #   - All variables here can be overridden via environment variables.
 
 # Where to run the test (required)
-# Default safely under /nfs/turbo/umms-parent to avoid clobbering others.
-# Creates a user-scoped, timestamped workdir unless overridden.
+# - Default safely under /nfs/turbo/umms-parent to avoid clobbering others.
+# - Creates a user-scoped, timestamped workdir unless overridden (RUNSTAMP controls suffix).
 RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
 TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${RUNSTAMP}}
 
@@ -46,5 +55,7 @@ SNAKEFILE=${SNAKEFILE:-cellranger.smk}
 OUTPUT_ID=${OUTPUT_ID:-div90-reanalysis}
 
 # Resources (auto-detected; can be overridden)
+# - CORES controls Snakemake parallelism for local runs.
+# - For Slurm, CPUS/MEM are set on submission; Snakemake itself still uses CORES inside the job.
 CORES=${CORES:-${SLURM_CPUS_ON_NODE:-$(command -v nproc >/dev/null 2>&1 && nproc || sysctl -n hw.ncpu 2>/dev/null || echo 1)}}
 MEMORY_GB=${MEMORY_GB:-${SLURM_MEM_PER_NODE:-}}

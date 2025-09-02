@@ -2,13 +2,27 @@
 set -euo pipefail
 
 # Simple driver for the DIV90 Cell Ranger run.
-# Modes:
-#   dry   – plan only (no execution)
-#   local – run locally
-#   slurm – submit via sbatch
 #
-# It sources the shared config and calls the existing wrapper/submit scripts
-# without moving or changing them, to avoid conflicts.
+# Purpose
+# - Provide a single, obvious entrypoint to run the DIV90 Cell Ranger workflow
+#   in three modes: dry (plan), local (execute), and slurm (submit to scheduler).
+# - Keep all logic in the existing scripts; this driver only wires them together.
+#
+# Modes
+# - dry   – plan only (no execution). Uses Snakemake -n and skips ref existence.
+# - local – run locally on the current node (requires snakemake + cellranger).
+# - slurm – submit a portable job via sbatch (no #SBATCH lines in job body).
+#
+# Data flow
+# - This script sources config_div90.sh to realize defaults, then:
+#   - dry/local: calls create_project_cellranger_div90.sh directly
+#   - slurm: calls submit_cellranger_div90.sh, which queues job_cellranger_div90.sh
+# - The job script locates the wrapper via WRAPPER_PATH/SLURM_SUBMIT_DIR fallbacks.
+#
+# Notes
+# - TEST_DIR defaults under /nfs/turbo/umms-parent/$USER/mindscape_div90/<timestamp>.
+#   Set RUNSTAMP or TEST_DIR explicitly to control output location.
+# - All env vars defined in config can be overridden before calling this driver.
 
 usage() {
   cat <<EOF

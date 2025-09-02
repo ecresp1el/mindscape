@@ -7,6 +7,9 @@ set -euo pipefail
 echo "⏳ [$(date)] Starting DIV90 Cell Ranger job (PID $$)"
 
 # Resolve wrapper path robustly in Slurm (script is spooled to /var/spool/...)
+# The job script is copied into a Slurm spool directory where relative paths
+# to the repo are unreliable. We prefer an absolute WRAPPER_PATH exported by
+# the driver, then fall back to SLURM_SUBMIT_DIR and other heuristics.
 resolve_wrapper() {
   local candidates=()
   # 1) Explicit override
@@ -34,6 +37,7 @@ resolve_wrapper() {
 WRAPPER="$(resolve_wrapper)" || { echo "❌ Wrapper not found via SLURM_SUBMIT_DIR/PWD/BASH_SOURCE fallbacks" >&2; exit 1; }
 
 # Optional: requeue on pre-timeout signal if available
+# Some clusters send SIGUSR1 near timeout. Requeue preserves position in queue.
 _requeue_on_timeout() {
   if [[ -n "${SLURM_JOB_ID:-}" ]]; then
     echo "⚠️ Caught pre-timeout signal. Requeuing job ID $SLURM_JOB_ID..."
@@ -44,6 +48,7 @@ _requeue_on_timeout() {
 trap _requeue_on_timeout SIGUSR1 || true
 
 # Execute wrapper (no dependency on submit dir)
+# The wrapper reads config, stages CSV into TEST_DIR, and runs Snakemake.
 bash "$WRAPPER"
 
 echo "✅ [$(date)] DIV90 Cell Ranger job finished"
