@@ -14,22 +14,27 @@
 #   - All variables here can be overridden via environment variables.
 
 # Where to run the test (required)
-TEST_DIR=${TEST_DIR:-}
+# Default safely under /nfs/turbo/umms-parent to avoid clobbering others.
+# Creates a user-scoped, timestamped workdir unless overridden.
+RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
+TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${RUNSTAMP}}
 
 # Source multi-config CSV for DIV90 (required)
 # Example: /nfs/.../90 Day results/fastqs_10496-MW/multi-config.csv
 TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-}
 
 # Flex probe set (required)
-# Example: /nfs/.../Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv
-PROBE_PATH=${PROBE_PATH:-}
+# Default: previously used 10X Human Refs (2020-A) path on turbo
+# You can override via env if your cluster uses a different location.
+PROBE_PATH=${PROBE_PATH:-/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Probe_set/Chromium_Human_Transcriptome_Probe_Set_v1.0.1_GRCh38-2020-A.csv}
 
 # Cell Ranger reference
 # Option A: Set REF_GENOME directly
-REF_GENOME=${REF_GENOME:-}
+# Default: previously used 10X Human Refs (2020-A) genome on turbo
+REF_GENOME=${REF_GENOME:-/nfs/turbo/umms-parent/10X_Human_Refs/2020-A/Ref_genome/refdata-gex-GRCh38-2020-A}
 # Option B: Or set these and the wrapper derives REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
-TURBO_REF_BASE=${TURBO_REF_BASE:-}
-REF_SUBPATH=${REF_SUBPATH:-}
+TURBO_REF_BASE=${TURBO_REF_BASE:-/nfs/turbo/umms-parent/10X_Human_Refs}
+REF_SUBPATH=${REF_SUBPATH:-2020-A/Ref_genome/refdata-gex-GRCh38-2020-A}
 
 # Snakemake snakefile path inside the cellranger folder
 # You can override with an absolute path, or a path relative
