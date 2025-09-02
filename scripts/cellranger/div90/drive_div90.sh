@@ -80,6 +80,13 @@ export TEST_DIR TURBO_CONFIG_SOURCE PROBE_PATH REF_GENOME TURBO_REF_BASE REF_SUB
 # Also export an absolute wrapper path so the job can find it from spool
 export WRAPPER_PATH="$WRAPPER"
 
+# Dynamic email for Slurm notifications (based on user)
+# Priority: explicit MAIL_USER if provided; otherwise $USER@${DEFAULT_EMAIL_DOMAIN}
+DEFAULT_EMAIL_DOMAIN=${DEFAULT_EMAIL_DOMAIN:-umich.edu}
+if [[ -z "${MAIL_USER:-}" && -n "${USER:-}" ]]; then
+  export MAIL_USER="${USER}@${DEFAULT_EMAIL_DOMAIN}"
+fi
+
 echo "🔧 Using configuration:"
 echo "  TEST_DIR            : ${TEST_DIR}"
 echo "  TURBO_CONFIG_SOURCE : ${TURBO_CONFIG_SOURCE}"
@@ -87,6 +94,7 @@ echo "  PROBE_PATH          : ${PROBE_PATH}"
 echo "  REF_GENOME          : ${REF_GENOME:-${TURBO_REF_BASE}/${REF_SUBPATH}}"
 echo "  OUTPUT_ID           : ${OUTPUT_ID}"
 echo "  CORES               : ${CORES}"
+echo "  MAIL_USER           : ${MAIL_USER:-<none>}"
 
 case "$MODE" in
   dry)

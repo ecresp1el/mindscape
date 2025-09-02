@@ -69,6 +69,9 @@ Run examples
   - `scripts/cellranger/div90/drive_div90.sh local`
 - Slurm run (example resources):
   - `TIME=48:00:00 CPUS=32 MEM=128G ACCOUNT=parent0 PARTITION=standard JOB_NAME=div90_full scripts/cellranger/div90/drive_div90.sh slurm`
+  - Email: the driver auto-sets `MAIL_USER` to `$USER@umich.edu` (override domain via `DEFAULT_EMAIL_DOMAIN`).
+    - Override domain: `DEFAULT_EMAIL_DOMAIN=your.edu ... drive_div90.sh slurm`
+    - Override email explicitly: `MAIL_USER=you@your.edu ... drive_div90.sh slurm`
 
 Monitor progress
 - Queue state: `squeue -j <JOBID>`
