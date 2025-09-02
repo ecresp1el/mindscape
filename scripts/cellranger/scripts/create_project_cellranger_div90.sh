@@ -22,8 +22,8 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 fi
 source "$CONFIG_FILE"
 
-# Determine repo root (prefer git; fallback to relative up-path)
-REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || realpath "$SCRIPT_DIR/../../..")"
+# Determine cellranger folder root (one up from this scripts dir)
+CELLRANGER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Validate required inputs
 _fail_if_empty() { local n="$1" v="$2"; [[ -n "$v" ]] || { echo "❌ Required var $n is empty" >&2; exit 1; }; }
@@ -47,8 +47,13 @@ if [[ ! -d "$REF_GENOME" ]]; then
   exit 1
 fi
 
-# Snakefile absolute path
-SNAKEFILE_ABS="$REPO_ROOT/$SNAKEFILE"
+# Snakefile absolute path (prefer inside cellranger folder)
+SNAKEFILE_REL_OR_ABS="${SNAKEFILE:-cellranger.smk}"
+if [[ "$SNAKEFILE_REL_OR_ABS" = /* ]]; then
+  SNAKEFILE_ABS="$SNAKEFILE_REL_OR_ABS"
+else
+  SNAKEFILE_ABS="$CELLRANGER_ROOT/$SNAKEFILE_REL_OR_ABS"
+fi
 if [[ ! -f "$SNAKEFILE_ABS" ]]; then
   echo "❌ Snakefile not found at $SNAKEFILE_ABS" >&2
   exit 1
@@ -62,18 +67,20 @@ CONFIG_DEST="$TEST_DIR/multi_config.csv"
 echo "📄 Copying multi-config → $CONFIG_DEST"
 cp -f "$TURBO_CONFIG_SOURCE" "$CONFIG_DEST"
 
-# Inject 'create-bam,true' after [gene-expression]
-echo "🛠  Injecting create-bam after [gene-expression]…"
-awk '
-  BEGIN { ins=0 }
-  {
-    print
-    if (!ins && $0=="[gene-expression]") {
-      getline; print "create-bam,true"; print $0
-      ins=1
+# Inject 'create-bam,true' after [gene-expression] if not already present
+if ! grep -q '^create-bam,' "$CONFIG_DEST"; then
+  echo "🛠  Injecting create-bam after [gene-expression]…"
+  awk '
+    BEGIN { ins=0 }
+    {
+      print
+      if (!ins && $0=="[gene-expression]") {
+        getline; print "create-bam,true"; print $0
+        ins=1
+      }
     }
-  }
-' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
+  ' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
+fi
 
 # Cross-platform in-place sed helper (macOS/Linux)
 _sed_inplace() {
@@ -120,4 +127,3 @@ end_time=$(date +%s)
 elapsed=$(( end_time - start_time ))
 echo "✅ Workflow complete for '$OUTPUT_ID'."
 echo "⏱ Total runtime: $(( elapsed / 60 ))m $(( elapsed % 60 ))s"
-

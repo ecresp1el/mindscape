@@ -6,12 +6,11 @@ set -euo pipefail
 
 echo "⏳ [$(date)] Starting DIV90 Cell Ranger job (PID $$)"
 
-# Ensure we run from the submission directory
-cd "${SLURM_SUBMIT_DIR:-$PWD}"
-
-WRAPPER="scripts/cellranger/scripts/create_project_cellranger_div90.sh"
+# Resolve wrapper path relative to this job script (self-contained)
+JOB_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+WRAPPER="$JOB_DIR/../scripts/create_project_cellranger_div90.sh"
 if [[ ! -f "$WRAPPER" ]]; then
-  echo "❌ Wrapper not found: $WRAPPER" >&2
+  echo "❌ Wrapper not found next to job script: $WRAPPER" >&2
   exit 1
 fi
 
@@ -25,8 +24,7 @@ _requeue_on_timeout() {
 }
 trap _requeue_on_timeout SIGUSR1 || true
 
-# Execute wrapper
+# Execute wrapper (no dependency on submit dir)
 bash "$WRAPPER"
 
 echo "✅ [$(date)] DIV90 Cell Ranger job finished"
-

@@ -31,8 +31,10 @@ REF_GENOME=${REF_GENOME:-}
 TURBO_REF_BASE=${TURBO_REF_BASE:-}
 REF_SUBPATH=${REF_SUBPATH:-}
 
-# Snakemake snakefile path relative to repo root
-SNAKEFILE=${SNAKEFILE:-mindscape/workflows/cellranger.smk}
+# Snakemake snakefile path inside the cellranger folder
+# You can override with an absolute path, or a path relative
+# to scripts/cellranger/ (e.g., "cellranger.smk").
+SNAKEFILE=${SNAKEFILE:-cellranger.smk}
 
 # Output ID for Cell Ranger multi target (Snakemake rule name)
 OUTPUT_ID=${OUTPUT_ID:-div90-reanalysis}
@@ -40,4 +42,3 @@ OUTPUT_ID=${OUTPUT_ID:-div90-reanalysis}
 # Resources (auto-detected; can be overridden)
 CORES=${CORES:-${SLURM_CPUS_ON_NODE:-$(command -v nproc >/dev/null 2>&1 && nproc || sysctl -n hw.ncpu 2>/dev/null || echo 1)}}
 MEMORY_GB=${MEMORY_GB:-${SLURM_MEM_PER_NODE:-}}
-

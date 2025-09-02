@@ -36,7 +36,9 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage; exit 0
 fi
 
-JOB_SCRIPT="scripts/cellranger/slurm/job_cellranger_div90.sh"
+# Resolve job script path relative to this submit script
+SUBMIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JOB_SCRIPT="$SUBMIT_DIR/job_cellranger_div90.sh"
 [[ -f "$JOB_SCRIPT" ]] || { echo "❌ Missing job script: $JOB_SCRIPT" >&2; exit 1; }
 
 JOB_NAME=${JOB_NAME:-cellranger_multi_div90}
@@ -64,6 +66,8 @@ ARGS=(
 [[ -n "${MEM:-}"       ]] && ARGS+=("--mem=$MEM")
 [[ -n "${MAIL_USER:-}" ]] && ARGS+=("--mail-user=$MAIL_USER")
 
+# Ensure environment variables propagate to the job (portable cluster default)
+ARGS+=("--export=ALL")
+
 echo "Submitting with: sbatch ${ARGS[*]} $JOB_SCRIPT"
 sbatch "${ARGS[@]}" "$JOB_SCRIPT"
-
