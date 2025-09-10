@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Ensures accurate execution of shell script
 
 # Minimal, portable Slurm job body without #SBATCH directives.
 # Submit with options via sbatch command line (see submit_cellranger_div90.sh).
@@ -34,6 +35,7 @@ resolve_wrapper() {
   return 1
 }
 
+# Check to ensure wrapper was resolved (something was outputted) and store it in a variable
 WRAPPER="$(resolve_wrapper)" || { echo "❌ Wrapper not found via SLURM_SUBMIT_DIR/PWD/BASH_SOURCE fallbacks" >&2; exit 1; }
 
 # Optional: requeue on pre-timeout signal if available

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Bash is set to exit if a command has a non-zero exit (- e stops run if script fails)
+# -u results in a stop if variables are used but not defined
+# -o stops errors from being hidden by printing the return code of the failed step
+# This line is crucial to ensure the script is properly structured and run
 
 # Simple driver for the DIV90 Cell Ranger run.
 #
@@ -24,8 +28,8 @@ set -euo pipefail
 #   Set RUNSTAMP or TEST_DIR explicitly to control output location.
 # - All env vars defined in config can be overridden before calling this driver.
 
-usage() {
-  cat <<EOF
+usage() { # Define usage
+  cat <<EOF # Assigns the following text (until EOF) to cat, which reads from standard input (printing this multi-line text), Note $0 is the name of the script
 Usage: $0 {dry|local|slurm}
 
 Env you can set (overrides config defaults):
@@ -52,28 +56,33 @@ Examples:
 EOF
 }
 
-MODE="${1:-}"
+MODE="${1:-}" #First position $1 is assigned to MODE;No $1 results in - (empty string)
 if [[ -z "$MODE" || "$MODE" == "-h" || "$MODE" == "--help" ]]; then
   usage; exit 0
 fi
+# Exits the script if MODE is empty (-z) or user asks for help (-h or -help)
 
-DRIVER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR="$( cd "$DRIVER_DIR/.." && pwd )"           # scripts/cellranger
-SCRIPTS_DIR="$ROOT_DIR/scripts"                        # scripts/cellranger/scripts
-SLURM_DIR="$ROOT_DIR/slurm"                            # scripts/cellranger/slurm
-
-CONFIG_FILE="$SCRIPTS_DIR/config_div90.sh"
-WRAPPER="$SCRIPTS_DIR/create_project_cellranger_div90.sh"
-SUBMIT="$SLURM_DIR/submit_cellranger_div90.sh"
+DRIVER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Constructs the name of the driver directory as an absolute path
+ROOT_DIR="$( cd "$DRIVER_DIR/.." && pwd )" # Holds the directory before the current working directory (where all cellranger scripts are held)   # scripts/cellranger
+SCRIPTS_DIR="$ROOT_DIR/scripts" # Stores path for cellranger scripts   # scripts/cellranger/scripts
+SLURM_DIR="$ROOT_DIR/slurm"                            # scripts/cellranger/slurm # Stores path for cellranger slurm      
+DRIVER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Constructs the name of the driver directory
+    
+CONFIG_FILE="$SCRIPTS_DIR/config_div90.sh" # Path to config file (which is in cellranger/scripts)
+WRAPPER="$SCRIPTS_DIR/create_project_cellranger_div90.sh" # Stores the path to the wrapper in cellranger/scripts
+SUBMIT="$SLURM_DIR/submit_cellranger_div90.sh" # Stores slurm submission script in cellranger/slurm
 
 [[ -f "$CONFIG_FILE" ]] || { echo "❌ Missing: $CONFIG_FILE" >&2; exit 1; }
 [[ -f "$WRAPPER" ]]     || { echo "❌ Missing: $WRAPPER" >&2; exit 1; }
 [[ -f "$SUBMIT" ]]      || { echo "❌ Missing: $SUBMIT"  >&2; exit 1; }
+# Print error statements if these variables are not found
 
 # Ensure RUNSTAMP is consistent across sourcing + wrapper
 export RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
+# Export sends variable to child processes/scripts called from the driver
 
 # Source config to realize defaults (respect env overrides)
+# Source pulls variables from the config file
 source "$CONFIG_FILE"
 # Export key vars so submit sees them (for logs and env propagation)
 export TEST_DIR TURBO_CONFIG_SOURCE PROBE_PATH REF_GENOME TURBO_REF_BASE REF_SUBPATH OUTPUT_ID CORES SNAKEFILE
@@ -95,7 +104,9 @@ echo "  REF_GENOME          : ${REF_GENOME:-${TURBO_REF_BASE}/${REF_SUBPATH}}"
 echo "  OUTPUT_ID           : ${OUTPUT_ID}"
 echo "  CORES               : ${CORES}"
 echo "  MAIL_USER           : ${MAIL_USER:-<none>}"
+# Specifications from config file
 
+# Calls the wrapper script by each calling specification 
 case "$MODE" in
   dry)
     echo "🧪 DRY-RUN: planning only"
@@ -108,11 +119,11 @@ case "$MODE" in
   slurm)
     echo "📨 SLURM SUBMIT: submitting job via sbatch"
     # submit script already propagates env via --export=ALL
-    SUBMIT_OUT=$(bash "$SUBMIT" 2>&1 || true)
+    SUBMIT_OUT=$(bash "$SUBMIT" 2>&1 || true) # Captures output and error and does not exit on error
     echo "$SUBMIT_OUT"
     JOB_ID=$(echo "$SUBMIT_OUT" | awk '/Submitted batch job/ {print $4}' | tail -n1)
     JOB_NAME_EFF=${JOB_NAME:-cellranger_multi_div90}
-    LOG_DIR_EFF=${LOG_DIR:-"$TEST_DIR/logs"}
+    LOG_DIR_EFF=${LOG_DIR:-"$TEST_DIR/logs"} # Directory of logs
     if [[ -n "$JOB_ID" ]]; then
       echo "📟 Job ID: $JOB_ID"
       echo "🧭 Monitor: squeue -j $JOB_ID"

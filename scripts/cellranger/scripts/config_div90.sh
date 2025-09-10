@@ -26,15 +26,15 @@
 # - Default safely under /nfs/turbo/umms-parent to avoid clobbering others.
 # - Creates a user-scoped, timestamped workdir unless overridden (RUNSTAMP controls suffix).
 RUNSTAMP=${RUNSTAMP:-$(date +%Y%m%d_%H%M%S)}
-TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${RUNSTAMP}}
+TEST_DIR=${TEST_DIR:-/nfs/turbo/umms-parent/${USER:-unknown}/mindscape_div90/${RUNSTAMP}} # Test directory per run ans per user
 
 # Source multi-config CSV for DIV90 (required)
 # Default: prior DIV90 config used in cellranger pipeline notes
 # Note: path contains spaces; keep quotes when overriding.
-TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-"/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"}
+TURBO_CONFIG_SOURCE=${TURBO_CONFIG_SOURCE:-"/nfs/turbo/umms-parent/Accessible_multi-config_csvs/Carmen_Miranda_scRNAseq /90 Day results/fastqs_10496-MW/multi-config.csv"} # For running cellranger
 
 # FASTQ path handling (optional)
-# - Some historical config.csv files reference FASTQs under restricted or
+# - Some historical multi_config.csv files reference FASTQs under restricted or
 #   cluster-inaccessible prefixes (e.g., /nfs/turbo/agc-data/...).
 # - Set one of the following to normalize the fastqs column in [libraries]:
 #   1) FASTQS_DIR: force the fastqs column for all rows to this directory
@@ -68,8 +68,8 @@ TURBO_REF_BASE=${TURBO_REF_BASE:-/nfs/turbo/umms-parent/10X_Human_Refs}
 REF_SUBPATH=${REF_SUBPATH:-2020-A/Ref_genome/refdata-gex-GRCh38-2020-A}
 
 # Snakemake snakefile path inside the cellranger folder
-# You can override with an absolute path, or a path relative
-# to scripts/cellranger/ (e.g., "cellranger.smk").
+# You can override with an absolute path, or a path relative 
+# to scripts/cellranger/ (e.g., "cellranger.smk"). Ensure relative paths are readable with a path base.
 SNAKEFILE=${SNAKEFILE:-cellranger.smk}
 
 # Output ID for Cell Ranger multi target (Snakemake rule name)

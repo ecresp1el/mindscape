@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Ensures accurate execution of shell script
 
 # Portable Slurm submit wrapper that avoids hardcoded #SBATCH lines.
 # Configure via env vars or flags; passes options on sbatch CLI.
@@ -32,11 +33,12 @@ Examples:
 EOF
 }
 
+# Exit upon help request
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage; exit 0
 fi
 
-# Resolve job script path relative to this submit script
+# Resolve job script path relative to this submit script and ensure its presence
 SUBMIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 JOB_SCRIPT="$SUBMIT_DIR/job_cellranger_div90.sh"
 [[ -f "$JOB_SCRIPT" ]] || { echo "❌ Missing job script: $JOB_SCRIPT" >&2; exit 1; }

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Ensures proper execution of script without errors
 
 # ─────────────────────────────────────────────────────────────────────────────
 # scripts/cellranger/scripts/create_project_cellranger_div90.sh
@@ -12,7 +13,7 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Resolve this script's directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Dynamically creates the name of the script directory 
 
 # Load config (env vars can override values inside)
 # Inputs expected (via config/env):
@@ -22,7 +23,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #   - REF_GENOME or TURBO_REF_BASE + REF_SUBPATH: reference folder
 #   - OUTPUT_ID: Cell Ranger --id / Snakemake target (default in config)
 #   - SNAKEFILE: relative or absolute path to the Snakefile to use
-CONFIG_FILE="$SCRIPT_DIR/config_div90.sh"
+CONFIG_FILE="$SCRIPT_DIR/config_div90.sh" # Creates config file path
+# Ensures config file is present and loads it in
 if [[ ! -f "$CONFIG_FILE" ]]; then
   echo "❌ Missing config file: $CONFIG_FILE" >&2
   exit 1
@@ -32,15 +34,14 @@ source "$CONFIG_FILE"
 # Determine cellranger folder root (one up from this scripts dir)
 CELLRANGER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Validate required inputs
+# Validate required inputs (ensure all inputs exist)
 _fail_if_empty() { local n="$1" v="$2"; [[ -n "$v" ]] || { echo "❌ Required var $n is empty" >&2; exit 1; }; }
-
 _fail_if_empty TEST_DIR "${TEST_DIR:-}"
 _fail_if_empty TURBO_CONFIG_SOURCE "${TURBO_CONFIG_SOURCE:-}"
 _fail_if_empty PROBE_PATH "${PROBE_PATH:-}"
 
 # Resolve reference path
-# - Allow REF_GENOME directly, or derive from TURBO_REF_BASE/REF_SUBPATH for clarity.
+# - Allow REF_GENOME directly, or derive from TURBO_REF_BASE/REF_SUBPATH for clarity, depending on whether the reference genome is initially provided.
 if [[ -z "${REF_GENOME:-}" ]]; then
   if [[ -n "${TURBO_REF_BASE:-}" && -n "${REF_SUBPATH:-}" ]]; then
     REF_GENOME="$TURBO_REF_BASE/$REF_SUBPATH"
@@ -63,7 +64,7 @@ else
 fi
 
 # Snakefile absolute path (prefer inside cellranger folder)
-# - SNAKEFILE can be relative to scripts/cellranger/ or absolute.
+# - SNAKEFILE can be relative (using /*) to scripts/cellranger/ or absolute.
 SNAKEFILE_REL_OR_ABS="${SNAKEFILE:-cellranger.smk}"
 if [[ "$SNAKEFILE_REL_OR_ABS" = /* ]]; then
   SNAKEFILE_ABS="$SNAKEFILE_REL_OR_ABS"
@@ -75,7 +76,7 @@ if [[ ! -f "$SNAKEFILE_ABS" ]]; then
   exit 1
 fi
 
-# Prepare working directory and stage CSV into it
+# Prepare working directory and stage CSV into it (can run even if directory exists)
 mkdir -p "$TEST_DIR"
 CONFIG_DEST="$TEST_DIR/multi_config.csv"
 
@@ -98,6 +99,7 @@ if ! grep -q '^create-bam,' "$CONFIG_DEST"; then
     }
   ' "$CONFIG_DEST" > "${CONFIG_DEST}.tmp" && mv "${CONFIG_DEST}.tmp" "$CONFIG_DEST"
 fi
+# Inserted into the multi_config that sets up cellranger
 
 # Cross-platform in-place sed helper (macOS/Linux)
 # - Uses GNU sed -i if available; falls back to BSD sed behavior on macOS.
@@ -127,7 +129,7 @@ if [[ "${ENFORCE_ACCESSIBLE:-1}" == "1" ]]; then
   fi
 fi
 
-# Optionally normalize FASTQ paths in [libraries]
+# Optionally normalize FASTQ paths in [libraries], if not a dry run and FASTQS_DIR does not exist
 if [[ -n "${FASTQS_DIR:-}" ]]; then
   if [[ "${DRY_RUN:-0}" != "1" && ! -d "$FASTQS_DIR" ]]; then
     echo "❌ FASTQS_DIR not found: $FASTQS_DIR" >&2; exit 1
