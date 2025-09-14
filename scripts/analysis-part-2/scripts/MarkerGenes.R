@@ -31,10 +31,28 @@ if (!file.exists(input_path)) {
   stop(paste("❌ Input file does not exist:", input_path))
 }
 merged <- LoadH5Seurat(input_path)
+
+# Check slots before setting DefaultAssay
+if (!("RNA" %in% Assays(merged))) {
+  stop("❌ No 'RNA' assay found in object.")
+}
+rna_slots <- slotNames(merged[["RNA"]])
+if (!("counts" %in% rna_slots || "data" %in% rna_slots)) {
+  stop("❌ RNA assay must have either 'counts' or 'data' slot.")
+}
+
 DefaultAssay(merged) <- "RNA"
 
 print(Assays(merged))
 print(slotNames(merged[["RNA"]]))
+
+# ------------------------------------------------------------------------------
+# ✅ Check that the RNA assay has data to work with
+# ------------------------------------------------------------------------------
+if (!("counts" %in% slotNames(merged[["RNA"]]) || "data" %in% slotNames(merged[["RNA"]]))) {
+  stop("❌ RNA assay must have either 'counts' or 'data' slot.")
+}
+
 # ------------------------------------------------------------------------------
 # Ensure clustering info is present
 # ------------------------------------------------------------------------------

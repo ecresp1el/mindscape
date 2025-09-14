@@ -85,17 +85,39 @@ cat("✅ Integration and analysis complete\n")
 # ------------------------------------------------------------------------------
 # Save integrated object
 # ------------------------------------------------------------------------------
-save_path <- file.path(output_dir, "integrated_analysis_1.h5Seurat")
+save_path <- file.path(output_dir, "integrated_analysis_1_try2.h5Seurat")
+cat(paste0("💾 Preparing object for saving: ", save_path, "\n"))
+
+# ✅ Ensure RNA assay has counts and data before saving
+if ("RNA" %in% Assays(merged)) {
+  DefaultAssay(merged) <- "RNA"
+  rna_slots <- slotNames(merged[["RNA"]])
+
+  if (!("counts" %in% rna_slots)) {
+    cat("⚠️ RNA assay missing 'counts'; filling with 'data' slot\n")
+    merged[["RNA"]]@counts <- GetAssayData(merged, slot = "data")
+  }
+
+  if (!("data" %in% rna_slots)) {
+    cat("⚠️ RNA assay missing 'data'; filling with 'counts' slot\n")
+    merged[["RNA"]]@data <- GetAssayData(merged, slot = "counts")
+  }
+}
+
 cat(paste0("💾 Saving integrated object to: ", save_path, "\n"))
 SaveH5Seurat(merged, filename = save_path, overwrite = TRUE)
 
 # ------------------------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------------------------
-write.csv(as.data.frame(Idents(merged)), file = file.path(output_dir, paste0("integrated_cluster_ids_1.csv")))
+write.csv(
+  as.data.frame(Idents(merged)),
+  file = file.path(output_dir, "integrated_cluster_ids_1_try2.csv")
+)
 cat("✅ Cluster IDs saved\n")
 
-png(file.path(output_dir, "integrated_umap_cell_cycle_reg_jeyoon_1.png"), width = 800, height = 600)
+png(file.path(output_dir, "integrated_umap_cell_cycle_reg_jeyoon_1_try2.png"),
+    width = 800, height = 600)
 DimPlot(merged, reduction = "umap", label = TRUE)
 dev.off()
 cat("✅ UMAP plot saved\n")
