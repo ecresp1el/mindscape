@@ -30,3 +30,4 @@ dependencies:
   - r-httpuv
   - r-igraph
   - r-reticulate  # Optional: allows R to call Pythons
+  - r-svglite

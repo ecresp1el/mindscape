@@ -73,7 +73,7 @@ conda activate mindscape-env
 BASE_DIR="/nfs/turbo/umms-parent/Manny_test"
 
 # Fixed folder containing your custom R script (singular githubprojectfolder)
-SCRIPT_DIR="/home/oltij/githubprojectfolder/mindscape/scripts"
+SCRIPT_DIR="/home/oltij/githubprojectfolder/mindscape/scripts/analysis-part-1/scripts"
 
 # Path to the per-sample R script that handles processing logic
 SCRIPT_PATH="$SCRIPT_DIR/mindscape_process_sample_normalized_jeyoon.R"
