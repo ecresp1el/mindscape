@@ -3,19 +3,20 @@ channels:
   - conda-forge
   - bioconda
   - defaults
+
 dependencies:
   # Python core
   - python=3.11
   - pip
   - ipython
   - jupyter 
-  - nb_conda # Optional: for managing conda environments in Jupyter
-  - notebook<7.0.0 # Optional: to ensure compatibility with Jupyter Notebook  
-  - pytables==3.8.0 # Optional: for handling large datasets
+  - nb_conda  # Optional: manage conda envs in Jupyter
+  - notebook<7.0.0  # Compatibility with Jupyter Notebook
+  - pytables==3.8.0  # For handling large datasets
+
   - pip: 
-      - mindscape
-      - inflection  # Ensures the package is installed after the environment is created
-  
+      - inflection  # Ensures the package is installed after env creation
+
   # R core
   - r-base=4.3
   - r-seurat
@@ -29,5 +30,8 @@ dependencies:
   - r-leidenbase
   - r-httpuv
   - r-igraph
-  - r-reticulate  # Optional: allows R to call Pythons
+  - r-reticulate  # Allows R to call Python
   - r-svglite
+  - r-clue  # 🔹 Added for Hungarian matching (solve_LSAP)
+  - r-pheatmap
+  - r-presto

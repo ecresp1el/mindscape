@@ -5,6 +5,7 @@
 # PURPOSE:
 # Load preprocessed + integrated RDS, run clustering + UMAP,
 # and save results + plots.
+# This is step 2 of 5 steps in a pipeline to generate a UMAP and cell-type proportions figure for a day 30 timepoint. This step focuses on clustering preprocessed data. 
 # -------------------------------------------------------------------------------
 
 script_start_time <- Sys.time()

@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+# This is step 4 of 5 steps in a pipeline to generate a UMAP and cell-type proportions figure for day 30 and day 90 timepoints. This step focuses on finding all of the desired markers from a list of marker genes.
+
 suppressPackageStartupMessages({
   library(dplyr)
 })
@@ -30,6 +32,7 @@ deg_data <- read.csv(deg_csv, stringsAsFactors = FALSE)
 # Ensure cluster is always character
 deg_data$cluster <- as.character(deg_data$cluster)
 
+# Ensure required columns
 required_cols <- c("p_val", "avg_log2FC", "pct.1", "pct.2", "p_val_adj", "gene", "cluster")
 missing_cols <- setdiff(required_cols, colnames(deg_data))
 if (length(missing_cols) > 0) {
@@ -45,6 +48,8 @@ check_rows_exist_in_original <- function(filtered_df, original_df) {
 
   # Only check overlap on required DEG columns
   common_cols <- intersect(names(original_df), names(non_na_rows))
+  
+  # Create merged object for later check
   merged <- merge(
     non_na_rows[, common_cols, drop = FALSE],
     original_df[, common_cols, drop = FALSE],
@@ -60,7 +65,7 @@ check_rows_exist_in_original <- function(filtered_df, original_df) {
 }
 
 # ------------------------------------------------------------------------------
-# Helper: Validate saved CSV
+# Helper: Validate saved CSV (using identical)
 # ------------------------------------------------------------------------------
 validate_saved_csv <- function(saved_file, df_original) {
   cat("📥 Reloading saved CSV for validation...\n")
@@ -161,7 +166,7 @@ final_df <- bind_rows(results) %>% arrange(cluster, gene)
 # ------------------------------------------------------------------------------
 # Save final CSV
 # ------------------------------------------------------------------------------
-out_file <- file.path(out_dir, "DEG_entries_selected_genes_res_0.2.csv")
+out_file <- file.path(out_dir, "DEG_entries_selected_genes_oct6.csv")
 write.csv(final_df, out_file, row.names = FALSE)
 
 # Validate saved CSV

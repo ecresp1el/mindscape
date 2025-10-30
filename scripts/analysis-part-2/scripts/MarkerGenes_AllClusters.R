@@ -7,6 +7,7 @@
 #   Load normalized Seurat objects (.rds) and run DEG analysis
 #   for all clusters vs all others. Inputs and outputs are
 #   provided via environment variables (set in SLURM).
+# This is step 3 of 5 steps in a pipeline to generate a UMAP and cell-type proportions figure for day 30 and day 90 timepoints. This step focuses on finding all of the marker genes for all clusters.
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -73,15 +74,18 @@ cat("✅ Layers joined successfully\n")
 start_time <- Sys.time()
 cat("📊 DEG analysis for all clusters started at:", format(start_time), "\n")
 
+# Check for clusters
 if (!"seurat_clusters" %in% colnames(obj@meta.data)) {
   stop("❌ 'seurat_clusters' metadata not found.")
 }
 Idents(obj) <- obj$seurat_clusters
 cat("✅ Identity set to 'seurat_clusters'\n")
 
+# Sort clusters
 clusters <- sort(unique(Idents(obj)))
 cat("🔹 Found clusters:", paste(clusters, collapse = ", "), "\n")
 
+# Find markers
 all_markers <- list()
 for (clust in clusters) {
   cat("🧪 Finding markers for cluster", clust, "vs all others...\n")

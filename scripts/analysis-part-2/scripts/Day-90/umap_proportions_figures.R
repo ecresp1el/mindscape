@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# MindScape Step 5 of 5 – UMAP and Cell-Type Proportion Figures (Day 30)
+# MindScape Step 5 of 5 – UMAP and Cell-Type Proportion Figures (Day 90)
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -35,26 +35,29 @@ seu <- readRDS(input_rds)
 cat("✅ Loaded successfully.\n")
 
 # ------------------------------------------------------------------------------
-# Cluster identities and palette (Day 30)
+# Cluster identities and palette (Day 90)
 # ------------------------------------------------------------------------------
 
 cluster_identities <- c(
-  "0" = "Radial Glia",
-  "1" = "PV Neuron Precursors",
-  "2" = "SST + cIN",
-  "3" = "MGE Subpallial Neurons",
-  "4" = "Radial Glia",
-  "5" = "Inhibitory Progenitors (Not in Carmen/Miranda's)",
-  "6" = "Inhibitory Progenitors",
-  "7" = "OPCs (Not in Carmen/Miranda's)"
+  "0" = "MGE Striatal/GP Fated",
+  "1" = "SST+, NPY +, Cortical Fated",
+  "2" = "CRABP1+/PV Precursors",
+  "3" = "PV precursors/Migrating cells/Cortical-fated",
+  "4" = "Pre-Astrocytes/Astrocytes 1",
+  "5" = "LHX8+ vMGE GABergic Striatal/GP fated 1",
+  "6" = "Stressed Cells",
+  "7" = "Stressed Cells",
+  "8" = "LHX8+ vMGE GABergic Striatal/GP fated 2",
+  "9" = "Pre-OPCs/OPCs",
+  "10" = "Pre-Astrocytes/Astrocytes 2",
+  "11" = "PV Precursors",
+  "12" = "Dividing cells"
 )
 
-cluster_order <- as.character(c(0, 4, 6, 2, 1, 3, 5, 7))
+cluster_order <- as.character(0:12)
 
-palette_colors <- setNames(
-  colorRampPalette(brewer.pal(12, "Set3"))(length(cluster_identities)),
-  names(cluster_identities)
-)
+palette_colors <- brewer.pal(12, "Paired")
+palette_colors <- c(palette_colors, "#8B0000")  # 13th distinct color
 
 # ------------------------------------------------------------------------------
 # Ensure Seurat metadata is consistent
@@ -71,7 +74,10 @@ Idents(seu) <- "seurat_clusters"
 
 cat("\n=== Adding new metadata column 'cluster_number_name' ===\n")
 
+# Convert cluster IDs to characters
 seu$cluster_id <- as.character(seu$seurat_clusters)
+
+# Safely append non-intrusive new column
 seu$cluster_number_name <- paste0(
   seu$cluster_id, " - ", cluster_identities[seu$cluster_id]
 )
@@ -120,37 +126,29 @@ cat("---------------------------------\n")
 # Save verified Seurat object
 # ------------------------------------------------------------------------------
 
-save_path <- file.path(output_dir, "clustered_day30_with_cluster_names_1.rds")
+save_path <- file.path(output_dir, "clustered_day90_with_cluster_names_2.rds")
 saveRDS(seu, save_path)
 cat("💾 Verified Seurat object saved to:\n  ", save_path, "\n")
 
 # ------------------------------------------------------------------------------
-# Detect UMAP reduction
+# UMAP verification and plotting
 # ------------------------------------------------------------------------------
 
-cat("\n=== Detecting UMAP reduction ===\n")
-
-if ("umap" %in% names(seu@reductions)) {
-  umap_reduction <- "umap"
-} else if ("umap.integrated.cca" %in% names(seu@reductions)) {
-  umap_reduction <- "umap.integrated.cca"
-} else if (all(c("umap_1", "umap_2") %in% colnames(seu[[]]))) {
-  umap_reduction <- "umap"
-} else {
-  stop("❌ No UMAP reduction found in Seurat object.")
+if (!"umap" %in% names(seu@reductions)) {
+  stop("❌ No UMAP reduction found in the Seurat object.")
 }
-cat("✅ Using UMAP reduction: ", umap_reduction, "\n")
+cat("✅ UMAP reduction verified.\n")
 
 # ------------------------------------------------------------------------------
 # Plot 1 – UMAP with clusters labeled by number, legend by cell-type name
 # ------------------------------------------------------------------------------
 
 umap_plot <- DimPlot(
-  seu, reduction = umap_reduction, group.by = "seurat_clusters",
+  seu, reduction = "umap", group.by = "seurat_clusters",
   label = TRUE, label.size = 4, repel = TRUE, order = cluster_order
 ) +
   scale_color_manual(values = palette_colors, labels = cluster_identities) +
-  ggtitle("Day 30 – UMAP by Cluster (res = 0.2)") +
+  ggtitle("Day 90 – UMAP by Cluster (res = 0.5)") +
   theme_bw(base_size = 12) +
   theme(
     legend.position = "right",
@@ -176,7 +174,7 @@ bar_plot <- ggplot(prop_df, aes(x = orig.ident, y = prop, fill = seurat_clusters
   scale_fill_manual(values = palette_colors, labels = cluster_identities) +
   theme_bw(base_size = 12) +
   labs(
-    title = "Cluster Proportions by Sample (Day 30 res 0.2)",
+    title = "Cluster Proportions by Sample (Day 90 res 0.5)",
     x = "Sample", y = "Proportion"
   ) +
   theme(
@@ -190,11 +188,11 @@ bar_plot <- ggplot(prop_df, aes(x = orig.ident, y = prop, fill = seurat_clusters
 
 combined <- umap_plot + bar_plot + plot_layout(ncol = 1, heights = c(2, 1))
 
-out_prefix <- file.path(output_dir, "day30_res_0.2_2")
+out_prefix <- file.path(output_dir, "day90_res_0.5_3")
 
 ggsave(paste0(out_prefix, "_combined.png"), combined, width = 9, height = 11, dpi = 300)
 ggsave(paste0(out_prefix, "_combined.svg"), combined, width = 9, height = 11)
 ggsave(paste0(out_prefix, "_combined.pdf"), combined, width = 9, height = 11)
 
 cat("✅ All figures saved successfully.\n")
-cat("🎉 UMAP + Proportion visualization for Day 30 complete.\n")
+cat("🎉 UMAP + Proportion visualization for Day 90 complete.\n")

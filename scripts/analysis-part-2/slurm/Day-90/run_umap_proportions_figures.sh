@@ -35,7 +35,7 @@ fi
 # ------------------------------------------------------------------------------
 # Set input/output paths
 # ------------------------------------------------------------------------------
-export DEG_INPUT="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output_integrated_analysis_cell_cycle_reg_jeyoon/integrated_analysis_tryRDS.rds"
+export DEG_INPUT="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output_clustered/clustered_jeyoon.rds"
 export MINDSCAPE_OUTPUT_DIR="/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/umap_props_output"
 
 mkdir -p "$MINDSCAPE_OUTPUT_DIR"
@@ -43,7 +43,7 @@ mkdir -p "$MINDSCAPE_OUTPUT_DIR"
 # ------------------------------------------------------------------------------
 # Run the plotting script
 # ------------------------------------------------------------------------------
-SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/analysis-part-2/scripts/umap_proportions_figures.R"
+SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/analysis-part-2/scripts/Day-90/umap_proportions_figures.R"
 
 echo "🔁 Running plotting script"
 echo "📄 Script: $SCRIPT_PATH"

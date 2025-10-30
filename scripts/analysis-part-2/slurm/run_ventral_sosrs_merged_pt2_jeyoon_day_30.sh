@@ -45,6 +45,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Set variables
 BASE_DIR="/nfs/turbo/umms-parent/Manny_test"
 OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
 SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/analysis-part-2/scripts/mindscape_integrate_samples_cell_cycle_reg_jeyoon_day_30.R"

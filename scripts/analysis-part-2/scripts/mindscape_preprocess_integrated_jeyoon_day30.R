@@ -6,6 +6,8 @@
 # Load normalized Seurat objects (.rds), merge, regress out cell cycle,
 # scale, find variable features, run PCA, integrate (CCA),
 # then save checkpoint RDS with verification.
+
+# This is step 1 of 5 steps in a pipeline to generate a UMAP and cell-type proportions figure for a day 30 timepoint. This step focuses on preprocessing and integrating data. 
 # -------------------------------------------------------------------------------
 
 script_start_time <- Sys.time()
@@ -36,8 +38,10 @@ rds_files <- list.files(input_base, pattern = "\\.rds$", full.names = TRUE, recu
 pattern <- paste0("9853-MW-(", paste(1:6, collapse = "|"), ")\\.rds$")
 rds_files <- grep(pattern, rds_files, value = TRUE)
 
+# Check for RDS file
 if (length(rds_files) == 0) stop("❌ No matching RDS files found.")
 
+# Check seurat object exists
 seurat_list <- lapply(rds_files, function(f) {
   obj <- readRDS(f)
   if (!inherits(obj, "Seurat")) stop(paste("❌ Not a Seurat object:", f))
