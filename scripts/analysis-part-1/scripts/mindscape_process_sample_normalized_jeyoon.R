@@ -1,5 +1,6 @@
+#!/usr/bin/env Rscript
+
 # mindscape_process_sample_normalized.R
-#
 # -------------------------------------------------------------------------------
 # PURPOSE:
 # This script is part of the MindScape pipeline and is specifically designed for
@@ -15,11 +16,7 @@
 # defined in MINDSCAPE_OUTPUT_DIR.
 #
 # OUTPUTS (per sample):
-# - Normalized Seurat object (.h5Seurat) for downstream integration
-#
-# NOTE:
-# This script converts Seurat v5 objects to legacy Assay format for compatibility
-# with SeuratDisk::LoadH5Seurat and downstream merging.
+# - Normalized Seurat object (.rds, native Seurat v5 format)
 # -------------------------------------------------------------------------------
 
 script_start_time <- Sys.time()
@@ -28,8 +25,9 @@ cat("✅ Starting Seurat normalization for a single sample\n")
 # ------------------------------------------------------------------------------
 # Load required libraries
 # ------------------------------------------------------------------------------
-library(Seurat)
-library(SeuratDisk)
+suppressPackageStartupMessages({
+  library(Seurat)
+})
 cat("✅ Required libraries loaded successfully\n")
 
 # ------------------------------------------------------------------------------
@@ -61,20 +59,60 @@ cat(paste0("📥 Reading 10X matrix from: ", feature_matrix_path, "\n"))
 counts <- Read10X(data.dir = feature_matrix_path)
 
 # ------------------------------------------------------------------------------
-# Minimal Seurat pipeline for normalization and inidvidual variable features
+# Minimal Seurat pipeline for normalization and variable features
 # ------------------------------------------------------------------------------
 seurat_obj <- CreateSeuratObject(counts = counts, project = sample_id)
 seurat_obj[["percent.mt"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 
-# Optional QC filtering (adjust thresholds if needed)
-seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 500 & nFeature_RNA < 5000 & nCount_RNA < 15000 & percent.mt < 5)
-cat(paste0("✅ QC filtering complete: ", ncol(seurat_obj), " cells retained\n"))
+# ------------------------------------------------------------------------------
+# QC filtering with strict validation
+# ------------------------------------------------------------------------------
+qc_min_features <- 500
+qc_max_features <- 5000
+qc_max_counts   <- 15000
+qc_max_mt       <- 5
 
+n_before <- ncol(seurat_obj)
+
+seurat_obj <- subset(
+  seurat_obj,
+  subset = nFeature_RNA > qc_min_features &
+           nFeature_RNA < qc_max_features &
+           nCount_RNA   < qc_max_counts &
+           percent.mt   < qc_max_mt
+)
+
+n_after <- ncol(seurat_obj)
+
+if (n_after == 0) {
+  stop("❌ QC filtering removed all cells — check thresholds!")
+}
+if (n_after == n_before) {
+  warning("⚠️ QC filtering did not remove any cells — thresholds may be too lenient.")
+}
+
+violations <- which(
+  seurat_obj$nFeature_RNA <= qc_min_features |
+  seurat_obj$nFeature_RNA >= qc_max_features |
+  seurat_obj$nCount_RNA   >= qc_max_counts |
+  seurat_obj$percent.mt   >= qc_max_mt
+)
+
+if (length(violations) > 0) {
+  stop("❌ QC validation failed — some cells outside thresholds remain.")
+}
+
+cat(paste0("✅ QC filtering complete: ", n_after, " of ", n_before, " cells retained\n"))
+
+# ------------------------------------------------------------------------------
 # Normalization
+# ------------------------------------------------------------------------------
 seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000)
 cat("✅ Normalization complete\n")
 
-#Cell Cycle Scoring
+# ------------------------------------------------------------------------------
+# Cell Cycle Scoring
+# ------------------------------------------------------------------------------
 cat("🧬 Cell Cycle Scoring...\n")
 s.genes <- cc.genes$s.genes
 g2m.genes <- cc.genes$g2m.genes
@@ -82,25 +120,26 @@ seurat_obj <- CellCycleScoring(seurat_obj, s.features = s.genes, g2m.features = 
 seurat_obj$CC.Difference <- seurat_obj$S.Score - seurat_obj$G2M.Score
 
 # ------------------------------------------------------------------------------
-# Convert to legacy Seurat v4 Assay and save for SeuratDisk compatibility
+# Save to native .rds (Seurat v5 format)
 # ------------------------------------------------------------------------------
-DefaultAssay(seurat_obj) <- "RNA"
-assay_data <- GetAssayData(seurat_obj, layer = "data")
-seurat_obj[["RNA"]] <- as(seurat_obj[["RNA"]], "Assay")
-seurat_obj <- SetAssayData(seurat_obj, slot = "data", new.data = assay_data)
-cat("✅ Seurat data layer set — RNA@data confirmed for saving\n")
-print(Layers(seurat_obj[["RNA"]]))
+save_path <- file.path(output_dir, paste0(sample_id, ".rds"))
+cat("💾 Saving Seurat object to:", save_path, "\n")
+saveRDS(seurat_obj, file = save_path)
 
 # ------------------------------------------------------------------------------
-# Save to .h5Seurat with explicit layers
+# Strict verification helper: reload and compare
 # ------------------------------------------------------------------------------
-SaveH5Seurat(
-  seurat_obj,
-  filename = file.path(output_dir, paste0(sample_id, ".h5Seurat")),
-  overwrite = TRUE,
-  assays = "RNA",
-  layers = c("counts", "data")
-)
+verify_rds_integrity <- function(original_obj, saved_path) {
+  reloaded <- readRDS(saved_path)
+  identical_check <- identical(original_obj, reloaded)
+  if (!identical_check) {
+    stop("❌ Verification failed: saved and reloaded objects are NOT identical.")
+  }
+  cat("✅ Verification passed: saved and reloaded objects are strictly identical\n")
+  invisible(TRUE)
+}
+
+verify_rds_integrity(seurat_obj, save_path)
 
 # ------------------------------------------------------------------------------
 # Runtime reporting

@@ -9,7 +9,7 @@
 #SBATCH --output=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/integration_%j.out
 #SBATCH --error=/nfs/turbo/umms-parent/Manny_test/ventral_sosrs_output/logs/integration_%j.err
 #SBATCH --time=12:00:00
-#SBATCH --mem=64G
+#SBATCH --mem=128G
 #SBATCH --cpus-per-task=16
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=oltij@umich.edu
@@ -44,9 +44,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Set variables
 BASE_DIR="/nfs/turbo/umms-parent/Manny_test"
 OUTPUT_DIR="$BASE_DIR/ventral_sosrs_output"
-SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/mindscape_integrate_samples_cell_cycle_reg_jeyoon.R"
+SCRIPT_PATH="/home/oltij/githubprojectfolder/mindscape/scripts/analysis-part-2/scripts/Day-90/mindscape_integrate_samples_cell_cycle_reg_jeyoon.R"
 
 echo "🔁 Running integration script"
 echo "📄 Script: $SCRIPT_PATH"
